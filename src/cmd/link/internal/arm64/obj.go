@@ -61,6 +61,7 @@ func Init() (*sys.Arch, ld.Arch) {
 
 		ELF: ld.ELFArch{
 			Androiddynld:   "/system/bin/linker64",
+			Redoxdynld:     "/usr/lib/ld64.so.1",
 			Linuxdynld:     "/lib/ld-linux-aarch64.so.1",
 			LinuxdynldMusl: "/lib/ld-musl-aarch64.so.1",
 

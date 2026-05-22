@@ -109,6 +109,9 @@ func MustLinkExternal(goos, goarch string, withCgo bool) bool {
 	}
 
 	switch goos {
+	case "redox":
+		// relibc handles thread local storage
+		return true
 	case "android":
 		if goarch != "arm64" {
 			return true
@@ -140,7 +143,7 @@ func BuildModeSupported(compiler, buildmode, goos, goarch string) bool {
 
 	case "c-archive":
 		switch goos {
-		case "aix", "darwin", "ios", "windows":
+		case "aix", "darwin", "ios", "redox", "windows":
 			return true
 		case "linux":
 			switch goarch {
@@ -168,6 +171,7 @@ func BuildModeSupported(compiler, buildmode, goos, goarch string) bool {
 			"android/amd64", "android/arm", "android/arm64", "android/386",
 			"freebsd/amd64",
 			"darwin/amd64", "darwin/arm64",
+			"redox/amd64", "redox/arm64",
 			"windows/amd64", "windows/386", "windows/arm64",
 			"wasip1/wasm":
 			return true
@@ -189,6 +193,7 @@ func BuildModeSupported(compiler, buildmode, goos, goarch string) bool {
 			"ios/amd64", "ios/arm64",
 			"aix/ppc64",
 			"openbsd/arm64",
+			"redox/386", "redox/amd64", "redox/arm64", "redox/riscv64",
 			"windows/386", "windows/amd64", "windows/arm64":
 			return true
 		}

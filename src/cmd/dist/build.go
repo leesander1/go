@@ -95,6 +95,7 @@ var okgoos = []string{
 	"wasip1",
 	"linux",
 	"android",
+	"redox",
 	"solaris",
 	"freebsd",
 	"nacl", // keep;
@@ -643,6 +644,9 @@ func mustLinkExternal(goos, goarch string, cgoEnabled bool) bool {
 	}
 
 	switch goos {
+	case "redox":
+		// relibc handles thread local storage
+		return true
 	case "android":
 		if goarch != "arm64" {
 			return true
@@ -1074,6 +1078,7 @@ var unixOS = map[string]bool{
 	"linux":     true,
 	"netbsd":    true,
 	"openbsd":   true,
+	"redox":     true,
 	"solaris":   true,
 }
 
@@ -1793,6 +1798,10 @@ var cgoEnabled = map[string]bool{
 	"android/amd64":   true,
 	"android/arm":     true,
 	"android/arm64":   true,
+	"redox/386":       true,
+	"redox/amd64":     true,
+	"redox/arm64":     true,
+	"redox/riscv64":   true,
 	"ios/arm64":       true,
 	"ios/amd64":       true,
 	"js/wasm":         false,

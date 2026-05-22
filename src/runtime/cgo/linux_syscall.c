@@ -26,6 +26,7 @@
 typedef struct {
 	uintptr_t* args;
 	uintptr_t retval;
+	int error;
 } argset_t;
 
 // libc backed posix-compliant syscalls.

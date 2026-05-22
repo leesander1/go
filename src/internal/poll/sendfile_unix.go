@@ -28,7 +28,7 @@ import (
 // has not modified the source or destination,
 // and the caller should perform the copy using a fallback implementation.
 func SendFile(dstFD *FD, src uintptr, size int64) (n int64, err error, handled bool) {
-	if goos := runtime.GOOS; goos == "linux" || goos == "android" {
+	if goos := runtime.GOOS; goos == "linux" || goos == "android" || goos == "redox" {
 		// Linux's sendfile doesn't require any setup:
 		// It sends from the current position of the source file and
 		// updates the position of the source after sending.

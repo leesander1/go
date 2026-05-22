@@ -64,6 +64,7 @@ func Init() (*sys.Arch, ld.Arch) {
 		ELF: ld.ELFArch{
 			Linuxdynld:     "/lib64/ld-linux-x86-64.so.2",
 			LinuxdynldMusl: "/lib/ld-musl-x86_64.so.1",
+			Redoxdynld:     "/usr/lib/ld64.so.1",
 			Freebsddynld:   "/libexec/ld-elf.so.1",
 			Openbsddynld:   "/usr/libexec/ld.so",
 			Netbsddynld:    "/libexec/ld.elf_so",
@@ -107,6 +108,7 @@ func archinit(ctxt *ld.Link) {
 		objabi.Hnetbsd,    /* netbsd */
 		objabi.Hopenbsd,   /* openbsd */
 		objabi.Hdragonfly, /* dragonfly */
+		objabi.Hredox,     /* redox */
 		objabi.Hsolaris:   /* solaris */
 		ld.Elfinit(ctxt)
 

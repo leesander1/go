@@ -59,6 +59,7 @@ func Init() (*sys.Arch, ld.Arch) {
 		PEreloc1:         pereloc1,
 
 		ELF: ld.ELFArch{
+			Redoxdynld:     "/usr/lib/ld.so.1",
 			Linuxdynld:     "/lib/ld-linux.so.2",
 			LinuxdynldMusl: "/lib/ld-musl-i386.so.1",
 			Freebsddynld:   "/usr/libexec/ld-elf.so.1",

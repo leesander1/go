@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-//go:build aix || darwin || freebsd || linux || netbsd || openbsd || solaris || zos
+//go:build aix || darwin || freebsd || linux || netbsd || openbsd || redox || solaris
 
 package unix
 
@@ -20,7 +20,7 @@ func cmsgAlignOf(salen int) int {
 	case "aix":
 		// There is no alignment on AIX.
 		salign = 1
-	case "darwin", "ios", "illumos", "solaris":
+	case "darwin", "ios", "illumos", "redox", "solaris":
 		// NOTE: It seems like 64-bit Darwin, Illumos and Solaris
 		// kernels still require 32-bit aligned access to network
 		// subsystem.

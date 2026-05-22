@@ -178,7 +178,10 @@ func Main(arch *sys.Arch, theArch Arch) {
 		}
 	}
 
-	if buildcfg.GOROOT == "" {
+	if buildcfg.GOOS == "redox" {
+		// redox is unable to read env, so hard code it
+		addstrdata1(ctxt, "runtime.defaultGOROOT=/usr/lib/golang")
+	} else if buildcfg.GOROOT == "" {
 		// cmd/go clears the GOROOT variable when -trimpath is set,
 		// so omit it from the binary even if cmd/link itself has an
 		// embedded GOROOT value reported by runtime.GOROOT.

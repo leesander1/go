@@ -386,6 +386,42 @@ plan9_386)
 	mksysnum="./mksysnum_plan9.sh /n/sources/plan9/sys/src/libc/9syscall/sys.h"
 	mktypes="XXX"
 	;;
+redox_386)
+	unistd_h=$(ls -1 /mnt/redox/prefix/x86_64-unknown-redox/sysroot/x86_64-unknown-redox/include/unistd.h 2>/dev/null | head -1)
+	if [ "$unistd_h" = "" ]; then
+		echo >&2 cannot find unistd.h
+		exit 1
+	fi
+	mksysnum="./mksysnum_redox.pl $unistd_h"
+	mktypes="GOARCH=$GOARCH go tool cgo -godefs"
+	;;
+redox_amd64)
+	unistd_h=$(ls -1 /mnt/redox/prefix/x86_64-unknown-redox/sysroot/x86_64-unknown-redox/include/unistd.h 2>/dev/null | head -1)
+	if [ "$unistd_h" = "" ]; then
+		echo >&2 cannot find unistd_64.h
+		exit 1
+	fi
+	mksysnum="./mksysnum_redox.pl $unistd_h"
+	mktypes="GOARCH=$GOARCH go tool cgo -godefs"
+	;;
+redox_aarch64)
+	unistd_h=$(ls -1 /mnt/redox/prefix/x86_64-unknown-redox/sysroot/x86_64-unknown-redox/include/unistd.h 2>/dev/null | head -1)
+	if [ "$unistd_h" = "" ]; then
+		echo >&2 cannot find unistd_64.h
+		exit 1
+	fi
+	mksysnum="./mksysnum_redox.pl $unistd_h"
+	mktypes="GOARCH=$GOARCH go tool cgo -godefs"
+	;;
+redox_riscv64)
+	unistd_h=$(ls -1 /mnt/redox/prefix/x86_64-unknown-redox/sysroot/x86_64-unknown-redox/include/unistd.h 2>/dev/null | head -1)
+	if [ "$unistd_h" = "" ]; then
+		echo >&2 cannot find unistd_64.h
+		exit 1
+	fi
+	mksysnum="./mksysnum_redox.pl $unistd_h"
+	mktypes="GOARCH=$GOARCH go tool cgo -godefs"
+	;;
 solaris_amd64)
 	mksyscall="./mksyscall_libc.pl -solaris"
 	mkerrors="$mkerrors -m64"

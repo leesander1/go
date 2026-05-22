@@ -161,6 +161,11 @@ func (t *Target) IsAIX() bool {
 	return t.HeadType == objabi.Haix
 }
 
+func (t *Target) IsRedox() bool {
+	t.mustSetHeadType()
+	return t.HeadType == objabi.Hredox
+}
+
 func (t *Target) IsSolaris() bool {
 	t.mustSetHeadType()
 	return t.HeadType == objabi.Hsolaris

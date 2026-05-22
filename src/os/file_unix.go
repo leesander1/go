@@ -91,10 +91,11 @@ func newFileFromNewFile(fd uintptr, name string) *File {
 		return nil
 	}
 
-	flags, err := unix.Fcntl(fdi, syscall.F_GETFL, 0)
-	if err != nil {
-		flags = 0
-	}
+	// page fault in redox
+	// flags, err := unix.Fcntl(fdi, syscall.F_GETFL, 0)
+	// if err != nil {
+	flags := 0
+	// }
 	f := newFile(fdi, name, kindNewFile, unix.HasNonblockFlag(flags))
 	f.appendMode = flags&syscall.O_APPEND != 0
 	return f
@@ -164,6 +165,9 @@ func newFile(fd int, name string, kind newFileKind, nonBlocking bool) *File {
 	// perform this check and allow it to be added to the kqueue.
 	if kind == kindOpenFile {
 		switch runtime.GOOS {
+		case "redox":
+			// broken until tested
+			pollable = false
 		case "darwin", "ios", "dragonfly", "freebsd", "netbsd", "openbsd":
 			var st syscall.Stat_t
 			err := ignoringEINTR(func() error {

@@ -2000,7 +2000,7 @@ func testBuildmodePIE(t *testing.T, useCgo, setBuildmodeToPIE bool) {
 	tg.run(args...)
 
 	switch runtime.GOOS {
-	case "linux", "android", "freebsd":
+	case "linux", "android", "redox", "freebsd":
 		f, err := elf.Open(obj)
 		if err != nil {
 			t.Fatal(err)

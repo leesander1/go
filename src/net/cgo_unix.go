@@ -7,7 +7,7 @@
 // Instead of C.foo it uses _C_foo, which is defined in either
 // cgo_unix_cgo.go or cgo_unix_syscall.go
 
-//go:build !netgo && ((cgo && unix) || darwin)
+//go:build !netgo && ((cgo && unix) || darwin) && !redox
 
 package net
 

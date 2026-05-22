@@ -250,7 +250,7 @@ func buildModeInit() {
 			codegenArg = "-fPIC"
 		} else {
 			switch cfg.Goos {
-			case "linux", "android", "freebsd":
+			case "linux", "android", "redox", "freebsd":
 				codegenArg = "-shared"
 			case "windows":
 				// Do not add usual .exe suffix to the .dll file.

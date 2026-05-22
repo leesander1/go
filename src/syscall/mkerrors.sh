@@ -211,6 +211,19 @@ includes_OpenBSD='
 #define WALTSIG			0x4
 '
 
+includes_Redox='
+#include <limits.h>
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <sys/mman.h>
+#include <sys/wait.h>
+#include <sys/ioctl.h>
+#include <net/if.h>
+#include <netinet/in.h>
+#include <termios.h>
+#include <netinet/ip.h>
+'
+
 includes_SunOS='
 #include <limits.h>
 #include <sys/types.h>
@@ -245,6 +258,8 @@ includes='
 #include <signal.h>
 #include <sys/resource.h>
 '
+
+# TODO: redox lacks netinet/ip6.h sys/signal.h
 
 ccflags="$@"
 

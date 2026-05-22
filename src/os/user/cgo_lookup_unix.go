@@ -194,7 +194,7 @@ func isSizeReasonable(sz int64) bool {
 // Because we can't use cgo in tests:
 func structPasswdForNegativeTest() _C_struct_passwd {
 	sp := _C_struct_passwd{}
-	*_C_pw_uidp(&sp) = 1<<32 - 2
-	*_C_pw_gidp(&sp) = 1<<32 - 3
+	*_C_pw_uidp(&sp) = 1<<31 - 2
+	*_C_pw_gidp(&sp) = 1<<31 - 3
 	return sp
 }

@@ -100,6 +100,7 @@ type cgoCallers [32]uintptr
 type argset struct {
 	args   unsafe.Pointer
 	retval uintptr
+	errno int32
 }
 
 // wrapper for syscall package to call cgocall for libc (cgo) calls.
@@ -112,6 +113,62 @@ func syscall_cgocaller(fn unsafe.Pointer, args ...uintptr) uintptr {
 	cgocall(fn, unsafe.Pointer(&as))
 	return as.retval
 }
+
+//go:linkname syscall_cgocaller2 syscall.cgocaller2
+//go:uintptrescapes
+func syscall_cgocaller2(fn unsafe.Pointer, args ...uintptr) (r0 uintptr, err int32) {
+	as := argset{args: unsafe.Pointer(&args[0])}
+	cgocall(fn, unsafe.Pointer(&as))
+	r0 = as.retval
+	err = as.errno
+	return
+}
+
+//go:nosplit
+func cgocaller0(fn unsafe.Pointer) (r0 uintptr, err int32) {
+	as := argset{}
+	asmcgocall(fn, unsafe.Pointer(&as))
+	r0 = as.retval
+	err = as.errno
+	return
+}
+
+//go:nosplit
+func cgocaller1(fn unsafe.Pointer, a uintptr) (r0 uintptr, err int32) {
+	as := argset{args: unsafe.Pointer(&a)}
+	asmcgocall(fn, unsafe.Pointer(&as))
+	r0 = as.retval
+	err = as.errno
+	return
+}
+
+//go:nosplit
+func cgocaller2(fn unsafe.Pointer, a, b uintptr) (r0 uintptr, err int32) {
+	as := argset{args: unsafe.Pointer(&a)}
+	asmcgocall(fn, unsafe.Pointer(&as))
+	r0 = as.retval
+	err = as.errno
+	return
+}
+
+//go:nosplit
+func cgocaller3(fn unsafe.Pointer, a, b, c uintptr) (r0 uintptr, err int32) {
+	as := argset{args: unsafe.Pointer(&a)}
+	asmcgocall(fn, unsafe.Pointer(&as))
+	r0 = as.retval
+	err = as.errno
+	return
+}
+
+//go:nosplit
+func cgocaller4(fn unsafe.Pointer, a, b, c, d uintptr) (r0 uintptr, err int32) {
+	as := argset{args: unsafe.Pointer(&a)}
+	asmcgocall(fn, unsafe.Pointer(&as))
+	r0 = as.retval
+	err = as.errno
+	return
+}
+
 
 var ncgocall uint64 // number of cgo calls in total for dead m
 

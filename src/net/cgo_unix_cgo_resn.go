@@ -4,7 +4,7 @@
 
 // res_nsearch, for cgo systems where that's available.
 
-//go:build cgo && !netgo && unix && !(darwin || linux || openbsd)
+//go:build cgo && !netgo && unix && !(darwin || linux || openbsd || redox)
 
 package net
 
@@ -18,7 +18,7 @@ package net
 #include <arpa/nameser.h>
 #include <resolv.h>
 
-#cgo !aix,!dragonfly,!freebsd LDFLAGS: -lresolv
+#cgo !aix,!dragonfly,!freebsd,!redox LDFLAGS: -lresolv
 */
 import "C"
 

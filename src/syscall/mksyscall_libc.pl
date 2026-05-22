@@ -25,6 +25,7 @@ my $_32bit = "";
 my $tags = "";  # build tags
 my $newtags = ""; # new style build tags
 my $aix = 0;
+my $redox = 0;
 my $solaris = 0;
 
 binmode STDOUT;
@@ -38,6 +39,10 @@ if($ARGV[0] eq "-b32") {
 }
 if($ARGV[0] eq "-aix") {
 	$aix = 1;
+	shift;
+}
+if($ARGV[0] eq "-redox") {
+	$redox = 1;
 	shift;
 }
 if($ARGV[0] eq "-solaris") {
@@ -121,6 +126,13 @@ while(<>) {
 			$errors = 1;
 			next;
 		}
+
+	}
+	if($redox) {
+		if($modname eq "") {
+			$modname = "libc";
+		}
+		$modname .= ".so";
 
 	}
 	if($solaris) {

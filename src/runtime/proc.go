@@ -211,7 +211,8 @@ func main() {
 	}()
 
 	gcenable()
-	defaultGOMAXPROCSUpdateEnable() // don't STW before runtime initialized.
+	// broken in redox
+	// defaultGOMAXPROCSUpdateEnable() // don't STW before runtime initialized.
 
 	main_init_done = make(chan bool)
 	if iscgo {
@@ -238,6 +239,7 @@ func main() {
 		if set_crosscall2 == nil {
 			throw("set_crosscall2 missing")
 		}
+
 		set_crosscall2()
 
 		// Start the template thread in case we enter Go from
@@ -794,7 +796,7 @@ func getGodebugEarly() (string, bool) {
 	const prefix = "GODEBUG="
 	var env string
 	switch GOOS {
-	case "aix", "darwin", "ios", "dragonfly", "freebsd", "netbsd", "openbsd", "illumos", "solaris", "linux":
+	case "aix", "darwin", "ios", "dragonfly", "freebsd", "netbsd", "openbsd", "illumos", "solaris", "linux": // , "redox"
 		// Similar to goenv_unix but extracts the environment value for
 		// GODEBUG directly.
 		// TODO(moehrmann): remove when general goenvs() can be called before cpuinit()
@@ -1030,7 +1032,7 @@ func mcommoninit(mp *m, id int64) {
 	unlock(&sched.lock)
 
 	// Allocate memory to hold a cgo traceback if the cgo call crashes.
-	if iscgo || GOOS == "solaris" || GOOS == "illumos" || GOOS == "windows" {
+	if iscgo || GOOS == "redox" || GOOS == "solaris" || GOOS == "illumos" || GOOS == "windows" {
 		mp.cgoCallers = new(cgoCallers)
 	}
 	mProfStackInit(mp)
@@ -1830,7 +1832,7 @@ func startTheWorldWithSema(now int64, w worldStop) int64 {
 // via libcall.
 func usesLibcall() bool {
 	switch GOOS {
-	case "aix", "darwin", "illumos", "ios", "openbsd", "solaris", "windows":
+	case "aix", "darwin", "illumos", "ios", "openbsd", "redox", "solaris", "windows":
 		return true
 	}
 	return false
@@ -2508,6 +2510,7 @@ func oneNewExtraM() {
 	// The sched.pc will never be returned to, but setting it to
 	// goexit makes clear to the traceback routines where
 	// the goroutine stack ends.
+
 	mp := allocm(nil, nil, -1)
 	gp := malg(4096)
 	gp.sched.pc = abi.FuncPCABI0(goexit) + sys.PCQuantum
@@ -2534,6 +2537,7 @@ func oneNewExtraM() {
 	if raceenabled {
 		gp.racectx = racegostart(abi.FuncPCABIInternal(newextram) + sys.PCQuantum)
 	}
+
 	// put on allg for garbage collector
 	allgadd(gp)
 
@@ -2911,6 +2915,7 @@ func newm1(mp *m) {
 		}
 		ts.g.set(mp.g0)
 		ts.tls = (*uint64)(unsafe.Pointer(&mp.tls[0]))
+
 		ts.fn = unsafe.Pointer(abi.FuncPCABI0(mstart))
 		if msanenabled {
 			msanwrite(unsafe.Pointer(&ts), unsafe.Sizeof(ts))
@@ -2918,6 +2923,7 @@ func newm1(mp *m) {
 		if asanenabled {
 			asanwrite(unsafe.Pointer(&ts), unsafe.Sizeof(ts))
 		}
+
 		execLock.rlock() // Prevent process clone.
 		asmcgocall(_cgo_thread_start, unsafe.Pointer(&ts))
 		execLock.runlock()
@@ -2933,7 +2939,7 @@ func newm1(mp *m) {
 //
 // The calling thread must itself be in a known-good state.
 func startTemplateThread() {
-	if GOARCH == "wasm" { // no threads on wasm yet
+	if GOARCH == "wasm" || GOOS == "redox" { // no threads on wasm yet
 		return
 	}
 
@@ -6478,7 +6484,7 @@ var forcegcperiod int64 = 2 * 60 * 1e9
 // haveSysmon indicates whether there is sysmon thread support.
 //
 // No threads on wasm yet, so no sysmon.
-const haveSysmon = GOARCH != "wasm"
+const haveSysmon = GOARCH != "wasm" && GOOS != "redox"
 
 // Always runs without a P, so write barriers are not allowed.
 //
@@ -8085,18 +8091,25 @@ func doInit1(t *initTask) {
 			before tracestat
 		)
 
-		if inittrace.active {
-			start = nanotime()
-			// Load stats non-atomically since tracinit is updated only by this init goroutine.
-			before = inittrace
-		}
-
 		if t.nfns == 0 {
 			// We should have pruned all of these in the linker.
 			throw("inittask with no functions")
 		}
 
 		firstFunc := add(unsafe.Pointer(t), 8)
+
+		if inittrace.active {
+			start = nanotime()
+			// Load stats non-atomically since tracinit is updated only by this init goroutine.
+			before = inittrace
+
+			f := *(*func())(unsafe.Pointer(&firstFunc))
+			pkg := funcpkgpath(findfunc(abi.FuncPCABIInternal(f)))
+
+			print("init ", pkg, " @")
+			print("\n")
+		}
+
 		for i := uint32(0); i < t.nfns; i++ {
 			p := add(firstFunc, uintptr(i)*goarch.PtrSize)
 			f := *(*func())(unsafe.Pointer(&p))
@@ -8108,11 +8121,7 @@ func doInit1(t *initTask) {
 			// Load stats non-atomically since tracinit is updated only by this init goroutine.
 			after := inittrace
 
-			f := *(*func())(unsafe.Pointer(&firstFunc))
-			pkg := funcpkgpath(findfunc(abi.FuncPCABIInternal(f)))
-
 			var sbuf [24]byte
-			print("init ", pkg, " @")
 			print(string(fmtNSAsMS(sbuf[:], uint64(start-runtimeInitTime))), " ms, ")
 			print(string(fmtNSAsMS(sbuf[:], uint64(end-start))), " ms clock, ")
 			print(string(itoa(sbuf[:], after.bytes-before.bytes)), " bytes, ")

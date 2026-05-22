@@ -34,7 +34,6 @@ import (
 	"cmd/go/internal/modload"
 	"cmd/go/internal/run"
 	"cmd/go/internal/telemetrycmd"
-	"cmd/go/internal/telemetrystats"
 	"cmd/go/internal/test"
 	"cmd/go/internal/tool"
 	"cmd/go/internal/toolchain"
@@ -98,7 +97,7 @@ var counterErrorsGOPATHEntryRelative = counter.New("go/errors:gopath-entry-relat
 func main() {
 	log.SetFlags(0)
 	telemetry.MaybeChild() // Run in child mode if this is the telemetry sidecar child process.
-	cmdIsGoTelemetryOff := cmdIsGoTelemetryOff()
+	cmdIsGoTelemetryOff := true
 	if !cmdIsGoTelemetryOff {
 		counter.Open() // Open the telemetry counter file so counters can be written to it.
 	}
@@ -215,7 +214,7 @@ func main() {
 	if cfg.CmdName != "tool" {
 		counter.Inc("go/subcommand:" + strings.ReplaceAll(cfg.CmdName, " ", "-"))
 	}
-	telemetrystats.Increment()
+	//telemetrystats.Increment()
 	invoke(cmd, args[used-1:])
 	base.Exit()
 }
@@ -381,6 +380,9 @@ func maybeStartTrace(pctx context.Context) context.Context {
 //  2. A toolchain switch later on reinvokes the new go command with the same arguments.
 //     The parent toolchain has already done the chdir; the child must not try to do it again.
 func handleChdirFlag() {
+	if len(os.Args) == 0 {
+		return
+	}
 	_, used := lookupCmd(os.Args[1:])
 	used++ // because of [1:]
 	if used >= len(os.Args) {

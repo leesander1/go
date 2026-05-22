@@ -17,7 +17,7 @@ import (
 func addMaxRSS(w io.Writer) {
 	var rssToBytes uintptr
 	switch runtime.GOOS {
-	case "aix", "android", "dragonfly", "freebsd", "linux", "netbsd", "openbsd":
+	case "aix", "android", "redox", "dragonfly", "freebsd", "linux", "netbsd", "openbsd":
 		rssToBytes = 1024
 	case "darwin", "ios":
 		rssToBytes = 1

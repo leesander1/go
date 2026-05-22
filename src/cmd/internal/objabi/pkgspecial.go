@@ -56,6 +56,7 @@ var runtimePkgs = []string{
 	"internal/runtime/maps",
 	"internal/runtime/math",
 	"internal/runtime/sys",
+	"internal/runtime/syscall/redox",
 	"internal/runtime/syscall/linux",
 	"internal/runtime/syscall/windows",
 
@@ -97,6 +98,7 @@ var allowAsmABIPkgs = []string{
 	"internal/bytealg",
 	"internal/chacha8rand",
 	"internal/runtime/syscall/linux",
+	"internal/runtime/syscall/redox",
 	"internal/runtime/syscall/windows",
 	"internal/runtime/startlinetest",
 }

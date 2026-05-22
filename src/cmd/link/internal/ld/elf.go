@@ -144,6 +144,7 @@ var (
 type ELFArch struct {
 	// TODO: Document these fields.
 
+	Redoxdynld     string
 	Androiddynld   string
 	Linuxdynld     string
 	LinuxdynldMusl string
@@ -1861,6 +1862,9 @@ func asmbElf(ctxt *Link) {
 			case objabi.Hdragonfly:
 				interpreter = thearch.ELF.Dragonflydynld
 
+			case objabi.Hredox:
+				interpreter = thearch.ELF.Redoxdynld
+
 			case objabi.Hsolaris:
 				interpreter = thearch.ELF.Solarisdynld
 			}
@@ -2088,7 +2092,7 @@ func asmbElf(ctxt *Link) {
 		}
 	}
 
-	if ctxt.HeadType == objabi.Hlinux || ctxt.HeadType == objabi.Hfreebsd {
+	if ctxt.HeadType == objabi.Hlinux || ctxt.HeadType == objabi.Hfreebsd || ctxt.HeadType == objabi.Hredox {
 		ph := newElfPhdr()
 		ph.Type = elf.PT_GNU_STACK
 		ph.Flags = elf.PF_W + elf.PF_R

@@ -1803,7 +1803,7 @@ var opindex [(ALAST + 1) & obj.AMask]*Optab
 // around a Solaris-specific bug that should be fixed differently, but we don't know
 // what that bug is. And this does fix it.
 func useAbs(ctxt *obj.Link, s *obj.LSym) bool {
-	if ctxt.Headtype == objabi.Hsolaris {
+	if ctxt.Headtype == objabi.Hredox || ctxt.Headtype == objabi.Hsolaris {
 		// All the Solaris dynamic imports from libc.so begin with "libc_".
 		return strings.HasPrefix(s.Name, "libc_")
 	}
@@ -2556,6 +2556,7 @@ func prefixof(ctxt *obj.Link, a *obj.Addr) int {
 				objabi.Hfreebsd,
 				objabi.Hnetbsd,
 				objabi.Hopenbsd,
+				objabi.Hredox,
 				objabi.Hsolaris:
 				return 0x64 // FS
 
@@ -5174,7 +5175,7 @@ func (ab *AsmBuf) doasm(ctxt *obj.Link, cursym *obj.LSym, p *obj.Prog) {
 						ab.Put1(0x8B)
 						ab.asmand(ctxt, cursym, p, &pp.From, &p.To)
 
-					case objabi.Hsolaris: // TODO(rsc): Delete Hsolaris from list. Should not use this code. See progedit in obj6.c.
+					case objabi.Hredox, objabi.Hsolaris: // TODO(rsc): Delete Hsolaris from list. Should not use this code. See progedit in obj6.c.
 						// TLS base is 0(FS).
 						pp.From = p.From
 

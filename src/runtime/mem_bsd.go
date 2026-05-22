@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-//go:build dragonfly || freebsd || netbsd || openbsd || solaris
+//go:build dragonfly || freebsd || netbsd || openbsd || redox || solaris
 
 package runtime
 
@@ -23,6 +23,10 @@ func sysAllocOS(n uintptr, _ string) unsafe.Pointer {
 }
 
 func sysUnusedOS(v unsafe.Pointer, n uintptr) {
+	if GOOS == "redox" {
+		// not implemented
+		return
+	}
 	if debug.madvdontneed != 0 {
 		madvise(v, n, _MADV_DONTNEED)
 	} else {

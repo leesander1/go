@@ -38,6 +38,7 @@ func Init() (*sys.Arch, ld.Arch) {
 		Machoreloc1: machoreloc1,
 
 		ELF: ld.ELFArch{
+			Redoxdynld: "/usr/lib/ld64.so.1",
 			Linuxdynld: "/lib/ld.so.1",
 
 			Freebsddynld:   "/usr/libexec/ld-elf.so.1",
