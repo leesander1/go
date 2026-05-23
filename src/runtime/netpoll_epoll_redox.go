@@ -10,11 +10,12 @@ import (
 )
 
 var (
-	epfd              int32         = -1 // epoll descriptor
-	netpollEventFd    uintptr            // eventfd for netpollBreak
-	netpollWakeWriter uintptr            // the WRITE end of the pipe
-	netpollWakeSig    atomic.Uint32      // used to avoid duplicate calls of netpollBreak
+	epfd           int32         = -1 // epoll descriptor
+	netpollEventFd uintptr            // timer fd for netpollBreak
+	netpollWakeSig atomic.Uint32      // used to avoid duplicate calls of netpollBreak
 )
+
+var netpollWakeTimerPath = []byte("/scheme/time/4\x00")
 
 //go:cgo_import_static _cgo_libc_epoll_create1
 //go:cgo_import_static _cgo_libc_epoll_ctl
@@ -40,6 +41,7 @@ const (
 	AT_FDCWD = -0x64
 
 	ENOENT = 0x2
+	ENOSYS = 0x26
 
 	EPOLLIN       = 0x1
 	EPOLLOUT      = 0x4
@@ -87,21 +89,25 @@ func netpollinit() {
 		println("runtime: epollcreate failed with", errno)
 		throw("runtime: netpollinit failed")
 	}
-	r, w, errno := nonblockingPipe()
-	if errno != 0 {
-		println("runtime: pipe failed with", errno)
-		throw("runtime: netpollinit failed")
+	timerfd := open(&netpollWakeTimerPath[0], _O_RDONLY|_O_WRONLY|_O_CLOEXEC, 0)
+	if timerfd < 0 {
+		println("runtime: netpoll timer open failed")
+		syscall_close(epfd)
+		epfd = -1
+		return
 	}
 	ev := EpollEvent{
 		Events: EPOLLIN,
 	}
-	netpollEventFd = uintptr(r)
-	netpollWakeWriter = uintptr(w)
+	netpollEventFd = uintptr(timerfd)
 	*(**uintptr)(unsafe.Pointer(&ev.Data)) = &netpollEventFd
-	errno = epoll_ctl(epfd, EPOLL_CTL_ADD, r, &ev)
+	errno = epoll_ctl(epfd, EPOLL_CTL_ADD, timerfd, &ev)
 	if errno != 0 {
 		println("runtime: epollctl failed with", errno)
-		// throw("runtime: epollctl failed")
+		syscall_close(timerfd)
+		syscall_close(epfd)
+		netpollEventFd = 0
+		epfd = -1
 	}
 }
 
@@ -110,6 +116,9 @@ func netpollIsPollDescriptor(fd uintptr) bool {
 }
 
 func netpollopen(fd uintptr, pd *pollDesc) int32 {
+	if epfd == -1 {
+		return ENOSYS
+	}
 	var ev EpollEvent
 	ev.Events = EPOLLIN | EPOLLOUT | EPOLLRDHUP | EPOLLET
 	tp := taggedPointerPack(unsafe.Pointer(pd), pd.fdseq.Load())
@@ -118,6 +127,9 @@ func netpollopen(fd uintptr, pd *pollDesc) int32 {
 }
 
 func netpollclose(fd uintptr) int32 {
+	if epfd == -1 {
+		return 0
+	}
 	var ev EpollEvent
 	return epoll_ctl(epfd, EPOLL_CTL_DEL, int32(fd), &ev)
 }
@@ -128,16 +140,21 @@ func netpollarm(pd *pollDesc, mode int) {
 
 // netpollBreak interrupts an epollwait.
 func netpollBreak() {
+	if epfd == -1 || netpollEventFd == 0 {
+		return
+	}
+
 	// Failing to cas indicates there is an in-flight wakeup, so we're done here.
 	if !netpollWakeSig.CompareAndSwap(0, 1) {
 		return
 	}
 
-	var one uint64 = 1
-	oneSize := int32(unsafe.Sizeof(one))
+	var ts timespec
+	sysvicall2(&libc_clock_gettime, CLOCK_MONOTONIC, uintptr(unsafe.Pointer(&ts)))
+	tsSize := int32(unsafe.Sizeof(ts))
 	for {
-		n := write(netpollWakeWriter, noescape(unsafe.Pointer(&one)), oneSize)
-		if n == oneSize {
+		n := write(netpollEventFd, noescape(unsafe.Pointer(&ts)), tsSize)
+		if n == tsSize {
 			break
 		}
 		if n == -_EINTR {
@@ -205,16 +222,7 @@ retry:
 				println("runtime: netpoll: eventfd ready for", ev.Events)
 				throw("runtime: netpoll: eventfd ready for something unexpected")
 			}
-			if delay != 0 {
-				// netpollBreak could be picked up by a
-				// nonblocking poll. Only read the 8-byte
-				// integer if blocking.
-				// Since EFD_SEMAPHORE was not specified,
-				// the eventfd counter will be reset to 0.
-				var one uint64
-				read(int32(netpollEventFd), noescape(unsafe.Pointer(&one)), int32(unsafe.Sizeof(one)))
-				netpollWakeSig.Store(0)
-			}
+			netpollWakeSig.Store(0)
 			continue
 		}
 

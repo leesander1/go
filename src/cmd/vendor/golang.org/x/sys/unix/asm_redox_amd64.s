@@ -11,7 +11,7 @@
 //
 
 TEXT ·sysvicall6(SB),NOSPLIT,$0-88
-	JMP	syscall·sysvicall6(SB)
+	JMP	syscall·syscgocall6ABI0(SB)
 
 TEXT ·rawSysvicall6(SB),NOSPLIT,$0-88
-	JMP	syscall·rawSysvicall6(SB)
+	JMP	syscall·rawsyscgocall6ABI0(SB)

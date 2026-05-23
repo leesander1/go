@@ -40,6 +40,9 @@ type SysProcAttr struct {
 func runtime_BeforeFork()
 func runtime_AfterFork()
 func runtime_AfterForkInChild()
+func runtime_BeforeForkRedox()
+func runtime_AfterForkRedox()
+func runtime_AfterForkInChildRedox()
 
 func chdir(path uintptr) (err Errno)
 func chroot1(path uintptr) (err Errno)
@@ -58,6 +61,7 @@ func setsid() (pid uintptr, err Errno)
 func setuid(uid uintptr) (err Errno)
 func setpgid(pid uintptr, pgid uintptr) (err Errno)
 func write1(fd uintptr, buf uintptr, nbyte uintptr) (n uintptr, err Errno)
+func execveStack(path uintptr, argv uintptr, envp uintptr, stack uintptr) (err Errno)
 
 // syscall defines this global on our behalf to avoid a build dependency on other platforms
 func init() {
@@ -65,6 +69,16 @@ func init() {
 }
 
 func execveLibcWrapper(path *byte, argv **byte, envp **byte) error {
+	if runtime.GOOS == "redox" {
+		execStackTop := redoxExecStackAcquire()
+		err := execveStack(
+			uintptr(unsafe.Pointer(path)),
+			uintptr(unsafe.Pointer(argv)),
+			uintptr(unsafe.Pointer(envp)),
+			execStackTop)
+		redoxExecStackRelease()
+		return err
+	}
 	return execve(uintptr(unsafe.Pointer(path)),
 		uintptr(unsafe.Pointer(argv)),
 		uintptr(unsafe.Pointer(envp)))
@@ -95,6 +109,7 @@ func forkAndExecInChild(argv0 *byte, argv, envv []*byte, chroot, dir *byte, attr
 		pgrp            _Pid_t
 		cred            *Credential
 		ngroups, groups uintptr
+		execStackTop    uintptr
 	)
 
 	rlim := origRlimitNofile.Load()
@@ -111,19 +126,40 @@ func forkAndExecInChild(argv0 *byte, argv, envv []*byte, chroot, dir *byte, attr
 		fd[i] = int(ufd)
 	}
 	nextfd++
+	if runtime.GOOS == "redox" {
+		execStackTop = redoxExecStackAcquire()
+	}
 
 	// About to call fork.
 	// No more allocation or calls of non-assembly functions.
-	runtime_BeforeFork()
+	if runtime.GOOS == "redox" {
+		runtime_BeforeForkRedox()
+	} else {
+		runtime_BeforeFork()
+	}
 	r1, err1 = forkx(0x1) // FORK_NOSIGCHLD
 	if err1 != 0 {
-		runtime_AfterFork()
+		if runtime.GOOS == "redox" {
+			runtime_AfterForkRedox()
+		} else {
+			runtime_AfterFork()
+		}
+		if runtime.GOOS == "redox" {
+			redoxExecStackRelease()
+		}
 		return 0, err1
 	}
 
 	if r1 != 0 {
 		// parent; return PID
-		runtime_AfterFork()
+		if runtime.GOOS == "redox" {
+			runtime_AfterForkRedox()
+		} else {
+			runtime_AfterFork()
+		}
+		if runtime.GOOS == "redox" {
+			redoxExecStackRelease()
+		}
 		return int(r1), 0
 	}
 
@@ -166,7 +202,11 @@ func forkAndExecInChild(argv0 *byte, argv, envv []*byte, chroot, dir *byte, attr
 
 	// Restore the signal mask. We do this after TIOCSPGRP to avoid
 	// having the kernel send a SIGTTOU signal to the process group.
-	runtime_AfterForkInChild()
+	if runtime.GOOS == "redox" {
+		runtime_AfterForkInChildRedox()
+	} else {
+		runtime_AfterForkInChild()
+	}
 
 	// Chroot
 	if chroot != nil {
@@ -344,10 +384,18 @@ func forkAndExecInChild(argv0 *byte, argv, envv []*byte, chroot, dir *byte, attr
 	}
 
 	// Time to exec.
-	err1 = execve(
-		uintptr(unsafe.Pointer(argv0)),
-		uintptr(unsafe.Pointer(&argv[0])),
-		uintptr(unsafe.Pointer(&envv[0])))
+	if runtime.GOOS == "redox" {
+		err1 = execveStack(
+			uintptr(unsafe.Pointer(argv0)),
+			uintptr(unsafe.Pointer(&argv[0])),
+			uintptr(unsafe.Pointer(&envv[0])),
+			execStackTop)
+	} else {
+		err1 = execve(
+			uintptr(unsafe.Pointer(argv0)),
+			uintptr(unsafe.Pointer(&argv[0])),
+			uintptr(unsafe.Pointer(&envv[0])))
+	}
 
 childerror:
 	// send error code on pipe

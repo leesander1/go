@@ -5198,6 +5198,9 @@ func syscall_runtime_BeforeFork() {
 //go:linkname syscall_runtime_AfterFork syscall.runtime_AfterFork
 //go:nosplit
 func syscall_runtime_AfterFork() {
+	if GOOS == "redox" {
+		setg(getg())
+	}
 	gp := getg().m.curg
 
 	// See the comments in beforefork.
@@ -5205,6 +5208,25 @@ func syscall_runtime_AfterFork() {
 
 	msigrestore(gp.m.sigmask)
 
+	gp.m.locks--
+}
+
+//go:linkname syscall_runtime_BeforeForkRedox syscall.runtime_BeforeForkRedox
+//go:nosplit
+func syscall_runtime_BeforeForkRedox() {
+	gp := getg().m.curg
+
+	gp.m.locks++
+	gp.stackguard0 = stackFork
+}
+
+//go:linkname syscall_runtime_AfterForkRedox syscall.runtime_AfterForkRedox
+//go:nosplit
+func syscall_runtime_AfterForkRedox() {
+	setg(getg())
+	gp := getg().m.curg
+
+	gp.stackguard0 = gp.stack.lo + stackGuard
 	gp.m.locks--
 }
 
@@ -5232,6 +5254,9 @@ var inForkedChild bool
 //go:nosplit
 //go:nowritebarrierrec
 func syscall_runtime_AfterForkInChild() {
+	if GOOS == "redox" {
+		setg(getg())
+	}
 	// It's OK to change the global variable inForkedChild here
 	// because we are going to change it back. There is no race here,
 	// because if we are sharing address space with the parent process,
@@ -5249,6 +5274,13 @@ func syscall_runtime_AfterForkInChild() {
 	msigrestore(getg().m.sigmask)
 
 	inForkedChild = false
+}
+
+//go:linkname syscall_runtime_AfterForkInChildRedox syscall.runtime_AfterForkInChildRedox
+//go:nosplit
+//go:nowritebarrierrec
+func syscall_runtime_AfterForkInChildRedox() {
+	setg(getg())
 }
 
 // pendingPreemptSignals is the number of preemption signals

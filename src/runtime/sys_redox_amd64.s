@@ -11,6 +11,7 @@
 #include "textflag.h"
 
 #define SYS_futex 240
+#define LIBC_CALL_STACK_SIZE 262144
 
 // This is needed by asm_amd64.s
 TEXT runtime·settls(SB),NOSPLIT,$8
@@ -43,10 +44,13 @@ TEXT runtime·miniterrno(SB),NOSPLIT,$0
 // NOT USING GO CALLING CONVENTION.
 TEXT runtime·asmsysvicall6(SB),NOSPLIT,$0
 	// asmcgocall will put first argument into DI.
+	PUSHQ	R12
+	PUSHQ	R13
 	PUSHQ	DI			// save for later
-	MOVQ	libcall_fn(DI), AX
+	MOVQ	libcall_fn(DI), R10
 	MOVQ	libcall_args(DI), R11
-	MOVQ	libcall_n(DI), R10
+	MOVQ	$0, R12
+	MOVQ	$0, R13
 
 	get_tls(CX)
 	MOVQ	g(CX), BX
@@ -59,6 +63,21 @@ TEXT runtime·asmsysvicall6(SB),NOSPLIT,$0
 	MOVL	$0, 0(DX)
 
 skiperrno1:
+	CMPQ	BX, $0
+	JEQ	skiplibcstack
+	CMPL	(m_mOS+mOS_libcCallStackInUse)(BX), $0
+	JNE	skiplibcstack
+	MOVQ	(m_mOS+mOS_libcCallStack)(BX), AX
+	CMPQ	AX, $0
+	JEQ	skiplibcstack
+	MOVL	$1, DX
+	MOVL	DX, (m_mOS+mOS_libcCallStackInUse)(BX)
+	MOVQ	SP, R12
+	MOVQ	BX, R13
+	LEAQ	LIBC_CALL_STACK_SIZE(AX), SP
+	ANDQ	$~15, SP
+
+skiplibcstack:
 	CMPQ	R11, $0
 	JEQ	skipargs
 	// Load 6 args into correspondent registers.
@@ -71,12 +90,24 @@ skiperrno1:
 skipargs:
 
 	// Call SysV function
-	CALL	AX
+	XORL	AX, AX			// no vector arguments for variadic callees
+	CALL	R10
+	CMPQ	R12, $0
+	JEQ	skiprestorestack
+	MOVQ	R12, SP
+
+skiprestorestack:
 
 	// Return result
 	POPQ	DI
 	MOVQ	AX, libcall_r1(DI)
 	MOVQ	DX, libcall_r2(DI)
+	CMPQ	R13, $0
+	JEQ	skipclearstack
+	XORL	AX, AX
+	MOVL	AX, (m_mOS+mOS_libcCallStackInUse)(R13)
+
+skipclearstack:
 
 	get_tls(CX)
 	MOVQ	g(CX), BX
@@ -90,6 +121,8 @@ skipargs:
 	MOVQ	AX, libcall_err(DI)
 
 skiperrno2:
+	POPQ	R13
+	POPQ	R12
 	RET
 
 // int32 futex(uint32 *addr, int32 op, uint32 val,
@@ -104,6 +137,37 @@ TEXT runtime·futex(SB),NOSPLIT,$0
 	MOVL	$SYS_futex, AX
 	SYSCALL
 	MOVL	AX, ret+40(FP)
+	RET
+
+// Call relibc execve on a caller-provided stack.
+//
+// Redox implements execve in userspace, and relibc's Rust-side exec path
+// needs more stack than Go's post-fork child can reliably provide.
+TEXT runtime·syscall_execve_stack(SB),NOSPLIT,$0-40
+	MOVQ	path+0(FP), R8
+	MOVQ	argv+8(FP), R9
+	MOVQ	envp+16(FP), R10
+	MOVQ	stack+24(FP), R11
+
+	MOVQ	SP, R12
+	MOVQ	R11, SP
+	ANDQ	$~15, SP
+	SUBQ	$64, SP
+
+	MOVQ	R8, 0(SP)
+	MOVQ	R9, 8(SP)
+	MOVQ	R10, 16(SP)
+	LEAQ	0(SP), AX
+	MOVQ	AX, 24(SP)
+	MOVQ	$0, 32(SP)
+	MOVL	$0, 40(SP)
+
+	LEAQ	24(SP), DI
+	CALL	_cgo_libc_execve(SB)
+
+	MOVL	40(SP), AX
+	MOVQ	R12, SP
+	MOVQ	AX, err+32(FP)
 	RET
 
 // uint32 tstart_sysvicall(M *newm);

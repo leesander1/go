@@ -20,7 +20,13 @@ type mOS struct {
 	libcall libcall
 	ts      timespec
 	scratch mscratch
+
+	// relibc's Rust-backed libc entry points can use more stack than g0.
+	libcCallStack      uintptr
+	libcCallStackInUse uint32
 }
+
+const libcCallStackSize = 256 << 10
 
 type libcFunc uintptr
 
@@ -392,6 +398,10 @@ func goenvs() {
 func mpreinit(mp *m) {
 	mp.gsignal = malg(32 * 1024)
 	mp.gsignal.m = mp
+	mp.libcCallStack = uintptr(persistentalloc(libcCallStackSize, 16, &memstats.other_sys))
+	if mp.libcCallStack == 0 {
+		throw("libc call stack")
+	}
 }
 
 func miniterrno()

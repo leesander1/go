@@ -7,180 +7,180 @@ package unix
 
 import "unsafe"
 
-//go:cgo_import_dynamic libc_pipe2 pipe2 "libc.so"
-//go:cgo_import_dynamic libc_Getcwd getcwd "libc.so"
-//go:cgo_import_dynamic libc_getgroups getgroups "libc.so"
-//go:cgo_import_dynamic libc_setgroups setgroups "libc.so"
-//go:cgo_import_dynamic libc_fcntl fcntl "libc.so"
-//go:cgo_import_dynamic libc_accept accept "libc.so"
-//go:cgo_import_dynamic libc_sendmsg sendmsg "libc.so"
-//go:cgo_import_dynamic libc_Access access "libc.so"
-//go:cgo_import_dynamic libc_Adjtime adjtime "libc.so"
-//go:cgo_import_dynamic libc_Chdir chdir "libc.so"
-//go:cgo_import_dynamic libc_Chmod chmod "libc.so"
-//go:cgo_import_dynamic libc_Chown chown "libc.so"
-//go:cgo_import_dynamic libc_Chroot chroot "libc.so"
-//go:cgo_import_dynamic libc_Close close "libc.so"
-//go:cgo_import_dynamic libc_Dup dup "libc.so"
-//go:cgo_import_dynamic libc_Fchdir fchdir "libc.so"
-//go:cgo_import_dynamic libc_Fchmod fchmod "libc.so"
-//go:cgo_import_dynamic libc_Fchown fchown "libc.so"
-//go:cgo_import_dynamic libc_Fpathconf fpathconf "libc.so"
-//go:cgo_import_dynamic libc_Fstat fstat "libc.so"
-//go:cgo_import_dynamic libc_Getgid getgid "libc.so"
-//go:cgo_import_dynamic libc_Getpid getpid "libc.so"
-//go:cgo_import_dynamic libc_Geteuid geteuid "libc.so"
-//go:cgo_import_dynamic libc_Getegid getegid "libc.so"
-//go:cgo_import_dynamic libc_Getppid getppid "libc.so"
-//go:cgo_import_dynamic libc_Getpriority getpriority "libc.so"
-//go:cgo_import_dynamic libc_Getrlimit getrlimit "libc.so"
-//go:cgo_import_dynamic libc_Getrusage getrusage "libc.so"
-//go:cgo_import_dynamic libc_Gettimeofday gettimeofday "libc.so"
-//go:cgo_import_dynamic libc_Getuid getuid "libc.so"
-//go:cgo_import_dynamic libc_Kill kill "libc.so"
-//go:cgo_import_dynamic libc_Lchown lchown "libc.so"
-//go:cgo_import_dynamic libc_Link link "libc.so"
-//go:cgo_import_dynamic libc_listen listen "libc.so"
-//go:cgo_import_dynamic libc_Lstat lstat "libc.so"
-//go:cgo_import_dynamic libc_Mkdir mkdir "libc.so"
-//go:cgo_import_dynamic libc_Mknod mknod "libc.so"
-//go:cgo_import_dynamic libc_Nanosleep nanosleep "libc.so"
-//go:cgo_import_dynamic libc_Open open "libc.so"
-//go:cgo_import_dynamic libc_Pathconf pathconf "libc.so"
-//go:cgo_import_dynamic libc_pread pread "libc.so"
-//go:cgo_import_dynamic libc_pwrite pwrite "libc.so"
-//go:cgo_import_dynamic libc_read read "libc.so"
-//go:cgo_import_dynamic libc_Readlink readlink "libc.so"
-//go:cgo_import_dynamic libc_Rename rename "libc.so"
-//go:cgo_import_dynamic libc_Rmdir rmdir "libc.so"
-//go:cgo_import_dynamic libc_lseek lseek "libc.so"
-//go:cgo_import_dynamic libc_sendfile sendfile "libsendfile.so"
-//go:cgo_import_dynamic libc_Setegid setegid "libc.so"
-//go:cgo_import_dynamic libc_Seteuid seteuid "libc.so"
-//go:cgo_import_dynamic libc_Setgid setgid "libc.so"
-//go:cgo_import_dynamic libc_Setpgid setpgid "libc.so"
-//go:cgo_import_dynamic libc_Setpriority setpriority "libc.so"
-//go:cgo_import_dynamic libc_Setregid setregid "libc.so"
-//go:cgo_import_dynamic libc_Setreuid setreuid "libc.so"
-//go:cgo_import_dynamic libc_setrlimit setrlimit "libc.so"
-//go:cgo_import_dynamic libc_Setsid setsid "libc.so"
-//go:cgo_import_dynamic libc_Setuid setuid "libc.so"
-//go:cgo_import_dynamic libc_shutdown shutdown "libc.so"
-//go:cgo_import_dynamic libc_Stat stat "libc.so"
-//go:cgo_import_dynamic libc_Symlink symlink "libc.so"
-//go:cgo_import_dynamic libc_Sync sync "libc.so"
-//go:cgo_import_dynamic libc_Truncate truncate "libc.so"
-//go:cgo_import_dynamic libc_PosixGetdents posix_getdents "libc.so"
-//go:cgo_import_dynamic libc_Fsync fsync "libc.so"
-//go:cgo_import_dynamic libc_Ftruncate ftruncate "libc.so"
-//go:cgo_import_dynamic libc_Umask umask "libc.so"
-//go:cgo_import_dynamic libc_Unlink unlink "libc.so"
-//go:cgo_import_dynamic libc_utimes utimes "libc.so"
-//go:cgo_import_dynamic libc_bind bind "libc.so"
-//go:cgo_import_dynamic libc_connect connect "libc.so"
-//go:cgo_import_dynamic libc_mmap mmap "libc.so"
-//go:cgo_import_dynamic libc_munmap munmap "libc.so"
-//go:cgo_import_dynamic libc_sendto sendto "libc.so"
-//go:cgo_import_dynamic libc_socket socket "libc.so"
-//go:cgo_import_dynamic libc_socketpair socketpair "libc.so"
-//go:cgo_import_dynamic libc_uname uname "libc.so"
-//go:cgo_import_dynamic libc_write write "libc.so"
-//go:cgo_import_dynamic libc_writev writev "libc.so"
-//go:cgo_import_dynamic libc_getsockopt getsockopt "libc.so"
-//go:cgo_import_dynamic libc_getpeername getpeername "libc.so"
-//go:cgo_import_dynamic libc_getsockname getsockname "libc.so"
-//go:cgo_import_dynamic libc_setsockopt setsockopt "libc.so"
-//go:cgo_import_dynamic libc_recvfrom recvfrom "libc.so"
-//go:cgo_import_dynamic libc_recvmsg recvmsg "libc.so"
-//go:cgo_import_dynamic libc_getexecname getexecname "libc.so"
+//go:cgo_import_static _cgo_libc_pipe2
+//go:cgo_import_static _cgo_libc_getcwd
+//go:cgo_import_static _cgo_libc_getgroups
+//go:cgo_import_static _cgo_libc_setgroups
+//go:cgo_import_static _cgo_libc_fcntl
+//go:cgo_import_static _cgo_libc_accept
+//go:cgo_import_static _cgo_libc_sendmsg
+//go:cgo_import_static _cgo_libc_access
+//go:cgo_import_static _cgo_libc_adjtime
+//go:cgo_import_static _cgo_libc_chdir
+//go:cgo_import_static _cgo_libc_chmod
+//go:cgo_import_static _cgo_libc_chown
+//go:cgo_import_static _cgo_libc_chroot
+//go:cgo_import_static _cgo_libc_close
+//go:cgo_import_static _cgo_libc_dup
+//go:cgo_import_static _cgo_libc_fchdir
+//go:cgo_import_static _cgo_libc_fchmod
+//go:cgo_import_static _cgo_libc_fchown
+//go:cgo_import_static _cgo_libc_fpathconf
+//go:cgo_import_static _cgo_libc_fstat
+//go:cgo_import_static _cgo_libc_getgid
+//go:cgo_import_static _cgo_libc_getpid
+//go:cgo_import_static _cgo_libc_geteuid
+//go:cgo_import_static _cgo_libc_getegid
+//go:cgo_import_static _cgo_libc_getppid
+//go:cgo_import_static _cgo_libc_getpriority
+//go:cgo_import_static _cgo_libc_getrlimit
+//go:cgo_import_static _cgo_libc_getrusage
+//go:cgo_import_static _cgo_libc_gettimeofday
+//go:cgo_import_static _cgo_libc_getuid
+//go:cgo_import_static _cgo_libc_kill
+//go:cgo_import_static _cgo_libc_lchown
+//go:cgo_import_static _cgo_libc_link
+//go:cgo_import_static _cgo_libc_listen
+//go:cgo_import_static _cgo_libc_lstat
+//go:cgo_import_static _cgo_libc_mkdir
+//go:cgo_import_static _cgo_libc_mknod
+//go:cgo_import_static _cgo_libc_nanosleep
+//go:cgo_import_static _cgo_libc_open
+//go:cgo_import_static _cgo_libc_pathconf
+//go:cgo_import_static _cgo_libc_pread
+//go:cgo_import_static _cgo_libc_pwrite
+//go:cgo_import_static _cgo_libc_read
+//go:cgo_import_static _cgo_libc_readlink
+//go:cgo_import_static _cgo_libc_rename
+//go:cgo_import_static _cgo_libc_rmdir
+//go:cgo_import_static _cgo_libc_lseek
+//go:cgo_import_static _cgo_libc_sendfile
+//go:cgo_import_static _cgo_libc_setegid
+//go:cgo_import_static _cgo_libc_seteuid
+//go:cgo_import_static _cgo_libc_setgid
+//go:cgo_import_static _cgo_libc_setpgid
+//go:cgo_import_static _cgo_libc_setpriority
+//go:cgo_import_static _cgo_libc_setregid
+//go:cgo_import_static _cgo_libc_setreuid
+//go:cgo_import_static _cgo_libc_setrlimit
+//go:cgo_import_static _cgo_libc_setsid
+//go:cgo_import_static _cgo_libc_setuid
+//go:cgo_import_static _cgo_libc_shutdown
+//go:cgo_import_static _cgo_libc_stat
+//go:cgo_import_static _cgo_libc_symlink
+//go:cgo_import_static _cgo_libc_sync
+//go:cgo_import_static _cgo_libc_truncate
+//go:cgo_import_static _cgo_libc_posix_getdents
+//go:cgo_import_static _cgo_libc_fsync
+//go:cgo_import_static _cgo_libc_ftruncate
+//go:cgo_import_static _cgo_libc_umask
+//go:cgo_import_static _cgo_libc_unlink
+//go:cgo_import_static _cgo_libc_utimes
+//go:cgo_import_static _cgo_libc_bind
+//go:cgo_import_static _cgo_libc_connect
+//go:cgo_import_static _cgo_libc_mmap
+//go:cgo_import_static _cgo_libc_munmap
+//go:cgo_import_static _cgo_libc_sendto
+//go:cgo_import_static _cgo_libc_socket
+//go:cgo_import_static _cgo_libc_socketpair
+//go:cgo_import_static _cgo_libc_uname
+//go:cgo_import_static _cgo_libc_write
+//go:cgo_import_static _cgo_libc_writev
+//go:cgo_import_static _cgo_libc_getsockopt
+//go:cgo_import_static _cgo_libc_getpeername
+//go:cgo_import_static _cgo_libc_getsockname
+//go:cgo_import_static _cgo_libc_setsockopt
+//go:cgo_import_static _cgo_libc_recvfrom
+//go:cgo_import_static _cgo_libc_recvmsg
+//go:cgo_import_static _cgo_libc_getexecname
 
-//go:linkname libc_pipe2 libc_pipe2
-//go:linkname libc_Getcwd libc_Getcwd
-//go:linkname libc_getgroups libc_getgroups
-//go:linkname libc_setgroups libc_setgroups
-//go:linkname libc_fcntl libc_fcntl
-//go:linkname libc_accept libc_accept
-//go:linkname libc_sendmsg libc_sendmsg
-//go:linkname libc_Access libc_Access
-//go:linkname libc_Adjtime libc_Adjtime
-//go:linkname libc_Chdir libc_Chdir
-//go:linkname libc_Chmod libc_Chmod
-//go:linkname libc_Chown libc_Chown
-//go:linkname libc_Chroot libc_Chroot
-//go:linkname libc_Close libc_Close
-//go:linkname libc_Dup libc_Dup
-//go:linkname libc_Fchdir libc_Fchdir
-//go:linkname libc_Fchmod libc_Fchmod
-//go:linkname libc_Fchown libc_Fchown
-//go:linkname libc_Fpathconf libc_Fpathconf
-//go:linkname libc_Fstat libc_Fstat
-//go:linkname libc_Getgid libc_Getgid
-//go:linkname libc_Getpid libc_Getpid
-//go:linkname libc_Geteuid libc_Geteuid
-//go:linkname libc_Getegid libc_Getegid
-//go:linkname libc_Getppid libc_Getppid
-//go:linkname libc_Getpriority libc_Getpriority
-//go:linkname libc_Getrlimit libc_Getrlimit
-//go:linkname libc_Getrusage libc_Getrusage
-//go:linkname libc_Gettimeofday libc_Gettimeofday
-//go:linkname libc_Getuid libc_Getuid
-//go:linkname libc_Kill libc_Kill
-//go:linkname libc_Lchown libc_Lchown
-//go:linkname libc_Link libc_Link
-//go:linkname libc_listen libc_listen
-//go:linkname libc_Lstat libc_Lstat
-//go:linkname libc_Mkdir libc_Mkdir
-//go:linkname libc_Mknod libc_Mknod
-//go:linkname libc_Nanosleep libc_Nanosleep
-//go:linkname libc_Open libc_Open
-//go:linkname libc_Pathconf libc_Pathconf
-//go:linkname libc_pread libc_pread
-//go:linkname libc_pwrite libc_pwrite
-//go:linkname libc_read libc_read
-//go:linkname libc_Readlink libc_Readlink
-//go:linkname libc_Rename libc_Rename
-//go:linkname libc_Rmdir libc_Rmdir
-//go:linkname libc_lseek libc_lseek
-//go:linkname libc_sendfile libc_sendfile
-//go:linkname libc_Setegid libc_Setegid
-//go:linkname libc_Seteuid libc_Seteuid
-//go:linkname libc_Setgid libc_Setgid
-//go:linkname libc_Setpgid libc_Setpgid
-//go:linkname libc_Setpriority libc_Setpriority
-//go:linkname libc_Setregid libc_Setregid
-//go:linkname libc_Setreuid libc_Setreuid
-//go:linkname libc_setrlimit libc_setrlimit
-//go:linkname libc_Setsid libc_Setsid
-//go:linkname libc_Setuid libc_Setuid
-//go:linkname libc_shutdown libc_shutdown
-//go:linkname libc_Stat libc_Stat
-//go:linkname libc_Symlink libc_Symlink
-//go:linkname libc_Sync libc_Sync
-//go:linkname libc_Truncate libc_Truncate
-//go:linkname libc_Fsync libc_Fsync
-//go:linkname libc_Ftruncate libc_Ftruncate
-//go:linkname libc_Umask libc_Umask
-//go:linkname libc_Unlink libc_Unlink
-//go:linkname libc_utimes libc_utimes
-//go:linkname libc_bind libc_bind
-//go:linkname libc_connect libc_connect
-//go:linkname libc_mmap libc_mmap
-//go:linkname libc_munmap libc_munmap
-//go:linkname libc_sendto libc_sendto
-//go:linkname libc_socket libc_socket
-//go:linkname libc_socketpair libc_socketpair
-//go:linkname libc_uname libc_uname
-//go:linkname libc_write libc_write
-//go:linkname libc_writev libc_writev
-//go:linkname libc_getsockopt libc_getsockopt
-//go:linkname libc_getpeername libc_getpeername
-//go:linkname libc_getsockname libc_getsockname
-//go:linkname libc_setsockopt libc_setsockopt
-//go:linkname libc_recvfrom libc_recvfrom
-//go:linkname libc_recvmsg libc_recvmsg
-//go:linkname libc_getexecname libc_getexecname
+//go:linkname libc_pipe2 _cgo_libc_pipe2
+//go:linkname libc_Getcwd _cgo_libc_getcwd
+//go:linkname libc_getgroups _cgo_libc_getgroups
+//go:linkname libc_setgroups _cgo_libc_setgroups
+//go:linkname libc_fcntl _cgo_libc_fcntl
+//go:linkname libc_accept _cgo_libc_accept
+//go:linkname libc_sendmsg _cgo_libc_sendmsg
+//go:linkname libc_Access _cgo_libc_access
+//go:linkname libc_Adjtime _cgo_libc_adjtime
+//go:linkname libc_Chdir _cgo_libc_chdir
+//go:linkname libc_Chmod _cgo_libc_chmod
+//go:linkname libc_Chown _cgo_libc_chown
+//go:linkname libc_Chroot _cgo_libc_chroot
+//go:linkname libc_Close _cgo_libc_close
+//go:linkname libc_Dup _cgo_libc_dup
+//go:linkname libc_Fchdir _cgo_libc_fchdir
+//go:linkname libc_Fchmod _cgo_libc_fchmod
+//go:linkname libc_Fchown _cgo_libc_fchown
+//go:linkname libc_Fpathconf _cgo_libc_fpathconf
+//go:linkname libc_Fstat _cgo_libc_fstat
+//go:linkname libc_Getgid _cgo_libc_getgid
+//go:linkname libc_Getpid _cgo_libc_getpid
+//go:linkname libc_Geteuid _cgo_libc_geteuid
+//go:linkname libc_Getegid _cgo_libc_getegid
+//go:linkname libc_Getppid _cgo_libc_getppid
+//go:linkname libc_Getpriority _cgo_libc_getpriority
+//go:linkname libc_Getrlimit _cgo_libc_getrlimit
+//go:linkname libc_Getrusage _cgo_libc_getrusage
+//go:linkname libc_Gettimeofday _cgo_libc_gettimeofday
+//go:linkname libc_Getuid _cgo_libc_getuid
+//go:linkname libc_Kill _cgo_libc_kill
+//go:linkname libc_Lchown _cgo_libc_lchown
+//go:linkname libc_Link _cgo_libc_link
+//go:linkname libc_listen _cgo_libc_listen
+//go:linkname libc_Lstat _cgo_libc_lstat
+//go:linkname libc_Mkdir _cgo_libc_mkdir
+//go:linkname libc_Mknod _cgo_libc_mknod
+//go:linkname libc_Nanosleep _cgo_libc_nanosleep
+//go:linkname libc_Open _cgo_libc_open
+//go:linkname libc_Pathconf _cgo_libc_pathconf
+//go:linkname libc_pread _cgo_libc_pread
+//go:linkname libc_pwrite _cgo_libc_pwrite
+//go:linkname libc_read _cgo_libc_read
+//go:linkname libc_Readlink _cgo_libc_readlink
+//go:linkname libc_Rename _cgo_libc_rename
+//go:linkname libc_Rmdir _cgo_libc_rmdir
+//go:linkname libc_lseek _cgo_libc_lseek
+//go:linkname libc_sendfile _cgo_libc_sendfile
+//go:linkname libc_Setegid _cgo_libc_setegid
+//go:linkname libc_Seteuid _cgo_libc_seteuid
+//go:linkname libc_Setgid _cgo_libc_setgid
+//go:linkname libc_Setpgid _cgo_libc_setpgid
+//go:linkname libc_Setpriority _cgo_libc_setpriority
+//go:linkname libc_Setregid _cgo_libc_setregid
+//go:linkname libc_Setreuid _cgo_libc_setreuid
+//go:linkname libc_setrlimit _cgo_libc_setrlimit
+//go:linkname libc_Setsid _cgo_libc_setsid
+//go:linkname libc_Setuid _cgo_libc_setuid
+//go:linkname libc_shutdown _cgo_libc_shutdown
+//go:linkname libc_Stat _cgo_libc_stat
+//go:linkname libc_Symlink _cgo_libc_symlink
+//go:linkname libc_Sync _cgo_libc_sync
+//go:linkname libc_Truncate _cgo_libc_truncate
+//go:linkname libc_Fsync _cgo_libc_fsync
+//go:linkname libc_Ftruncate _cgo_libc_ftruncate
+//go:linkname libc_Umask _cgo_libc_umask
+//go:linkname libc_Unlink _cgo_libc_unlink
+//go:linkname libc_utimes _cgo_libc_utimes
+//go:linkname libc_bind _cgo_libc_bind
+//go:linkname libc_connect _cgo_libc_connect
+//go:linkname libc_mmap _cgo_libc_mmap
+//go:linkname libc_munmap _cgo_libc_munmap
+//go:linkname libc_sendto _cgo_libc_sendto
+//go:linkname libc_socket _cgo_libc_socket
+//go:linkname libc_socketpair _cgo_libc_socketpair
+//go:linkname libc_uname _cgo_libc_uname
+//go:linkname libc_write _cgo_libc_write
+//go:linkname libc_writev _cgo_libc_writev
+//go:linkname libc_getsockopt _cgo_libc_getsockopt
+//go:linkname libc_getpeername _cgo_libc_getpeername
+//go:linkname libc_getsockname _cgo_libc_getsockname
+//go:linkname libc_setsockopt _cgo_libc_setsockopt
+//go:linkname libc_recvfrom _cgo_libc_recvfrom
+//go:linkname libc_recvmsg _cgo_libc_recvmsg
+//go:linkname libc_getexecname _cgo_libc_getexecname
 
-type libcFunc uintptr
+type libcFunc byte
 
 var (
 	libc_pipe2,

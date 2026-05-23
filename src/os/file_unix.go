@@ -246,10 +246,6 @@ func epipecheck(file *File, e error) {
 	}
 }
 
-// DevNull is the name of the operating system's “null device.”
-// On Unix-like systems, it is "/dev/null"; on Windows, "NUL".
-const DevNull = "/dev/null"
-
 // openFileNolog is the Unix implementation of OpenFile.
 // Changes here should be reflected in openDirAt and openDirNolog, if relevant.
 func openFileNolog(name string, flag int, perm FileMode) (*File, error) {

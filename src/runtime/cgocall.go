@@ -100,7 +100,7 @@ type cgoCallers [32]uintptr
 type argset struct {
 	args   unsafe.Pointer
 	retval uintptr
-	errno int32
+	errno  int32
 }
 
 // wrapper for syscall package to call cgocall for libc (cgo) calls.
@@ -117,6 +117,18 @@ func syscall_cgocaller(fn unsafe.Pointer, args ...uintptr) uintptr {
 //go:linkname syscall_cgocaller2 syscall.cgocaller2
 //go:uintptrescapes
 func syscall_cgocaller2(fn unsafe.Pointer, args ...uintptr) (r0 uintptr, err int32) {
+	as := argset{args: unsafe.Pointer(&args[0])}
+	cgocall(fn, unsafe.Pointer(&as))
+	r0 = as.retval
+	err = as.errno
+	return
+}
+
+//go:linkname syscall_cgocaller6 syscall.cgocaller6
+//go:nosplit
+//go:uintptrescapes
+func syscall_cgocaller6(fn unsafe.Pointer, a1, a2, a3, a4, a5, a6 uintptr) (r0 uintptr, err int32) {
+	args := [6]uintptr{a1, a2, a3, a4, a5, a6}
 	as := argset{args: unsafe.Pointer(&args[0])}
 	cgocall(fn, unsafe.Pointer(&as))
 	r0 = as.retval
@@ -168,7 +180,6 @@ func cgocaller4(fn unsafe.Pointer, a, b, c, d uintptr) (r0 uintptr, err int32) {
 	err = as.errno
 	return
 }
-
 
 var ncgocall uint64 // number of cgo calls in total for dead m
 

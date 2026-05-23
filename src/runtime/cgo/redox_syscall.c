@@ -67,6 +67,15 @@ _cgo_libc_open(argset_t* x) {
 }
 
 void
+_cgo_libc_openat(argset_t* x) {
+	int dirfd = (int)x->args[0];
+	const char* pathname = (const char*)x->args[1];
+	int flags = (int)x->args[2];
+	mode_t mode = (mode_t)x->args[3];
+	SET_RETVAL(openat(dirfd, pathname, flags, mode));
+}
+
+void
 _cgo_libc_close(argset_t* x) {
 	int fd = (int)x->args[0];
 	SET_RETVAL(close(fd));
@@ -173,6 +182,12 @@ _cgo_libc_writev(argset_t* x) {
 }
 
 void
+_cgo_libc_sendfile(argset_t* x) {
+	x->retval = (uintptr_t)-1;
+	x->error = ENOSYS;
+}
+
+void
 _cgo_libc_select(argset_t* x) {
 	int nfds = (int)x->args[0];
 	fd_set* readfds = (fd_set*)x->args[1];
@@ -204,6 +219,15 @@ _cgo_libc_fstat(argset_t* x) {
 	int fd = (int)x->args[0];
 	struct stat* statbuf = (struct stat*)x->args[1];
 	SET_RETVAL(fstat(fd, statbuf));
+}
+
+void
+_cgo_libc_fstatat(argset_t* x) {
+	int dirfd = (int)x->args[0];
+	const char* pathname = (const char*)x->args[1];
+	struct stat* statbuf = (struct stat*)x->args[2];
+	int flags = (int)x->args[3];
+	SET_RETVAL(fstatat(dirfd, pathname, statbuf, flags));
 }
 
 void
@@ -247,6 +271,15 @@ _cgo_libc_chmod(argset_t* x) {
 }
 
 void
+_cgo_libc_fchmodat(argset_t* x) {
+	int dirfd = (int)x->args[0];
+	const char* pathname = (const char*)x->args[1];
+	mode_t mode = (mode_t)x->args[2];
+	int flags = (int)x->args[3];
+	SET_RETVAL(fchmodat(dirfd, pathname, mode, flags));
+}
+
+void
 _cgo_libc_fchmod(argset_t* x) {
 	int fd = (int)x->args[0];
 	mode_t mode = (mode_t)x->args[1];
@@ -259,6 +292,16 @@ _cgo_libc_chown(argset_t* x) {
 	uid_t owner = (uid_t)x->args[1];
 	gid_t group = (gid_t)x->args[2];
 	SET_RETVAL(chown(pathname, owner, group));
+}
+
+void
+_cgo_libc_fchownat(argset_t* x) {
+	int dirfd = (int)x->args[0];
+	const char* pathname = (const char*)x->args[1];
+	uid_t owner = (uid_t)x->args[2];
+	gid_t group = (gid_t)x->args[3];
+	int flags = (int)x->args[4];
+	SET_RETVAL(fchownat(dirfd, pathname, owner, group, flags));
 }
 
 void
@@ -291,6 +334,16 @@ _cgo_libc_link(argset_t* x) {
 }
 
 void
+_cgo_libc_linkat(argset_t* x) {
+	int olddirfd = (int)x->args[0];
+	const char* oldpath = (const char*)x->args[1];
+	int newdirfd = (int)x->args[2];
+	const char* newpath = (const char*)x->args[3];
+	int flags = (int)x->args[4];
+	SET_RETVAL(linkat(olddirfd, oldpath, newdirfd, newpath, flags));
+}
+
+void
 _cgo_libc_readlink(argset_t* x) {
 	const char* pathname = (const char*)x->args[0];
 	char* buf = (char*)x->args[1];
@@ -299,10 +352,28 @@ _cgo_libc_readlink(argset_t* x) {
 }
 
 void
+_cgo_libc_readlinkat(argset_t* x) {
+	int dirfd = (int)x->args[0];
+	const char* pathname = (const char*)x->args[1];
+	char* buf = (char*)x->args[2];
+	size_t bufsiz = (size_t)x->args[3];
+	SET_RETVAL(readlinkat(dirfd, pathname, buf, bufsiz));
+}
+
+void
 _cgo_libc_rename(argset_t* x) {
 	const char* oldpath = (const char*)x->args[0];
 	const char* newpath = (const char*)x->args[1];
 	SET_RETVAL(rename(oldpath, newpath));
+}
+
+void
+_cgo_libc_renameat(argset_t* x) {
+	int olddirfd = (int)x->args[0];
+	const char* oldpath = (const char*)x->args[1];
+	int newdirfd = (int)x->args[2];
+	const char* newpath = (const char*)x->args[3];
+	SET_RETVAL(renameat(olddirfd, oldpath, newdirfd, newpath));
 }
 
 void
@@ -319,9 +390,25 @@ _cgo_libc_symlink(argset_t* x) {
 }
 
 void
+_cgo_libc_symlinkat(argset_t* x) {
+	const char* target = (const char*)x->args[0];
+	int newdirfd = (int)x->args[1];
+	const char* linkpath = (const char*)x->args[2];
+	SET_RETVAL(symlinkat(target, newdirfd, linkpath));
+}
+
+void
 _cgo_libc_unlink(argset_t* x) {
 	const char* pathname = (const char*)x->args[0];
 	SET_RETVAL(unlink(pathname));
+}
+
+void
+_cgo_libc_unlinkat(argset_t* x) {
+	int dirfd = (int)x->args[0];
+	const char* pathname = (const char*)x->args[1];
+	int flags = (int)x->args[2];
+	SET_RETVAL(unlinkat(dirfd, pathname, flags));
 }
 
 void
@@ -329,6 +416,14 @@ _cgo_libc_mkdir(argset_t* x) {
 	const char* pathname = (const char*)x->args[0];
 	mode_t mode = (mode_t)x->args[1];
 	SET_RETVAL(mkdir(pathname, mode));
+}
+
+void
+_cgo_libc_mkdirat(argset_t* x) {
+	int dirfd = (int)x->args[0];
+	const char* pathname = (const char*)x->args[1];
+	mode_t mode = (mode_t)x->args[2];
+	SET_RETVAL(mkdirat(dirfd, pathname, mode));
 }
 
 void
@@ -372,6 +467,15 @@ _cgo_libc_utimes(argset_t* x) {
 	const char* filename = (const char*)x->args[0];
 	const struct timeval* times = (const struct timeval*)x->args[1];
 	SET_RETVAL(utimes(filename, times));
+}
+
+void
+_cgo_libc_utimensat(argset_t* x) {
+	int dirfd = (int)x->args[0];
+	const char* pathname = (const char*)x->args[1];
+	const struct timespec* times = (const struct timespec*)x->args[2];
+	int flags = (int)x->args[3];
+	SET_RETVAL(utimensat(dirfd, pathname, times, flags));
 }
 
 void
@@ -819,6 +923,12 @@ _cgo_libc_setitimer(argset_t* x) {
 }
 
 void
+_cgo_libc_adjtime(argset_t* x) {
+	x->retval = (uintptr_t)-1;
+	x->error = ENOSYS;
+}
+
+void
 _cgo_libc_usleep(argset_t* x) {
 	useconds_t usec = (useconds_t)x->args[0];
 	SET_RETVAL(usleep(usec));
@@ -927,6 +1037,12 @@ _cgo_libc_gethostname(argset_t* x) {
 	char* name = (char*)x->args[0];
 	size_t len = (size_t)x->args[1];
 	SET_RETVAL(gethostname(name, len));
+}
+
+void
+_cgo_libc_getexecname(argset_t* x) {
+	x->retval = 0;
+	x->error = ENOSYS;
 }
 
 void

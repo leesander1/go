@@ -34,8 +34,13 @@ func cgocaller(unsafe.Pointer, ...uintptr) uintptr
 //go:uintptrescapes
 func cgocaller2(unsafe.Pointer, ...uintptr) (r0 uintptr, err int32)
 
+// linked by runtime.cgocall.go
+//
+//go:uintptrescapes
+func cgocaller6(fn unsafe.Pointer, a1, a2, a3, a4, a5, a6 uintptr) (r0 uintptr, err int32)
+
 func syscgocall6(trap unsafe.Pointer, nargs, a1, a2, a3, a4, a5, a6 uintptr) (r1, r2 uintptr, err Errno) {
-	ret, errno := cgocaller2(trap, a1, a2, a3, a4, a5, a6)
+	ret, errno := cgocaller6(trap, a1, a2, a3, a4, a5, a6)
 	if errno != 0 {
 		err = Errno(errno)
 	} else {
@@ -287,7 +292,10 @@ func Gethostname() (name string, err error) {
 }
 
 func UtimesNano(path string, ts []Timespec) error {
-	panic("utimensat TODO")
+	if len(ts) != 2 {
+		return EINVAL
+	}
+	return utimensat(_AT_FDCWD, path, (*[2]Timespec)(unsafe.Pointer(&ts[0])), 0)
 }
 
 //sys	fcntl(fd int, cmd int, arg int) (val int, err error)
