@@ -19,6 +19,7 @@ import (
 	"os/exec"
 	"os/signal"
 	"path"
+	"runtime"
 	"slices"
 	"sort"
 	"strings"
@@ -372,16 +373,22 @@ func runBuiltTool(toolName string, env, cmdline []string) error {
 	}
 	err := toolCmd.Start()
 	if err == nil {
-		c := make(chan os.Signal, 100)
-		signal.Notify(c)
-		go func() {
-			for sig := range c {
-				toolCmd.Process.Signal(sig)
-			}
-		}()
+		// Redox os/signal support is still incomplete; avoid blocking in
+		// signal.Notify while running the external tool.
+		if runtime.GOOS != "redox" {
+			c := make(chan os.Signal, 100)
+			signal.Notify(c)
+			go func() {
+				for sig := range c {
+					toolCmd.Process.Signal(sig)
+				}
+			}()
+			defer func() {
+				signal.Stop(c)
+				close(c)
+			}()
+		}
 		err = toolCmd.Wait()
-		signal.Stop(c)
-		close(c)
 	}
 	if err != nil {
 		// Only print about the exit status if the command
