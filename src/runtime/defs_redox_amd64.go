@@ -145,7 +145,7 @@ type siginfo struct {
 }
 
 type sem_t struct {
-	sem_size uint32
+	__align uintptr
 }
 
 type stackt struct {
