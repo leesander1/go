@@ -5238,7 +5238,11 @@ func syscall_runtime_AfterForkInChild() {
 	// then the parent process can not be running concurrently.
 	inForkedChild = true
 
-	clearSignalHandlers()
+	// Redox sigaction is implemented in relibc/redox-rt and may take
+	// locks, which is not safe in the post-fork child.
+	if GOOS != "redox" {
+		clearSignalHandlers()
+	}
 
 	// When we are the child we are the only thread running,
 	// so we know that nothing else has changed gp.m.sigmask.
