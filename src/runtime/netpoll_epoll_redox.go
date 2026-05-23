@@ -54,19 +54,16 @@ const (
 )
 
 func epoll_create1(flags int32) (r1 int32, err int32) {
-	print("bout to run call libc_epoll_create1\n")
-	ret, errno := cgocaller1(unsafe.Pointer(&libc_epoll_create1), uintptr(flags));
+	ret, errno := cgocaller1(unsafe.Pointer(&libc_epoll_create1), uintptr(flags))
 	if errno != 0 {
 		err = errno
 	} else {
 		r1 = int32(ret)
-		print("libc_epoll_create1: epfd ", r1, "\n")
 	}
 	return
 }
 
 func epoll_ctl(epfd int32, op int32, fd int32, event *EpollEvent) int32 {
-	print("bout to run call libc_epoll_ctl: epfd ", epfd, " op ", op, " fd ", fd, "\n")
 	if _, errno := cgocaller4(unsafe.Pointer(&libc_epoll_ctl), uintptr(epfd), uintptr(op), uintptr(fd), uintptr(unsafe.Pointer(event))); errno != 0 {
 		return errno
 	}
@@ -74,8 +71,7 @@ func epoll_ctl(epfd int32, op int32, fd int32, event *EpollEvent) int32 {
 }
 
 func epoll_wait(epfd int32, events *EpollEvent, maxevents int32, timeout int32) (r1 int32, err int32) {
-	print("bout to run call libc_epoll_wait\n")
-	ret, errno := cgocaller4(unsafe.Pointer(&libc_epoll_wait), uintptr(epfd), uintptr(unsafe.Pointer(events)), uintptr(maxevents), uintptr(timeout));
+	ret, errno := cgocaller4(unsafe.Pointer(&libc_epoll_wait), uintptr(epfd), uintptr(unsafe.Pointer(events)), uintptr(maxevents), uintptr(timeout))
 	if errno != 0 {
 		err = errno
 	} else {

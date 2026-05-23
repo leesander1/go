@@ -24,7 +24,6 @@ func RawSyscall6(trap, a1, a2, a3, a4, a5, a6 uintptr) (r1, r2 uintptr, err Errn
 func rawSysvicall6(trap, nargs, a1, a2, a3, a4, a5, a6 uintptr) (r1, r2 uintptr, err Errno)
 func sysvicall6(trap, nargs, a1, a2, a3, a4, a5, a6 uintptr) (r1, r2 uintptr, err Errno)
 
-
 // linked by runtime.cgocall.go
 //
 //go:uintptrescapes
@@ -48,7 +47,6 @@ func syscgocall6(trap unsafe.Pointer, nargs, a1, a2, a3, a4, a5, a6 uintptr) (r1
 func rawsyscgocall6(trap unsafe.Pointer, nargs, a1, a2, a3, a4, a5, a6 uintptr) (r1, r2 uintptr, err Errno) {
 	return syscgocall6(trap, nargs, a1, a2, a3, a4, a5, a6)
 }
-
 
 func direntIno(buf []byte) (uint64, bool) {
 	return readInt(buf, unsafe.Offsetof(Dirent{}.Ino), unsafe.Sizeof(Dirent{}.Ino))
@@ -81,7 +79,6 @@ func Pipe2(p []int, flags int) error {
 	if err == nil {
 		p[0] = int(pp[0])
 		p[1] = int(pp[1])
-		print("Pipe2: a ", p[0], " b ", p[1])
 	}
 	return err
 }
@@ -502,7 +499,6 @@ func Getexecname() (path string, err error) {
 }
 
 func readlen(fd int, buf *byte, nbuf int) (n int, err error) {
-	print("bout to sys call libc_read:", fd, "\n")
 	r0, _, e1 := syscgocall6(unsafe.Pointer(&libc_read), 3, uintptr(fd), uintptr(unsafe.Pointer(buf)), uintptr(nbuf), 0, 0, 0)
 	n = int(r0)
 	if e1 != 0 {
