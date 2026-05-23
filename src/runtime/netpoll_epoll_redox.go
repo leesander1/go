@@ -30,9 +30,10 @@ var (
 )
 
 type EpollEvent struct {
-	Events uint32
-	Data   [8]byte // unaligned uintptr
-	_Pad   [8]byte
+	Events    uint32
+	Pad_cgo_0 [4]byte
+	Data      [8]byte // unaligned uintptr
+	X_pad     uint64
 }
 
 const (
