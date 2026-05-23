@@ -53,6 +53,7 @@ import (
 //go:linkname libc_environ _cgo_libc_environ
 //go:linkname libc_clock_gettime libc_clock_gettime
 //go:linkname libc_exit _cgo_libc_exit
+//go:linkname libc_waitpid _cgo_libc_waitpid
 //go:linkname libc_getcontext libc_getcontext
 //go:linkname libc_kill libc_kill
 //go:linkname libc_madvise libc_madvise
