@@ -927,6 +927,13 @@ func (c *Cmd) Wait() error {
 		return errors.New("exec: Wait was already called")
 	}
 
+	var goroutineErr error
+	if runtime.GOOS == "redox" && c.goroutineErr != nil && c.ctxResult == nil && c.WaitDelay == 0 {
+		// Redox can lose pipe output if the child is reaped before the copy
+		// goroutine drains it. In the simple case, drain first and then reap.
+		goroutineErr = c.awaitGoroutines(nil)
+	}
+
 	state, err := c.Process.Wait()
 	if err == nil && !state.Success() {
 		err = &ExitError{ProcessState: state}
@@ -945,7 +952,10 @@ func (c *Cmd) Wait() error {
 		}
 	}
 
-	if goroutineErr := c.awaitGoroutines(timer); err == nil {
+	if goroutineErr == nil && c.goroutineErr != nil {
+		goroutineErr = c.awaitGoroutines(timer)
+	}
+	if goroutineErr != nil && err == nil {
 		// Report an error from the copying goroutines only if the program otherwise
 		// exited normally on its own. Otherwise, the copying error may be due to the
 		// abnormal termination.
