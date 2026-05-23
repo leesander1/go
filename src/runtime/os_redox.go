@@ -6,17 +6,16 @@ package runtime
 
 import (
 	"internal/abi"
-	"internal/runtime/atomic"
 	"internal/goarch"
+	"internal/runtime/atomic"
 	"internal/runtime/sys"
 	"unsafe"
 )
 
-
 // OS-specific state for a machine (m).
 type mOS struct {
-	waitsema uintptr // semaphore for parking on locks
-	perrno   *int32  // pointer to tls errno
+	waitsema uint32 // semaphore for parking on locks
+	perrno   *int32 // pointer to tls errno
 	// This is here to avoid using the G stack so the stack can move during the call.
 	libcall libcall
 	ts      timespec
@@ -300,9 +299,9 @@ func getPageSize() uintptr {
 }
 
 func osinit() {
-	numCPUStartup = 1;
+	numCPUStartup = 1
 
-	physPageSize = 4096;
+	physPageSize = 4096
 }
 
 func tstart_sysvicall(newm *m) uint32
@@ -376,18 +375,17 @@ func readRandom(r []byte) int {
 }
 
 func goenvs() {
-    environs_uintptr := get_environ()
-    envp := (**byte)(unsafe.Pointer(environs_uintptr))
-    n := 0
-    for *(**byte)(add(unsafe.Pointer(envp), uintptr(n)*goarch.PtrSize)) != nil {
-        n++
-    }
-    envs = make([]string, n)
-    for i := 0; i < n; i++ {
-        envs[i] = gostring(argv_index(envp, int32(i)))
-    }
+	environs_uintptr := get_environ()
+	envp := (**byte)(unsafe.Pointer(environs_uintptr))
+	n := 0
+	for *(**byte)(add(unsafe.Pointer(envp), uintptr(n)*goarch.PtrSize)) != nil {
+		n++
+	}
+	envs = make([]string, n)
+	for i := 0; i < n; i++ {
+		envs[i] = gostring(argv_index(envp, int32(i)))
+	}
 }
-
 
 // Called to initialize a new m (including the bootstrap m).
 // Called on the parent thread (main thread in case of bootstrap), can allocate memory.
@@ -493,73 +491,78 @@ func validSIGPROF(mp *m, c *sigctxt) bool {
 	return true
 }
 
+const (
+	_FUTEX_WAIT = 0
+	_FUTEX_WAKE = 1
+)
+
+//go:noescape
+func futex(addr unsafe.Pointer, op int32, val uint32, ts *timespec, addr2 unsafe.Pointer, val3 uint32) int32
+
+// Atomically,
+//
+//	if(*addr == val) sleep
+//
+// Might be woken up spuriously; that's allowed.
+// Don't sleep longer than ns; ns < 0 means forever.
+//
 //go:nosplit
-func semacreate(mp *m) {
-	if mp.waitsema != 0 {
+func futexsleep(addr *uint32, val uint32, ns int64) {
+	if ns < 0 {
+		futex(unsafe.Pointer(addr), _FUTEX_WAIT, val, nil, nil, 0)
 		return
 	}
 
-	var sem *sem_t
-
-	// Call libc's malloc rather than malloc. This will
-	// allocate space on the C heap. We can't call malloc
-	// here because it could cause a deadlock.
-	mp.libcall.fn = uintptr(unsafe.Pointer(&libc_malloc))
-	mp.libcall.n = 1
-	mp.scratch = mscratch{}
-	mp.scratch.v[0] = unsafe.Sizeof(*sem)
-	mp.libcall.args = uintptr(unsafe.Pointer(&mp.scratch))
-	asmcgocall(unsafe.Pointer(&asmsysvicall6x), unsafe.Pointer(&mp.libcall))
-	sem = (*sem_t)(unsafe.Pointer(mp.libcall.r1))
-	if sem_init(sem, 0, 0) != 0 {
-		throw("sem_init")
-	}
-	mp.waitsema = uintptr(unsafe.Pointer(sem))
+	var ts timespec
+	ts.setNsec(nanotime() + ns)
+	futex(unsafe.Pointer(addr), _FUTEX_WAIT, val, &ts, nil, 0)
 }
+
+// If any procs are sleeping on addr, wake up at most cnt.
+//
+//go:nosplit
+func futexwakeup(addr *uint32, cnt uint32) {
+	ret := futex(unsafe.Pointer(addr), _FUTEX_WAKE, cnt, nil, nil, 0)
+	if ret >= 0 {
+		return
+	}
+
+	systemstack(func() {
+		print("futexwakeup addr=", addr, " returned ", ret, "\n")
+	})
+
+	*(*int32)(unsafe.Pointer(uintptr(0x1006))) = 0x1006
+}
+
+//go:nosplit
+func semacreate(mp *m) {}
 
 //go:nosplit
 func semasleep(ns int64) int32 {
 	mp := getg().m
-	if ns >= 0 {
-		// sem_timedwait requires an absolute timeout.
-		var now timespec
-		sysvicall2(&libc_clock_gettime, CLOCK_REALTIME, uintptr(unsafe.Pointer(&now)))
-		mp.ts.tv_sec = now.tv_sec + ns/1e9
-		mp.ts.tv_nsec = now.tv_nsec + ns%1e9
 
-		// Handle nanosecond overflow.
-		if mp.ts.tv_nsec >= 1e9 {
-			mp.ts.tv_sec++
-			mp.ts.tv_nsec -= 1e9
+	for v := atomic.Xadd(&mp.waitsema, -1); ; v = atomic.Load(&mp.waitsema) {
+		if int32(v) >= 0 {
+			return 0
 		}
-		sysvicall2(&libc_sem_timedwait, mp.waitsema, uintptr(unsafe.Pointer(&mp.ts)))
-		if *mp.perrno != 0 {
-			if *mp.perrno == _ETIMEDOUT || *mp.perrno == _EAGAIN || *mp.perrno == _EINTR {
+		futexsleep(&mp.waitsema, v, ns)
+		if ns >= 0 {
+			if int32(v) >= 0 {
+				return 0
+			} else {
 				return -1
 			}
-			throw("sem_timedwait")
 		}
-		return 0
 	}
-	for {
-		if sysvicall1(&libc_sem_wait, mp.waitsema) == 0 {
-			break
-		}
-		if *mp.perrno == _EINTR {
-			continue
-		}
-		throw("sem_wait")
-	}
-	return 0
 }
 
 //go:nosplit
 func semawakeup(mp *m) {
-	if sem_post((*sem_t)(unsafe.Pointer(mp.waitsema))) != 0 {
-		throw("sem_post")
+	v := atomic.Xadd(&mp.waitsema, 1)
+	if v == 0 {
+		futexwakeup(&mp.waitsema, 1)
 	}
 }
-
 
 func osyield1()
 

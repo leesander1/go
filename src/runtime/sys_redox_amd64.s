@@ -10,6 +10,8 @@
 #include "go_tls.h"
 #include "textflag.h"
 
+#define SYS_futex 240
+
 // This is needed by asm_amd64.s
 TEXT runtime·settls(SB),NOSPLIT,$8
 	RET
@@ -88,6 +90,20 @@ skipargs:
 	MOVQ	AX, libcall_err(DI)
 
 skiperrno2:
+	RET
+
+// int32 futex(uint32 *addr, int32 op, uint32 val,
+//	struct timespec *timeout, uint32 *addr2, uint32 val3);
+TEXT runtime·futex(SB),NOSPLIT,$0
+	MOVQ	addr+0(FP), DI
+	MOVL	op+8(FP), SI
+	MOVL	val+12(FP), DX
+	MOVQ	ts+16(FP), R10
+	MOVQ	addr2+24(FP), R8
+	MOVL	val3+32(FP), R9
+	MOVL	$SYS_futex, AX
+	SYSCALL
+	MOVL	AX, ret+40(FP)
 	RET
 
 // uint32 tstart_sysvicall(M *newm);
