@@ -218,7 +218,15 @@ func forkAndExecInChild(argv0 *byte, argv, envv []*byte, chroot, dir *byte, attr
 			if err1 != 0 {
 				goto childerror
 			}
-			_, err1 = fcntl1(uintptr(nextfd), F_SETFD, FD_CLOEXEC)
+			if runtime.GOOS == "redox" {
+				r1, err1 = fcntl1(uintptr(nextfd), F_GETFD, 0)
+				if err1 != 0 {
+					goto childerror
+				}
+				_, err1 = fcntl1(uintptr(nextfd), F_SETFD, r1|FD_CLOEXEC)
+			} else {
+				_, err1 = fcntl1(uintptr(nextfd), F_SETFD, FD_CLOEXEC)
+			}
 		}
 		if err1 != 0 {
 			goto childerror
@@ -239,7 +247,15 @@ func forkAndExecInChild(argv0 *byte, argv, envv []*byte, chroot, dir *byte, attr
 				if err1 != 0 {
 					goto childerror
 				}
-				_, err1 = fcntl1(uintptr(nextfd), F_SETFD, FD_CLOEXEC)
+				if runtime.GOOS == "redox" {
+					r1, err1 = fcntl1(uintptr(nextfd), F_GETFD, 0)
+					if err1 != 0 {
+						goto childerror
+					}
+					_, err1 = fcntl1(uintptr(nextfd), F_SETFD, r1|FD_CLOEXEC)
+				} else {
+					_, err1 = fcntl1(uintptr(nextfd), F_SETFD, FD_CLOEXEC)
+				}
 			}
 			if err1 != 0 {
 				goto childerror
@@ -258,7 +274,15 @@ func forkAndExecInChild(argv0 *byte, argv, envv []*byte, chroot, dir *byte, attr
 		if fd[i] == i {
 			// dup2(i, i) won't clear close-on-exec flag on Linux,
 			// probably not elsewhere either.
-			_, err1 = fcntl1(uintptr(fd[i]), F_SETFD, 0)
+			if runtime.GOOS == "redox" {
+				r1, err1 = fcntl1(uintptr(fd[i]), F_GETFD, 0)
+				if err1 != 0 {
+					goto childerror
+				}
+				_, err1 = fcntl1(uintptr(fd[i]), F_SETFD, r1&^FD_CLOEXEC)
+			} else {
+				_, err1 = fcntl1(uintptr(fd[i]), F_SETFD, 0)
+			}
 			if err1 != 0 {
 				goto childerror
 			}
@@ -271,8 +295,13 @@ func forkAndExecInChild(argv0 *byte, argv, envv []*byte, chroot, dir *byte, attr
 			goto childerror
 		}
 		if runtime.GOOS == "redox" {
-			// Redox dup2 preserves FD_CLOEXEC, so clear it on the child fd.
-			_, err1 = fcntl1(uintptr(i), F_SETFD, 0)
+			// Redox descriptor flags include access mode bits, so preserve
+			// everything except close-on-exec.
+			r1, err1 = fcntl1(uintptr(i), F_GETFD, 0)
+			if err1 != 0 {
+				goto childerror
+			}
+			_, err1 = fcntl1(uintptr(i), F_SETFD, r1&^FD_CLOEXEC)
 			if err1 != 0 {
 				goto childerror
 			}
