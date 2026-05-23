@@ -270,6 +270,13 @@ func forkAndExecInChild(argv0 *byte, argv, envv []*byte, chroot, dir *byte, attr
 		if err1 != 0 {
 			goto childerror
 		}
+		if runtime.GOOS == "redox" {
+			// Redox dup2 preserves FD_CLOEXEC, so clear it on the child fd.
+			_, err1 = fcntl1(uintptr(i), F_SETFD, 0)
+			if err1 != 0 {
+				goto childerror
+			}
+		}
 	}
 
 	// By convention, we don't close-on-exec the fds we are
