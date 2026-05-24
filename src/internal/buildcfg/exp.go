@@ -79,13 +79,15 @@ func ParseGOEXPERIMENT(goos, goarch, goexp string) (*ExperimentFlags, error) {
 	// support the necessary section subtypes for DWARF-specific
 	// things like .debug_addr (needed for DWARF 5).
 	dwarf5Supported := (goos != "darwin" && goos != "ios" && goos != "aix")
+	// The Redox port is not yet stable on the Green Tea GC marking path.
+	greenTeaGCSupported := goos != "redox"
 
 	baseline := goexperiment.Flags{
 		RegabiWrappers:       regabiSupported,
 		RegabiArgs:           regabiSupported,
 		Dwarf5:               dwarf5Supported,
 		RandomizedHeapBase64: true,
-		GreenTeaGC:           true,
+		GreenTeaGC:           greenTeaGCSupported,
 	}
 	flags := &ExperimentFlags{
 		Flags:    baseline,

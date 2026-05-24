@@ -523,6 +523,17 @@ _cgo_libc_getgid(argset_t* x) {
 }
 
 void
+_cgo_libc_getpgid(argset_t* x) {
+	pid_t pid = (pid_t)x->args[0];
+	SET_RETVAL(getpgid(pid));
+}
+
+void
+_cgo_libc_getpgrp(argset_t* x) {
+	SET_RETVAL(getpgrp());
+}
+
+void
 _cgo_libc_getegid(argset_t* x) {
 	x->retval = (uintptr_t)getegid();
 }

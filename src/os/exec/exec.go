@@ -315,10 +315,6 @@ type Cmd struct {
 	// goroutines exit, or after WaitDelay has expired.
 	parentIOPipes []io.Closer
 
-	// redoxCaptures holds temporary files used on Redox to collect stdout
-	// and stderr for non-file writers.
-	redoxCaptures []redoxCapture
-
 	// goroutine holds a set of closures to execute to copy data
 	// to and/or from the command's I/O pipes.
 	goroutine []func() error
@@ -364,11 +360,6 @@ type Cmd struct {
 	// (Until go.dev/issue/77075 is resolved, we use atomic.SwapInt32,
 	// not atomic.Bool.Swap, to avoid triggering the copylocks vet check.)
 	startCalled int32
-}
-
-type redoxCapture struct {
-	name string
-	dst  io.Writer
 }
 
 // A ctxResult reports the result of watching the Context associated with a
@@ -600,19 +591,6 @@ func (c *Cmd) writerDescriptor(w io.Writer) (*os.File, error) {
 		return f, nil
 	}
 
-	if runtime.GOOS == "redox" {
-		f, err := os.CreateTemp("", "go-exec-*")
-		if err != nil {
-			return nil, err
-		}
-		c.childIOFiles = append(c.childIOFiles, f)
-		c.redoxCaptures = append(c.redoxCaptures, redoxCapture{
-			name: f.Name(),
-			dst:  w,
-		})
-		return f, nil
-	}
-
 	pr, pw, err := os.Pipe()
 	if err != nil {
 		return nil, err
@@ -632,35 +610,6 @@ func closeDescriptors(closers []io.Closer) {
 	for _, fd := range closers {
 		fd.Close()
 	}
-}
-
-func (c *Cmd) cleanupRedoxCaptures() {
-	for _, capture := range c.redoxCaptures {
-		os.Remove(capture.name)
-	}
-	c.redoxCaptures = nil
-}
-
-func (c *Cmd) readRedoxCaptures() error {
-	var firstErr error
-	for _, capture := range c.redoxCaptures {
-		var err error
-		f, err := os.Open(capture.name)
-		if err == nil {
-			_, err = io.Copy(capture.dst, f)
-			if closeErr := f.Close(); err == nil {
-				err = closeErr
-			}
-		}
-		if removeErr := os.Remove(capture.name); err == nil {
-			err = removeErr
-		}
-		if firstErr == nil {
-			firstErr = err
-		}
-	}
-	c.redoxCaptures = nil
-	return firstErr
 }
 
 // Run starts the specified command and waits for it to complete.
@@ -705,7 +654,6 @@ func (c *Cmd) Start() error {
 		if !started {
 			closeDescriptors(c.parentIOPipes)
 			c.parentIOPipes = nil
-			c.cleanupRedoxCaptures()
 			c.goroutine = nil // aid GC, finalization of pipe fds
 		}
 	}()
@@ -995,10 +943,6 @@ func (c *Cmd) Wait() error {
 		if err == nil && watch.err != nil {
 			err = watch.err
 		}
-	}
-
-	if captureErr := c.readRedoxCaptures(); captureErr != nil && err == nil {
-		err = captureErr
 	}
 
 	var goroutineErr error
