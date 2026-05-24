@@ -1937,6 +1937,11 @@ func (ctxt *Link) hostlink() {
 		checkStatic(p)
 	}
 
+	if ctxt.HeadType == objabi.Hredox && ctxt.BuildMode == BuildModeExe && !ctxt.linkShared {
+		argv = append(argv, "-static")
+		checkStatic("-static")
+	}
+
 	// When building a program with the default -buildmode=exe the
 	// gc compiler generates code requires DT_TEXTREL in a
 	// position independent executable (PIE). On systems where the

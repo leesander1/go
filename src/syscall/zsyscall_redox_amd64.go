@@ -426,6 +426,9 @@ func Close(fd int) (err error) {
 	if e1 != 0 {
 		err = errnoErr(e1)
 	}
+	if err == nil {
+		redoxForgetDirentOffset(fd)
+	}
 	return
 }
 
@@ -829,6 +832,9 @@ func Seek(fd int, offset int64, whence int) (newoffset int64, err error) {
 	newoffset = int64(r0)
 	if e1 != 0 {
 		err = errnoErr(e1)
+	}
+	if err == nil {
+		redoxMaybeSetDirentOffset(fd, uint64(newoffset))
 	}
 	return
 }

@@ -82,6 +82,27 @@ func epoll_wait(epfd int32, events *EpollEvent, maxevents int32, timeout int32) 
 	return
 }
 
+func redoxNormalizeEpollEvent(ev *EpollEvent) bool {
+	data := *(*uintptr)(unsafe.Pointer(&ev.Data))
+	if data >= uintptr(1)<<tagBits {
+		return true
+	}
+	if ev.X_pad == 0 {
+		return false
+	}
+	var events uint32
+	if data&1 != 0 {
+		events |= EPOLLIN
+	}
+	if data&2 != 0 {
+		events |= EPOLLOUT
+	}
+	ev.Events = events
+	*(*uintptr)(unsafe.Pointer(&ev.Data)) = uintptr(ev.X_pad)
+	ev.X_pad = 0
+	return true
+}
+
 func netpollinit() {
 	var errno int32
 	epfd, errno = epoll_create1(EPOLL_CLOEXEC)
@@ -213,6 +234,9 @@ retry:
 	delta := int32(0)
 	for i := int32(0); i < n; i++ {
 		ev := events[i]
+		if !redoxNormalizeEpollEvent(&ev) {
+			continue
+		}
 		if ev.Events == 0 {
 			continue
 		}
@@ -236,6 +260,9 @@ retry:
 		if mode != 0 {
 			tp := *(*taggedPointer)(unsafe.Pointer(&ev.Data))
 			pd := (*pollDesc)(tp.pointer())
+			if pd == nil {
+				continue
+			}
 			tag := tp.tag()
 			if pd.fdseq.Load() == tag {
 				pd.setEventErr(ev.Events == EPOLLERR, tag)

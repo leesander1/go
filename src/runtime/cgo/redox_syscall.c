@@ -38,6 +38,8 @@ typedef struct {
 	int error;
 } argset_t;
 
+extern uintptr_t redox_getdents_v0(uintptr_t fd, void* buf, uintptr_t count, uint64_t opaque);
+
 // libc backed posix-compliant syscalls.
 
 // SET_RETVAL is a macro to handle the standard POSIX return convention.
@@ -171,6 +173,15 @@ _cgo_libc_posix_getdents(argset_t* x) {
 	size_t count = (size_t)x->args[2];
 	int flag = (int)x->args[3];
 	SET_RETVAL(posix_getdents(fd, buf, count, flag));
+}
+
+void
+_cgo_libc_redox_getdents(argset_t* x) {
+	uintptr_t fd = x->args[0];
+	void* buf = (void*)x->args[1];
+	uintptr_t count = x->args[2];
+	uint64_t opaque = (uint64_t)x->args[3];
+	x->retval = redox_getdents_v0(fd, buf, count, opaque);
 }
 
 void

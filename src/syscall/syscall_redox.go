@@ -12,7 +12,10 @@
 
 package syscall
 
-import "unsafe"
+import (
+	"sync"
+	"unsafe"
+)
 
 func Syscall(trap, a1, a2, a3 uintptr) (r1, r2 uintptr, err Errno)
 func Syscall6(trap, a1, a2, a3, a4, a5, a6 uintptr) (r1, r2 uintptr, err Errno)
@@ -34,13 +37,8 @@ func cgocaller(unsafe.Pointer, ...uintptr) uintptr
 //go:uintptrescapes
 func cgocaller2(unsafe.Pointer, ...uintptr) (r0 uintptr, err int32)
 
-// linked by runtime.cgocall.go
-//
-//go:uintptrescapes
-func cgocaller6(fn unsafe.Pointer, a1, a2, a3, a4, a5, a6 uintptr) (r0 uintptr, err int32)
-
 func syscgocall6(trap unsafe.Pointer, nargs, a1, a2, a3, a4, a5, a6 uintptr) (r1, r2 uintptr, err Errno) {
-	ret, errno := cgocaller6(trap, a1, a2, a3, a4, a5, a6)
+	ret, errno := cgocaller2(trap, a1, a2, a3, a4, a5, a6)
 	if errno != 0 {
 		err = Errno(errno)
 	} else {
@@ -59,6 +57,10 @@ func direntIno(buf []byte) (uint64, bool) {
 
 func direntReclen(buf []byte) (uint64, bool) {
 	return readInt(buf, unsafe.Offsetof(Dirent{}.Reclen), unsafe.Sizeof(Dirent{}.Reclen))
+}
+
+func direntOffset(buf []byte) (uint64, bool) {
+	return readInt(buf, unsafe.Offsetof(Dirent{}.Off), unsafe.Sizeof(Dirent{}.Off))
 }
 
 func direntNamlen(buf []byte) (uint64, bool) {
@@ -216,8 +218,117 @@ func Setgroups(gids []int) (err error) {
 	return setgroups(len(a), &a[0])
 }
 
+// _cgo_libc_redox_getdents exposes Redox's explicit-offset getdents operation.
+// relibc's posix_getdents shim simulates POSIX offsets with lseek; the Go
+// runtime already keeps directory state, so track Redox's opaque offset here.
+//
+//go:cgo_import_static _cgo_libc_redox_getdents
+//go:linkname libc_redox_getdents _cgo_libc_redox_getdents
+var libc_redox_getdents libcFunc
+
+var redoxDirentOffsets struct {
+	sync.Mutex
+	m map[int]uint64
+}
+
+const redoxDirentEOF = ^uint64(0)
+
+func redoxGetDirentOffset(fd int) uint64 {
+	redoxDirentOffsets.Lock()
+	defer redoxDirentOffsets.Unlock()
+	if redoxDirentOffsets.m == nil {
+		redoxDirentOffsets.m = make(map[int]uint64)
+	}
+	return redoxDirentOffsets.m[fd]
+}
+
+func redoxSetDirentOffset(fd int, offset uint64) {
+	redoxDirentOffsets.Lock()
+	if redoxDirentOffsets.m == nil {
+		redoxDirentOffsets.m = make(map[int]uint64)
+	}
+	redoxDirentOffsets.m[fd] = offset
+	redoxDirentOffsets.Unlock()
+}
+
+func redoxMaybeSetDirentOffset(fd int, offset uint64) {
+	redoxDirentOffsets.Lock()
+	if redoxDirentOffsets.m != nil {
+		if _, ok := redoxDirentOffsets.m[fd]; ok {
+			redoxDirentOffsets.m[fd] = offset
+		}
+	}
+	redoxDirentOffsets.Unlock()
+}
+
+func redoxForgetDirentOffset(fd int) {
+	redoxDirentOffsets.Lock()
+	if redoxDirentOffsets.m != nil {
+		delete(redoxDirentOffsets.m, fd)
+	}
+	redoxDirentOffsets.Unlock()
+}
+
+func redoxErrno(raw uintptr) Errno {
+	errno := -int32(raw)
+	if errno > 0 && int(errno) < len(errors) {
+		return Errno(errno)
+	}
+	return 0
+}
+
+func redoxGetdents(fd int, buf []byte, offset uint64) (n int, err error) {
+	var p *byte
+	if len(buf) > 0 {
+		p = &buf[0]
+	}
+	r0, _, e1 := syscgocall6(unsafe.Pointer(&libc_redox_getdents), 4,
+		uintptr(fd), uintptr(unsafe.Pointer(p)), uintptr(len(buf)), uintptr(offset), 0, 0)
+	if e1 != 0 {
+		return 0, e1
+	}
+	if errno := redoxErrno(r0); errno != 0 {
+		return 0, errno
+	}
+	return int(r0), nil
+}
+
+func redoxNextDirentOffset(buf []byte, n int, offset uint64) (uint64, error) {
+	next := offset
+	for off := 0; off < n; {
+		rec := buf[off:n]
+		reclen, ok := direntReclen(rec)
+		if !ok || reclen == 0 || uint64(len(rec)) < reclen {
+			return offset, EIO
+		}
+		next, ok = direntOffset(rec)
+		if !ok {
+			return offset, EIO
+		}
+		off += int(reclen)
+	}
+	return next, nil
+}
+
 func ReadDirent(fd int, buf []byte) (n int, err error) {
-	return PosixGetdents(fd, buf, 0)
+	offset := redoxGetDirentOffset(fd)
+	if offset == redoxDirentEOF {
+		return 0, nil
+	}
+	n, err = redoxGetdents(fd, buf, offset)
+	if err != nil {
+		return n, err
+	}
+	if n == 0 {
+		redoxSetDirentOffset(fd, redoxDirentEOF)
+		return 0, nil
+	}
+	next, err := redoxNextDirentOffset(buf, n, offset)
+	if err != nil {
+		return 0, err
+	}
+	redoxSetDirentOffset(fd, next)
+	return n, nil
 }
 
 // Wait status is 7 bits at bottom, either 0 (exited),

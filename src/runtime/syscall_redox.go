@@ -79,10 +79,11 @@ func syscall_sysvicall6(fn, nargs, a1, a2, a3, a4, a5, a6 uintptr) (r1, r2, err 
 //go:linkname syscall_rawsysvicall6
 //go:cgo_unsafe_args
 func syscall_rawsysvicall6(fn, nargs, a1, a2, a3, a4, a5, a6 uintptr) (r1, r2, err uintptr) {
+	args := [6]uintptr{a1, a2, a3, a4, a5, a6}
 	call := libcall{
 		fn:   fn,
 		n:    nargs,
-		args: uintptr(noescape(unsafe.Pointer(&a1))),
+		args: uintptr(noescape(unsafe.Pointer(&args[0]))),
 	}
 	asmcgocall(unsafe.Pointer(&asmsysvicall6x), unsafe.Pointer(&call))
 	return call.r1, 0, call.err

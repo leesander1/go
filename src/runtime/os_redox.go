@@ -134,7 +134,8 @@ func sysvicall2Err(fn *libcFunc, a1, a2 uintptr) (uintptr, uintptr) {
 	var libcall libcall
 	libcall.fn = uintptr(unsafe.Pointer(fn))
 	libcall.n = 2
-	libcall.args = uintptr(noescape(unsafe.Pointer(&a1)))
+	args := [2]uintptr{a1, a2}
+	libcall.args = uintptr(noescape(unsafe.Pointer(&args[0])))
 	asmcgocall(unsafe.Pointer(&asmsysvicall6x), unsafe.Pointer(&libcall))
 	if mp != nil {
 		mp.libcallsp = 0
@@ -173,7 +174,8 @@ func sysvicall3Err(fn *libcFunc, a1, a2, a3 uintptr) (r1, err uintptr) {
 	var libcall libcall
 	libcall.fn = uintptr(unsafe.Pointer(fn))
 	libcall.n = 3
-	libcall.args = uintptr(noescape(unsafe.Pointer(&a1)))
+	args := [3]uintptr{a1, a2, a3}
+	libcall.args = uintptr(noescape(unsafe.Pointer(&args[0])))
 	asmcgocall(unsafe.Pointer(&asmsysvicall6x), unsafe.Pointer(&libcall))
 	if mp != nil {
 		mp.libcallsp = 0
@@ -213,7 +215,8 @@ func sysvicall4Err(fn *libcFunc, a1, a2, a3, a4 uintptr) (r1, err uintptr) {
 	var libcall libcall
 	libcall.fn = uintptr(unsafe.Pointer(fn))
 	libcall.n = 4
-	libcall.args = uintptr(noescape(unsafe.Pointer(&a1)))
+	args := [4]uintptr{a1, a2, a3, a4}
+	libcall.args = uintptr(noescape(unsafe.Pointer(&args[0])))
 	asmcgocall(unsafe.Pointer(&asmsysvicall6x), unsafe.Pointer(&libcall))
 	if mp != nil {
 		mp.libcallsp = 0
@@ -243,7 +246,8 @@ func sysvicall5(fn *libcFunc, a1, a2, a3, a4, a5 uintptr) uintptr {
 	var libcall libcall
 	libcall.fn = uintptr(unsafe.Pointer(fn))
 	libcall.n = 5
-	libcall.args = uintptr(noescape(unsafe.Pointer(&a1)))
+	args := [5]uintptr{a1, a2, a3, a4, a5}
+	libcall.args = uintptr(noescape(unsafe.Pointer(&args[0])))
 	asmcgocall(unsafe.Pointer(&asmsysvicall6x), unsafe.Pointer(&libcall))
 	if mp != nil {
 		mp.libcallsp = 0
@@ -273,7 +277,8 @@ func sysvicall6(fn *libcFunc, a1, a2, a3, a4, a5, a6 uintptr) uintptr {
 	var libcall libcall
 	libcall.fn = uintptr(unsafe.Pointer(fn))
 	libcall.n = 6
-	libcall.args = uintptr(noescape(unsafe.Pointer(&a1)))
+	args := [6]uintptr{a1, a2, a3, a4, a5, a6}
+	libcall.args = uintptr(noescape(unsafe.Pointer(&args[0])))
 	asmcgocall(unsafe.Pointer(&asmsysvicall6x), unsafe.Pointer(&libcall))
 	if mp != nil {
 		mp.libcallsp = 0

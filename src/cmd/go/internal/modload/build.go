@@ -12,6 +12,7 @@ import (
 	"io/fs"
 	"os"
 	"path/filepath"
+	"sync"
 
 	"cmd/go/internal/base"
 	"cmd/go/internal/cfg"
@@ -34,16 +35,34 @@ func isStandardImportPath(path string) bool {
 	return findStandardImportPath(path) != ""
 }
 
+type standardImportPathKey struct {
+	goroot   string
+	compiler string
+	path     string
+}
+
+var standardImportPathCache sync.Map
+
 func findStandardImportPath(path string) string {
 	if path == "" {
 		panic("findStandardImportPath called with empty path")
 	}
+	key := standardImportPathKey{
+		goroot:   cfg.GOROOT,
+		compiler: cfg.BuildContext.Compiler,
+		path:     path,
+	}
+	if cached, ok := standardImportPathCache.Load(key); ok {
+		return cached.(string)
+	}
+	dir := ""
 	if search.IsStandardImportPath(path) {
 		if modindex.IsStandardPackage(cfg.GOROOT, cfg.BuildContext.Compiler, path) {
-			return filepath.Join(cfg.GOROOT, "src", path)
+			dir = filepath.Join(cfg.GOROOT, "src", path)
 		}
 	}
-	return ""
+	standardImportPathCache.Store(key, dir)
+	return dir
 }
 
 // PackageModuleInfo returns information about the module that provides

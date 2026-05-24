@@ -20,16 +20,22 @@ func IsStandardPackage(goroot, compiler, path string) bool {
 	switch compiler {
 	case "gc":
 		dir := filepath.Join(goroot, "src", path)
-		dirents, err := os.ReadDir(dir)
+		f, err := os.Open(dir)
 		if err != nil {
 			return false
 		}
-		for _, dirent := range dirents {
-			if strings.HasSuffix(dirent.Name(), ".go") {
-				return true
+		defer f.Close()
+		for {
+			names, err := f.Readdirnames(64)
+			for _, name := range names {
+				if strings.HasSuffix(name, ".go") {
+					return true
+				}
+			}
+			if err != nil {
+				return false
 			}
 		}
-		return false
 	case "gccgo":
 		return gccgoSearch.isStandard(path)
 	default:

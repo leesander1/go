@@ -1039,7 +1039,7 @@ func PosixGetdents(fd int, buf []byte, flags int) (n int, err error) {
 	if len(buf) > 0 {
 		_p0 = &buf[0]
 	}
-	r0, _, e1 := sysvicall6(uintptr(unsafe.Pointer(&libc_PosixGetdents)), 4, uintptr(unsafe.Pointer(_p0)), uintptr(len(buf)), uintptr(flags), 0, 0, 0)
+	r0, _, e1 := sysvicall6(uintptr(unsafe.Pointer(&libc_PosixGetdents)), 4, uintptr(fd), uintptr(unsafe.Pointer(_p0)), uintptr(len(buf)), uintptr(flags), 0, 0)
 	n = int(r0)
 	if e1 != 0 {
 		err = errnoErr(e1)
