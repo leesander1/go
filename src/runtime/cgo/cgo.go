@@ -24,6 +24,10 @@ package cgo
 #cgo solaris LDFLAGS: -lxnet
 #cgo solaris LDFLAGS: -lsocket
 
+// Keep native Redox runtime/cgo builds manageable while the libc shim layer is
+// still broad and compile-heavy.
+#cgo redox CFLAGS: -O0 -g0
+
 // Use -fno-stack-protector to avoid problems locating the
 // proper support functions. See issues #52919, #54313, #58385.
 // Use -Wdeclaration-after-statement because some CI builds use it.

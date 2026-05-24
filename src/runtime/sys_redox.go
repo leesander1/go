@@ -129,9 +129,10 @@ var (
 )
 
 //go:nosplit
-// func closefd(fd int32) int32 {
-// 	return int32(sysvicall1(&libc_close, uintptr(fd)))
-// }
+func closefd(fd int32) int32 {
+	_, errno := cgocaller1(unsafe.Pointer(&libc_close), uintptr(fd))
+	return errno
+}
 
 //go:nosplit
 func exit(r int32) {

@@ -439,7 +439,7 @@ func Chroot(path string) (err error) {
 
 
 func Close(fd int) (err error) {
-	_, _, e1 := sysvicall6(uintptr(unsafe.Pointer(&libc_Close)), 1, uintptr(fd), 0, 0, 0, 0, 0)
+	_, _, e1 := rawSysvicall6(uintptr(unsafe.Pointer(&libc_Close)), 1, uintptr(fd), 0, 0, 0, 0, 0)
 	if e1 != 0 {
 		err = errnoErr(e1)
 	}

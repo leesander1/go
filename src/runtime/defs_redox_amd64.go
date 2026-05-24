@@ -26,9 +26,9 @@ const (
 	_SA_RESTORER = 0x4
 
 	_SS_DISABLE  = 2
-	_SIG_BLOCK   = 1
-	_SIG_UNBLOCK = 2
-	_SIG_SETMASK = 3
+	_SIG_BLOCK   = 0
+	_SIG_UNBLOCK = 1
+	_SIG_SETMASK = 2
 	_NSIG        = 32
 	_SI_USER     = 0
 	_UC_SIGMASK  = 0x01

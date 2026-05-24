@@ -5217,6 +5217,8 @@ func syscall_runtime_BeforeForkRedox() {
 	gp := getg().m.curg
 
 	gp.m.locks++
+	sigsave(&gp.m.sigmask)
+	sigblock(false)
 	gp.stackguard0 = stackFork
 }
 
@@ -5227,6 +5229,7 @@ func syscall_runtime_AfterForkRedox() {
 	gp := getg().m.curg
 
 	gp.stackguard0 = gp.stack.lo + stackGuard
+	msigrestore(gp.m.sigmask)
 	gp.m.locks--
 }
 
@@ -5281,6 +5284,9 @@ func syscall_runtime_AfterForkInChild() {
 //go:nowritebarrierrec
 func syscall_runtime_AfterForkInChildRedox() {
 	setg(getg())
+	inForkedChild = true
+	msigrestore(getg().m.sigmask)
+	inForkedChild = false
 }
 
 // pendingPreemptSignals is the number of preemption signals

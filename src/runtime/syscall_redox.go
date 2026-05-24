@@ -136,6 +136,9 @@ func syscall_execve(path, argv, envp uintptr) (err uintptr) {
 	return uintptr(errno)
 }
 
+//go:nosplit
+func syscall_execve_stack(path, argv, envp, stack uintptr) (err uintptr)
+
 // like exit, but must not split stack, for forkx.
 //
 //go:nosplit
