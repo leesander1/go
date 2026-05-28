@@ -26,7 +26,7 @@ type mOS struct {
 	libcCallStackInUse uint32
 }
 
-const libcCallStackSize = 256 << 10
+const libcCallStackSize = 1 << 20
 
 type libcFunc uintptr
 
@@ -317,6 +317,8 @@ func osinit() {
 
 func tstart_sysvicall(newm *m) uint32
 
+const redoxThreadStackSize = 0x200000
+
 // May run with m.p==nil, so write barriers are not allowed.
 //
 //go:nowritebarrier
@@ -326,21 +328,18 @@ func newosproc(mp *m) {
 		oset sigset
 		tid  pthread_t
 		ret  int32
-		size uint64
 	)
 
 	if pthread_attr_init(&attr) != 0 {
 		throw("pthread_attr_init")
 	}
 	// Allocate a new 2MB stack.
-	if pthread_attr_setstack(&attr, 0, 0x200000) != 0 {
+	if pthread_attr_setstack(&attr, 0, redoxThreadStackSize) != 0 {
 		throw("pthread_attr_setstack")
 	}
-	// Read back the allocated stack.
-	if pthread_attr_getstack(&attr, unsafe.Pointer(&mp.g0.stack.hi), &size) != 0 {
-		throw("pthread_attr_getstack")
-	}
-	mp.g0.stack.lo = mp.g0.stack.hi - uintptr(size)
+	// relibc allocates the stack inside pthread_create. Keep the requested
+	// size here so the child entry assembly can lay out initial g0 bounds.
+	mp.g0.stack.hi = redoxThreadStackSize
 	if pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_DETACHED) != 0 {
 		throw("pthread_attr_setdetachstate")
 	}
@@ -359,6 +358,24 @@ func newosproc(mp *m) {
 		}
 		throw("newosproc")
 	}
+}
+
+func minitStackBounds() {
+	var attr pthread_attr_t
+	var stackaddr unsafe.Pointer
+	var size uint64
+
+	if pthread_getattr_np(pthread_self(), &attr) != 0 {
+		return
+	}
+	if pthread_attr_getstack(&attr, unsafe.Pointer(&stackaddr), &size) == 0 && stackaddr != nil && size != 0 {
+		gp := getg()
+		gp.stack.lo = uintptr(stackaddr)
+		gp.stack.hi = uintptr(stackaddr) + uintptr(size)
+		gp.stackguard0 = gp.stack.lo + stackGuard
+		gp.stackguard1 = gp.stackguard0
+	}
+	pthread_attr_destroy(&attr)
 }
 
 func exitThread(wait *atomic.Uint32) {
@@ -415,6 +432,8 @@ func miniterrno()
 // Called on the new thread, cannot allocate memory.
 func minit() {
 	asmcgocall(unsafe.Pointer(abi.FuncPCABI0(miniterrno)), unsafe.Pointer(&libc___errno))
+
+	minitStackBounds()
 
 	minitSignals()
 

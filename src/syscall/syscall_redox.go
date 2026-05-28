@@ -32,13 +32,24 @@ func sysvicall6(trap, nargs, a1, a2, a3, a4, a5, a6 uintptr) (r1, r2 uintptr, er
 //go:uintptrescapes
 func cgocaller2(unsafe.Pointer, ...uintptr) (r0 uintptr, err int32)
 
+// linked by runtime.cgocall_redox.go
+//
+//go:uintptrescapes
+func cgocaller6(unsafe.Pointer, uintptr, uintptr, uintptr, uintptr, uintptr, uintptr) (r0 uintptr, err int32)
+
 // linked by runtime.cgocall.go
 //
 //go:uintptrescapes
 func rawcgocaller2(unsafe.Pointer, ...uintptr) (r0 uintptr, err int32)
 
+// linked by runtime.cgocall_redox.go
+//
+//go:uintptrescapes
+func rawcgocaller6(unsafe.Pointer, uintptr, uintptr, uintptr, uintptr, uintptr, uintptr) (r0 uintptr, err int32)
+
+//go:uintptrescapes
 func syscgocall6(trap unsafe.Pointer, nargs, a1, a2, a3, a4, a5, a6 uintptr) (r1, r2 uintptr, err Errno) {
-	ret, errno := cgocaller2(trap, a1, a2, a3, a4, a5, a6)
+	ret, errno := cgocaller6(trap, a1, a2, a3, a4, a5, a6)
 	if errno != 0 {
 		err = Errno(errno)
 	} else {
@@ -47,8 +58,9 @@ func syscgocall6(trap unsafe.Pointer, nargs, a1, a2, a3, a4, a5, a6 uintptr) (r1
 	return
 }
 
+//go:uintptrescapes
 func rawsyscgocall6(trap unsafe.Pointer, nargs, a1, a2, a3, a4, a5, a6 uintptr) (r1, r2 uintptr, err Errno) {
-	ret, errno := rawcgocaller2(trap, a1, a2, a3, a4, a5, a6)
+	ret, errno := rawcgocaller6(trap, a1, a2, a3, a4, a5, a6)
 	if errno != 0 {
 		err = Errno(errno)
 	} else {

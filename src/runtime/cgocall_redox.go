@@ -6,14 +6,50 @@
 
 package runtime
 
-import "unsafe"
+import (
+	"internal/abi"
+	"unsafe"
+)
+
+type redoxCgoCallArgs struct {
+	fn  unsafe.Pointer
+	arg unsafe.Pointer
+}
+
+func redoxCgoCall()
+
+//go:linkname syscall_cgocaller6 syscall.cgocaller6
+//go:uintptrescapes
+func syscall_cgocaller6(fn unsafe.Pointer, a1, a2, a3, a4, a5, a6 uintptr) (r0 uintptr, err int32) {
+	args := [6]uintptr{a1, a2, a3, a4, a5, a6}
+	as := argset{args: unsafe.Pointer(&args[0])}
+	call := redoxCgoCallArgs{fn: fn, arg: unsafe.Pointer(&as)}
+	cgocall(unsafe.Pointer(abi.FuncPCABI0(redoxCgoCall)), unsafe.Pointer(&call))
+	r0 = as.retval
+	err = as.errno
+	return
+}
 
 //go:linkname syscall_rawcgocaller2 syscall.rawcgocaller2
 //go:nosplit
 //go:uintptrescapes
 func syscall_rawcgocaller2(fn unsafe.Pointer, args ...uintptr) (r0 uintptr, err int32) {
 	as := argset{args: unsafe.Pointer(&args[0])}
-	asmcgocall(fn, unsafe.Pointer(&as))
+	call := redoxCgoCallArgs{fn: fn, arg: unsafe.Pointer(&as)}
+	asmcgocall(unsafe.Pointer(abi.FuncPCABI0(redoxCgoCall)), unsafe.Pointer(&call))
+	r0 = as.retval
+	err = as.errno
+	return
+}
+
+//go:linkname syscall_rawcgocaller6 syscall.rawcgocaller6
+//go:nosplit
+//go:uintptrescapes
+func syscall_rawcgocaller6(fn unsafe.Pointer, a1, a2, a3, a4, a5, a6 uintptr) (r0 uintptr, err int32) {
+	args := [6]uintptr{a1, a2, a3, a4, a5, a6}
+	as := argset{args: unsafe.Pointer(&args[0])}
+	call := redoxCgoCallArgs{fn: fn, arg: unsafe.Pointer(&as)}
+	asmcgocall(unsafe.Pointer(abi.FuncPCABI0(redoxCgoCall)), unsafe.Pointer(&call))
 	r0 = as.retval
 	err = as.errno
 	return

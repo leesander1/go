@@ -115,7 +115,8 @@ func Open(dir string) (*DiskCache, error) {
 
 // fileName returns the name of the file corresponding to the given id.
 func (c *DiskCache) fileName(id [HashSize]byte, key string) string {
-	return filepath.Join(c.dir, fmt.Sprintf("%02x", id[0]), fmt.Sprintf("%x", id)+"-"+key)
+	dir, name := cacheFileName(id, key)
+	return filepath.Join(c.dir, dir, name)
 }
 
 // An entryNotFoundError indicates that a cache entry was not found, with an

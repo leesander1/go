@@ -30,6 +30,7 @@ import (
 //go:cgo_import_dynamic libc_pthread_attr_setdetachstate pthread_attr_setdetachstate "libc.so"
 //go:cgo_import_dynamic libc_pthread_attr_setstack pthread_attr_setstack "libc.so"
 //go:cgo_import_dynamic libc_pthread_create pthread_create "libc.so"
+//go:cgo_import_dynamic libc_pthread_getattr_np pthread_getattr_np "libc.so"
 //go:cgo_import_dynamic libc_pthread_self pthread_self "libc.so"
 //go:cgo_import_dynamic libc_pthread_kill pthread_kill "libc.so"
 //go:cgo_import_dynamic libc_raise raise "libc.so"
@@ -67,6 +68,7 @@ import (
 //go:linkname libc_pthread_attr_setdetachstate libc_pthread_attr_setdetachstate
 //go:linkname libc_pthread_attr_setstack libc_pthread_attr_setstack
 //go:linkname libc_pthread_create libc_pthread_create
+//go:linkname libc_pthread_getattr_np libc_pthread_getattr_np
 //go:linkname libc_pthread_self libc_pthread_self
 //go:linkname libc_pthread_kill libc_pthread_kill
 //go:linkname libc_raise libc_raise
@@ -102,6 +104,7 @@ var (
 	libc_pthread_attr_setdetachstate,
 	libc_pthread_attr_setstack,
 	libc_pthread_create,
+	libc_pthread_getattr_np,
 	libc_pthread_self,
 	libc_pthread_kill,
 	libc_raise,
@@ -214,6 +217,10 @@ func pthread_attr_setstack(attr *pthread_attr_t, addr uintptr, size uint64) int3
 
 func pthread_create(thread *pthread_t, attr *pthread_attr_t, fn uintptr, arg unsafe.Pointer) int32 {
 	return int32(sysvicall4(&libc_pthread_create, uintptr(unsafe.Pointer(thread)), uintptr(unsafe.Pointer(attr)), uintptr(fn), uintptr(arg)))
+}
+
+func pthread_getattr_np(thread pthread_t, attr *pthread_attr_t) int32 {
+	return int32(sysvicall2(&libc_pthread_getattr_np, uintptr(thread), uintptr(unsafe.Pointer(attr))))
 }
 
 func pthread_self() pthread_t {

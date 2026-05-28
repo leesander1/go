@@ -11,7 +11,7 @@
 #include "textflag.h"
 
 #define SYS_futex 240
-#define LIBC_CALL_STACK_SIZE 262144
+#define LIBC_CALL_STACK_SIZE 1048576
 
 // This is needed by asm_amd64.s
 TEXT runtime·settls(SB),NOSPLIT,$8
@@ -125,6 +125,58 @@ skiperrno2:
 	POPQ	R12
 	RET
 
+// Call a cgo syscall wrapper on the Redox libc call stack.
+//
+// Called by runtime·asmcgocall or runtime·cgocall.
+// NOT USING GO CALLING CONVENTION.
+TEXT runtime·redoxCgoCall(SB),NOSPLIT,$0
+	// asmcgocall will put first argument into DI.
+	PUSHQ	R12
+	PUSHQ	R13
+	PUSHQ	DI
+	MOVQ	0(DI), R10	// redoxCgoCallArgs.fn
+	MOVQ	8(DI), DI	// redoxCgoCallArgs.arg
+	MOVQ	$0, R12
+	MOVQ	$0, R13
+
+	get_tls(CX)
+	MOVQ	g(CX), BX
+	CMPQ	BX, $0
+	JEQ	skipcgostack
+	MOVQ	g_m(BX), BX
+	CMPQ	BX, $0
+	JEQ	skipcgostack
+	CMPL	(m_mOS+mOS_libcCallStackInUse)(BX), $0
+	JNE	skipcgostack
+	MOVQ	(m_mOS+mOS_libcCallStack)(BX), AX
+	CMPQ	AX, $0
+	JEQ	skipcgostack
+	MOVL	$1, DX
+	MOVL	DX, (m_mOS+mOS_libcCallStackInUse)(BX)
+	MOVQ	SP, R12
+	MOVQ	BX, R13
+	LEAQ	LIBC_CALL_STACK_SIZE(AX), SP
+	ANDQ	$~15, SP
+
+skipcgostack:
+	XORL	AX, AX
+	CALL	R10
+	CMPQ	R12, $0
+	JEQ	skipcgorestorestack
+	MOVQ	R12, SP
+
+skipcgorestorestack:
+	CMPQ	R13, $0
+	JEQ	skipcgoclearstack
+	XORL	AX, AX
+	MOVL	AX, (m_mOS+mOS_libcCallStackInUse)(R13)
+
+skipcgoclearstack:
+	POPQ	DI
+	POPQ	R13
+	POPQ	R12
+	RET
+
 // int32 futex(uint32 *addr, int32 op, uint32 val,
 //	struct timespec *timeout, uint32 *addr2, uint32 val3);
 TEXT runtime·futex(SB),NOSPLIT,$0
@@ -181,9 +233,14 @@ TEXT runtime·tstart_sysvicall(SB),NOSPLIT,$0
 	MOVQ	DI, g_m(DX)
 
 	// Layout new m scheduler stack on os stack.
+	MOVQ	(g_stack+stack_hi)(DX), CX
+	TESTQ	CX, CX
+	JNE	stacksize
+	MOVQ	$(0x100000), CX
+stacksize:
 	MOVQ	SP, AX
 	MOVQ	AX, (g_stack+stack_hi)(DX)
-	SUBQ	$(0x100000), AX		// stack size
+	SUBQ	CX, AX			// stack size
 	MOVQ	AX, (g_stack+stack_lo)(DX)
 	ADDQ	$const_stackGuard, AX
 	MOVQ	AX, g_stackguard0(DX)

@@ -223,6 +223,15 @@ func forkExec(argv0 string, argv []string, attr *ProcAttr) (pid int, err error) 
 		}
 	}
 	Close(p[0])
+	if runtime.GOOS == "redox" {
+		// Redox execve is implemented in userspace, so keep the C
+		// argument buffers live until relibc has finished copying them.
+		runtime.KeepAlive(argv0p)
+		runtime.KeepAlive(argvp)
+		runtime.KeepAlive(envvp)
+		runtime.KeepAlive(chroot)
+		runtime.KeepAlive(dir)
+	}
 	if err != nil || n != 0 {
 		if n == int(unsafe.Sizeof(err1)) {
 			err = Errno(err1)

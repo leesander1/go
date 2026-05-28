@@ -76,6 +76,9 @@ func execveLibcWrapper(path *byte, argv **byte, envp **byte) error {
 			uintptr(unsafe.Pointer(argv)),
 			uintptr(unsafe.Pointer(envp)),
 			execStackTop)
+		runtime.KeepAlive(path)
+		runtime.KeepAlive(argv)
+		runtime.KeepAlive(envp)
 		redoxExecStackRelease()
 		return err
 	}
