@@ -22,6 +22,7 @@ import (
 //go:cgo_import_dynamic libc_madvise madvise "libc.so"
 //go:cgo_import_dynamic libc_malloc malloc "libc.so"
 //go:cgo_import_dynamic libc_mmap mmap "libc.so"
+//go:cgo_import_dynamic libc_mprotect mprotect "libc.so"
 //go:cgo_import_dynamic libc_munmap munmap "libc.so"
 //go:cgo_import_dynamic libc_open open "libc.so"
 //go:cgo_import_dynamic libc_pthread_attr_destroy pthread_attr_destroy "libc.so"
@@ -60,6 +61,7 @@ import (
 //go:linkname libc_madvise libc_madvise
 //go:linkname libc_malloc libc_malloc
 //go:linkname libc_mmap libc_mmap
+//go:linkname libc_mprotect libc_mprotect
 //go:linkname libc_munmap libc_munmap
 //go:linkname libc_open libc_open
 //go:linkname libc_pthread_attr_destroy libc_pthread_attr_destroy
@@ -96,6 +98,7 @@ var (
 	libc_madvise,
 	libc_malloc,
 	libc_mmap,
+	libc_mprotect,
 	libc_munmap,
 	libc_open,
 	libc_pthread_attr_destroy,
@@ -185,6 +188,16 @@ func doMmap(addr, n, prot, flags, fd, off uintptr) (uintptr, uintptr) {
 func munmap(addr unsafe.Pointer, n uintptr) {
 	sysvicall2(&libc_munmap, uintptr(addr), uintptr(n))
 	KeepAlive(addr)
+}
+
+//go:nosplit
+func mprotect(addr unsafe.Pointer, n uintptr, prot int32) int32 {
+	r1, err := sysvicall3Err(&libc_mprotect, uintptr(addr), uintptr(n), uintptr(prot))
+	KeepAlive(addr)
+	if r1 == ^uintptr(0) {
+		return int32(err)
+	}
+	return 0
 }
 
 //go:nosplit

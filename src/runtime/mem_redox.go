@@ -1,14 +1,14 @@
-// Copyright 2010 The Go Authors. All rights reserved.
+// Copyright 2026 The Go Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-//go:build dragonfly || freebsd || netbsd || openbsd || solaris
+//go:build redox
 
 package runtime
 
-import (
-	"unsafe"
-)
+import "unsafe"
+
+const _ENOMEM = 12
 
 // Don't split the stack as this function may be invoked without a valid G,
 // which prevents us from allocating more stack.
@@ -23,15 +23,6 @@ func sysAllocOS(n uintptr, _ string) unsafe.Pointer {
 }
 
 func sysUnusedOS(v unsafe.Pointer, n uintptr) {
-	if GOOS == "redox" {
-		// not implemented
-		return
-	}
-	if debug.madvdontneed != 0 {
-		madvise(v, n, _MADV_DONTNEED)
-	} else {
-		madvise(v, n, _MADV_FREE)
-	}
 }
 
 func sysUsedOS(v unsafe.Pointer, n uintptr) {
@@ -55,37 +46,26 @@ func sysFreeOS(v unsafe.Pointer, n uintptr) {
 }
 
 func sysFaultOS(v unsafe.Pointer, n uintptr) {
-	mmap(v, n, _PROT_NONE, _MAP_ANON|_MAP_PRIVATE|_MAP_FIXED, -1, 0)
+	if errno := mprotect(v, n, _PROT_NONE); errno != 0 {
+		print("runtime: mprotect(", v, ", ", n, ") returned ", errno, "\n")
+		throw("runtime: cannot fault pages in arena address space")
+	}
 }
 
-// Indicates not to reserve swap space for the mapping.
-const _sunosMAP_NORESERVE = 0x40
-
 func sysReserveOS(v unsafe.Pointer, n uintptr, _ string) unsafe.Pointer {
-	flags := int32(_MAP_ANON | _MAP_PRIVATE)
-	if GOOS == "solaris" || GOOS == "illumos" {
-		// Be explicit that we don't want to reserve swap space
-		// for PROT_NONE anonymous mappings. This avoids an issue
-		// wherein large mappings can cause fork to fail.
-		flags |= _sunosMAP_NORESERVE
-	}
-	p, err := mmap(v, n, _PROT_NONE, flags, -1, 0)
+	p, err := mmap(v, n, _PROT_NONE, _MAP_ANON|_MAP_PRIVATE, -1, 0)
 	if err != 0 {
 		return nil
 	}
 	return p
 }
 
-const _sunosEAGAIN = 11
-const _ENOMEM = 12
-
 func sysMapOS(v unsafe.Pointer, n uintptr, _ string) {
-	p, err := mmap(v, n, _PROT_READ|_PROT_WRITE, _MAP_ANON|_MAP_FIXED|_MAP_PRIVATE, -1, 0)
-	if err == _ENOMEM || ((GOOS == "solaris" || GOOS == "illumos") && err == _sunosEAGAIN) {
-		throw("runtime: out of memory")
-	}
-	if p != v || err != 0 {
-		print("runtime: mmap(", v, ", ", n, ") returned ", p, ", ", err, "\n")
+	if errno := mprotect(v, n, _PROT_READ|_PROT_WRITE); errno != 0 {
+		if errno == _ENOMEM {
+			throw("runtime: out of memory")
+		}
+		print("runtime: mprotect(", v, ", ", n, ") returned ", errno, "\n")
 		throw("runtime: cannot map pages in arena address space")
 	}
 }
