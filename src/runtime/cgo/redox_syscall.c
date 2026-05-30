@@ -728,10 +728,11 @@ _cgo_libc_mmap(argset_t* x) {
 	int flags = (int)x->args[3];
 	int fd = (int)x->args[4];
 	off_t offset = (off_t)x->args[5];
-	x->retval = (uintptr_t)mmap(addr, length, prot, flags, fd, offset);
-	// mmap() returns MAP_FAILED on error, which is (void*)-1
-	if ((void*)x->retval == MAP_FAILED) {
-		x->retval = (uintptr_t)errno;
+	void* ret = mmap(addr, length, prot, flags, fd, offset);
+	if (ret == MAP_FAILED) {
+		x->error = errno;
+	} else {
+		x->retval = (uintptr_t)ret;
 	}
 }
 
