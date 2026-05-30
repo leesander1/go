@@ -12,7 +12,7 @@ import (
 )
 
 func TestMmapReturnsErrorOnFailure(t *testing.T) {
-	b, err := syscall.Mmap(-1, 0, syscall.Getpagesize(), syscall.PROT_READ, syscall.MAP_PRIVATE)
+	b, err := syscall.Mmap(12345, 0, syscall.Getpagesize(), syscall.PROT_READ, syscall.MAP_PRIVATE)
 	if err == nil {
 		_ = syscall.Munmap(b)
 		t.Fatalf("Mmap with invalid fd unexpectedly succeeded")
