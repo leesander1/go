@@ -239,6 +239,7 @@ func issetugid() int32 {
 //go:cgo_unsafe_args
 func syscall_setrlimit(which uintptr, lim unsafe.Pointer) (err uintptr) {
 	_, errno := cgocaller2(unsafe.Pointer(&libc_setrlimit), which, uintptr(lim))
+	KeepAlive(lim)
 	return uintptr(errno)
 }
 
@@ -274,6 +275,8 @@ func syscall_syscall(trap, a1, a2, a3 uintptr) (r1, r2, err uintptr) {
 //go:cgo_unsafe_args
 func syscall_wait4(pid uintptr, wstatus *uint32, options uintptr, rusage unsafe.Pointer) (wpid int, err uintptr) {
 	ret, errno := cgocaller3(unsafe.Pointer(&libc_waitpid), pid, uintptr(unsafe.Pointer(wstatus)), options)
+	KeepAlive(wstatus)
+	KeepAlive(rusage)
 	if errno != 0 {
 		err = uintptr(errno)
 	} else {

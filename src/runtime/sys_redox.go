@@ -151,16 +151,19 @@ func get_environ() uintptr {
 //go:nosplit
 func getcontext(context *ucontext) /* int32 */ {
 	sysvicall1(&libc_getcontext, uintptr(unsafe.Pointer(context)))
+	KeepAlive(context)
 }
 
 //go:nosplit
 func madvise(addr unsafe.Pointer, n uintptr, flags int32) {
 	sysvicall3(&libc_madvise, uintptr(addr), uintptr(n), uintptr(flags))
+	KeepAlive(addr)
 }
 
 //go:nosplit
 func mmap(addr unsafe.Pointer, n uintptr, prot, flags, fd int32, off uint32) (unsafe.Pointer, int) {
 	p, err := doMmap(uintptr(addr), n, uintptr(prot), uintptr(flags), uintptr(fd), uintptr(off))
+	KeepAlive(addr)
 	if p == ^uintptr(0) {
 		return nil, int(err)
 	}
@@ -181,6 +184,7 @@ func doMmap(addr, n, prot, flags, fd, off uintptr) (uintptr, uintptr) {
 //go:nosplit
 func munmap(addr unsafe.Pointer, n uintptr) {
 	sysvicall2(&libc_munmap, uintptr(addr), uintptr(n))
+	KeepAlive(addr)
 }
 
 //go:nosplit
@@ -192,35 +196,55 @@ func nanotime1() int64 {
 
 //go:nosplit
 func open(path *byte, mode, perm int32) int32 {
-	return int32(sysvicall3(&libc_open, uintptr(unsafe.Pointer(path)), uintptr(mode), uintptr(perm)))
+	ret := int32(sysvicall3(&libc_open, uintptr(unsafe.Pointer(path)), uintptr(mode), uintptr(perm)))
+	KeepAlive(path)
+	return ret
 }
 
 func pthread_attr_destroy(attr *pthread_attr_t) int32 {
-	return int32(sysvicall1(&libc_pthread_attr_destroy, uintptr(unsafe.Pointer(attr))))
+	ret := int32(sysvicall1(&libc_pthread_attr_destroy, uintptr(unsafe.Pointer(attr))))
+	KeepAlive(attr)
+	return ret
 }
 
 func pthread_attr_getstack(attr *pthread_attr_t, addr unsafe.Pointer, size *uint64) int32 {
-	return int32(sysvicall3(&libc_pthread_attr_getstack, uintptr(unsafe.Pointer(attr)), uintptr(addr), uintptr(unsafe.Pointer(size))))
+	ret := int32(sysvicall3(&libc_pthread_attr_getstack, uintptr(unsafe.Pointer(attr)), uintptr(addr), uintptr(unsafe.Pointer(size))))
+	KeepAlive(attr)
+	KeepAlive(addr)
+	KeepAlive(size)
+	return ret
 }
 
 func pthread_attr_init(attr *pthread_attr_t) int32 {
-	return int32(sysvicall1(&libc_pthread_attr_init, uintptr(unsafe.Pointer(attr))))
+	ret := int32(sysvicall1(&libc_pthread_attr_init, uintptr(unsafe.Pointer(attr))))
+	KeepAlive(attr)
+	return ret
 }
 
 func pthread_attr_setdetachstate(attr *pthread_attr_t, state int32) int32 {
-	return int32(sysvicall2(&libc_pthread_attr_setdetachstate, uintptr(unsafe.Pointer(attr)), uintptr(state)))
+	ret := int32(sysvicall2(&libc_pthread_attr_setdetachstate, uintptr(unsafe.Pointer(attr)), uintptr(state)))
+	KeepAlive(attr)
+	return ret
 }
 
 func pthread_attr_setstack(attr *pthread_attr_t, addr uintptr, size uint64) int32 {
-	return int32(sysvicall3(&libc_pthread_attr_setstack, uintptr(unsafe.Pointer(attr)), uintptr(addr), uintptr(size)))
+	ret := int32(sysvicall3(&libc_pthread_attr_setstack, uintptr(unsafe.Pointer(attr)), uintptr(addr), uintptr(size)))
+	KeepAlive(attr)
+	return ret
 }
 
 func pthread_create(thread *pthread_t, attr *pthread_attr_t, fn uintptr, arg unsafe.Pointer) int32 {
-	return int32(sysvicall4(&libc_pthread_create, uintptr(unsafe.Pointer(thread)), uintptr(unsafe.Pointer(attr)), uintptr(fn), uintptr(arg)))
+	ret := int32(sysvicall4(&libc_pthread_create, uintptr(unsafe.Pointer(thread)), uintptr(unsafe.Pointer(attr)), uintptr(fn), uintptr(arg)))
+	KeepAlive(thread)
+	KeepAlive(attr)
+	KeepAlive(arg)
+	return ret
 }
 
 func pthread_getattr_np(thread pthread_t, attr *pthread_attr_t) int32 {
-	return int32(sysvicall2(&libc_pthread_getattr_np, uintptr(thread), uintptr(unsafe.Pointer(attr))))
+	ret := int32(sysvicall2(&libc_pthread_getattr_np, uintptr(thread), uintptr(unsafe.Pointer(attr))))
+	KeepAlive(attr)
+	return ret
 }
 
 func pthread_self() pthread_t {
@@ -245,6 +269,7 @@ func raiseproc(sig uint32) /* int32 */ {
 //go:nosplit
 func read(fd int32, buf unsafe.Pointer, nbyte int32) int32 {
 	r1, err := sysvicall3Err(&libc_read, uintptr(fd), uintptr(buf), uintptr(nbyte))
+	KeepAlive(buf)
 	if c := int32(r1); c >= 0 {
 		return c
 	}
@@ -253,44 +278,61 @@ func read(fd int32, buf unsafe.Pointer, nbyte int32) int32 {
 
 //go:nosplit
 func sem_init(sem *sem_t, pshared int32, value uint32) int32 {
-	return int32(sysvicall3(&libc_sem_init, uintptr(unsafe.Pointer(sem)), uintptr(pshared), uintptr(value)))
+	ret := int32(sysvicall3(&libc_sem_init, uintptr(unsafe.Pointer(sem)), uintptr(pshared), uintptr(value)))
+	KeepAlive(sem)
+	return ret
 }
 
 //go:nosplit
 func sem_post(sem *sem_t) int32 {
-	return int32(sysvicall1(&libc_sem_post, uintptr(unsafe.Pointer(sem))))
+	ret := int32(sysvicall1(&libc_sem_post, uintptr(unsafe.Pointer(sem))))
+	KeepAlive(sem)
+	return ret
 }
 
 //go:nosplit
 func sem_timedwait(sem *sem_t, timeout *timespec) int32 {
-	return int32(sysvicall2(&libc_sem_timedwait, uintptr(unsafe.Pointer(sem)), uintptr(unsafe.Pointer(timeout))))
+	ret := int32(sysvicall2(&libc_sem_timedwait, uintptr(unsafe.Pointer(sem)), uintptr(unsafe.Pointer(timeout))))
+	KeepAlive(sem)
+	KeepAlive(timeout)
+	return ret
 }
 
 //go:nosplit
 func sem_wait(sem *sem_t) int32 {
-	return int32(sysvicall1(&libc_sem_wait, uintptr(unsafe.Pointer(sem))))
+	ret := int32(sysvicall1(&libc_sem_wait, uintptr(unsafe.Pointer(sem))))
+	KeepAlive(sem)
+	return ret
 }
 
 func setitimer(which int32, value *itimerval, ovalue *itimerval) /* int32 */ {
 	sysvicall3(&libc_setitimer, uintptr(which), uintptr(unsafe.Pointer(value)), uintptr(unsafe.Pointer(ovalue)))
+	KeepAlive(value)
+	KeepAlive(ovalue)
 }
 
 //go:nosplit
 //go:nowritebarrierrec
 func sigaction(sig uint32, act *sigactiont, oact *sigactiont) /* int32 */ {
 	sysvicall3(&libc_sigaction, uintptr(sig), uintptr(unsafe.Pointer(act)), uintptr(unsafe.Pointer(oact)))
+	KeepAlive(act)
+	KeepAlive(oact)
 }
 
 //go:nosplit
 //go:nowritebarrierrec
 func sigaltstack(ss *stackt, oss *stackt) /* int32 */ {
 	sysvicall2(&libc_sigaltstack, uintptr(unsafe.Pointer(ss)), uintptr(unsafe.Pointer(oss)))
+	KeepAlive(ss)
+	KeepAlive(oss)
 }
 
 //go:nosplit
 //go:nowritebarrierrec
 func sigprocmask(how int32, set *sigset, oset *sigset) /* int32 */ {
 	sysvicall3(&libc_sigprocmask, uintptr(how), uintptr(unsafe.Pointer(set)), uintptr(unsafe.Pointer(oset)))
+	KeepAlive(set)
+	KeepAlive(oset)
 }
 
 func sysconf(name int32) int64 {
@@ -318,6 +360,7 @@ func walltime() (sec int64, nsec int32) {
 //go:nosplit
 func write1(fd uintptr, buf unsafe.Pointer, nbyte int32) int32 {
 	r1, err := sysvicall3Err(&libc_write, fd, uintptr(buf), uintptr(nbyte))
+	KeepAlive(buf)
 	if c := int32(r1); c >= 0 {
 		return c
 	}
