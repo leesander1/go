@@ -5,7 +5,10 @@
 
 package syscall
 
-import "unsafe"
+import (
+	"runtime"
+	"unsafe"
+)
 
 //go:cgo_import_static _cgo_libc_pipe2
 //go:cgo_import_static _cgo_libc_getcwd
@@ -55,6 +58,7 @@ import "unsafe"
 //go:cgo_import_static _cgo_libc_rename
 //go:cgo_import_static _cgo_libc_rmdir
 //go:cgo_import_static _cgo_libc_lseek
+//go:cgo_import_static _cgo_libc_sendfile
 //go:cgo_import_static _cgo_libc_setegid
 //go:cgo_import_static _cgo_libc_seteuid
 //go:cgo_import_static _cgo_libc_setgid
@@ -157,7 +161,7 @@ import "unsafe"
 //go:linkname libc_Symlink _cgo_libc_symlink
 //go:linkname libc_Sync _cgo_libc_sync
 //go:linkname libc_Truncate _cgo_libc_truncate
-//go:linkname libc_PosixGetdents _cgo_libc_posix_getdents
+//go:linkname libc_posix_getdents _cgo_libc_posix_getdents
 //go:linkname libc_Fsync _cgo_libc_fsync
 //go:linkname libc_Ftruncate _cgo_libc_ftruncate
 //go:linkname libc_Umask _cgo_libc_umask
@@ -247,7 +251,7 @@ var (
 	libc_Symlink,
 	libc_Sync,
 	libc_Truncate,
-	libc_PosixGetdents,
+	libc_posix_getdents,
 	libc_Fsync,
 	libc_Ftruncate,
 	libc_Umask,
@@ -275,6 +279,7 @@ var (
 
 func pipe2(p *[2]_C_int, flags int) (err error) {
 	_, _, e1 := rawsyscgocall6(unsafe.Pointer(&libc_pipe2), 2, uintptr(unsafe.Pointer(p)), uintptr(flags), 0, 0, 0, 0)
+	runtime.KeepAlive(p)
 	if e1 != 0 {
 		err = errnoErr(e1)
 	}
@@ -289,6 +294,7 @@ func Getcwd(buf []byte) (n int, err error) {
 		_p0 = &buf[0]
 	}
 	r0, _, e1 := syscgocall6(unsafe.Pointer(&libc_Getcwd), 2, uintptr(unsafe.Pointer(_p0)), uintptr(len(buf)), 0, 0, 0, 0)
+	runtime.KeepAlive(buf)
 	n = int(r0)
 	if e1 != 0 {
 		err = errnoErr(e1)
@@ -300,6 +306,7 @@ func Getcwd(buf []byte) (n int, err error) {
 
 func getgroups(ngid int, gid *_Gid_t) (n int, err error) {
 	r0, _, e1 := rawsyscgocall6(unsafe.Pointer(&libc_getgroups), 2, uintptr(ngid), uintptr(unsafe.Pointer(gid)), 0, 0, 0, 0)
+	runtime.KeepAlive(gid)
 	n = int(r0)
 	if e1 != 0 {
 		err = errnoErr(e1)
@@ -311,6 +318,7 @@ func getgroups(ngid int, gid *_Gid_t) (n int, err error) {
 
 func setgroups(ngid int, gid *_Gid_t) (err error) {
 	_, _, e1 := rawsyscgocall6(unsafe.Pointer(&libc_setgroups), 2, uintptr(ngid), uintptr(unsafe.Pointer(gid)), 0, 0, 0, 0)
+	runtime.KeepAlive(gid)
 	if e1 != 0 {
 		err = errnoErr(e1)
 	}
@@ -332,6 +340,8 @@ func fcntl(fd int, cmd int, arg int) (val int, err error) {
 
 func accept(s int, rsa *RawSockaddrAny, addrlen *_Socklen) (fd int, err error) {
 	r0, _, e1 := syscgocall6(unsafe.Pointer(&libc_accept), 3, uintptr(s), uintptr(unsafe.Pointer(rsa)), uintptr(unsafe.Pointer(addrlen)), 0, 0, 0)
+	runtime.KeepAlive(rsa)
+	runtime.KeepAlive(addrlen)
 	fd = int(r0)
 	if e1 != 0 {
 		err = errnoErr(e1)
@@ -343,6 +353,7 @@ func accept(s int, rsa *RawSockaddrAny, addrlen *_Socklen) (fd int, err error) {
 
 func sendmsg(s int, msg *Msghdr, flags int) (n int, err error) {
 	r0, _, e1 := syscgocall6(unsafe.Pointer(&libc_sendmsg), 3, uintptr(s), uintptr(unsafe.Pointer(msg)), uintptr(flags), 0, 0, 0)
+	runtime.KeepAlive(msg)
 	n = int(r0)
 	if e1 != 0 {
 		err = errnoErr(e1)
@@ -359,6 +370,7 @@ func Access(path string, mode uint32) (err error) {
 		return
 	}
 	_, _, e1 := syscgocall6(unsafe.Pointer(&libc_Access), 2, uintptr(unsafe.Pointer(_p0)), uintptr(mode), 0, 0, 0, 0)
+	runtime.KeepAlive(_p0)
 	if e1 != 0 {
 		err = errnoErr(e1)
 	}
@@ -374,6 +386,7 @@ func Chdir(path string) (err error) {
 		return
 	}
 	_, _, e1 := syscgocall6(unsafe.Pointer(&libc_Chdir), 1, uintptr(unsafe.Pointer(_p0)), 0, 0, 0, 0, 0)
+	runtime.KeepAlive(_p0)
 	if e1 != 0 {
 		err = errnoErr(e1)
 	}
@@ -389,6 +402,7 @@ func Chmod(path string, mode uint32) (err error) {
 		return
 	}
 	_, _, e1 := syscgocall6(unsafe.Pointer(&libc_Chmod), 2, uintptr(unsafe.Pointer(_p0)), uintptr(mode), 0, 0, 0, 0)
+	runtime.KeepAlive(_p0)
 	if e1 != 0 {
 		err = errnoErr(e1)
 	}
@@ -404,6 +418,7 @@ func Chown(path string, uid int, gid int) (err error) {
 		return
 	}
 	_, _, e1 := syscgocall6(unsafe.Pointer(&libc_Chown), 3, uintptr(unsafe.Pointer(_p0)), uintptr(uid), uintptr(gid), 0, 0, 0)
+	runtime.KeepAlive(_p0)
 	if e1 != 0 {
 		err = errnoErr(e1)
 	}
@@ -419,6 +434,7 @@ func Chroot(path string) (err error) {
 		return
 	}
 	_, _, e1 := syscgocall6(unsafe.Pointer(&libc_Chroot), 1, uintptr(unsafe.Pointer(_p0)), 0, 0, 0, 0, 0)
+	runtime.KeepAlive(_p0)
 	if e1 != 0 {
 		err = errnoErr(e1)
 	}
@@ -494,6 +510,7 @@ func Fpathconf(fd int, name int) (val int, err error) {
 
 func Fstat(fd int, stat *Stat_t) (err error) {
 	_, _, e1 := syscgocall6(unsafe.Pointer(&libc_Fstat), 2, uintptr(fd), uintptr(unsafe.Pointer(stat)), 0, 0, 0, 0)
+	runtime.KeepAlive(stat)
 	if e1 != 0 {
 		err = errnoErr(e1)
 	}
@@ -574,6 +591,7 @@ func Getpriority(which int, who int) (n int, err error) {
 
 func Getrlimit(which int, lim *Rlimit) (err error) {
 	_, _, e1 := rawsyscgocall6(unsafe.Pointer(&libc_Getrlimit), 2, uintptr(which), uintptr(unsafe.Pointer(lim)), 0, 0, 0, 0)
+	runtime.KeepAlive(lim)
 	if e1 != 0 {
 		err = errnoErr(e1)
 	}
@@ -584,6 +602,7 @@ func Getrlimit(which int, lim *Rlimit) (err error) {
 
 func Getrusage(who int, rusage *Rusage) (err error) {
 	_, _, e1 := rawsyscgocall6(unsafe.Pointer(&libc_Getrusage), 2, uintptr(who), uintptr(unsafe.Pointer(rusage)), 0, 0, 0, 0)
+	runtime.KeepAlive(rusage)
 	if e1 != 0 {
 		err = errnoErr(e1)
 	}
@@ -594,6 +613,7 @@ func Getrusage(who int, rusage *Rusage) (err error) {
 
 func Gettimeofday(tv *Timeval) (err error) {
 	_, _, e1 := rawsyscgocall6(unsafe.Pointer(&libc_Gettimeofday), 1, uintptr(unsafe.Pointer(tv)), 0, 0, 0, 0, 0)
+	runtime.KeepAlive(tv)
 	if e1 != 0 {
 		err = errnoErr(e1)
 	}
@@ -627,6 +647,7 @@ func Lchown(path string, uid int, gid int) (err error) {
 		return
 	}
 	_, _, e1 := syscgocall6(unsafe.Pointer(&libc_Lchown), 3, uintptr(unsafe.Pointer(_p0)), uintptr(uid), uintptr(gid), 0, 0, 0)
+	runtime.KeepAlive(_p0)
 	if e1 != 0 {
 		err = errnoErr(e1)
 	}
@@ -647,6 +668,8 @@ func Link(path string, link string) (err error) {
 		return
 	}
 	_, _, e1 := syscgocall6(unsafe.Pointer(&libc_Link), 2, uintptr(unsafe.Pointer(_p0)), uintptr(unsafe.Pointer(_p1)), 0, 0, 0, 0)
+	runtime.KeepAlive(_p0)
+	runtime.KeepAlive(_p1)
 	if e1 != 0 {
 		err = errnoErr(e1)
 	}
@@ -672,6 +695,8 @@ func Lstat(path string, stat *Stat_t) (err error) {
 		return
 	}
 	_, _, e1 := syscgocall6(unsafe.Pointer(&libc_Lstat), 2, uintptr(unsafe.Pointer(_p0)), uintptr(unsafe.Pointer(stat)), 0, 0, 0, 0)
+	runtime.KeepAlive(_p0)
+	runtime.KeepAlive(stat)
 	if e1 != 0 {
 		err = errnoErr(e1)
 	}
@@ -687,6 +712,7 @@ func Mkdir(path string, mode uint32) (err error) {
 		return
 	}
 	_, _, e1 := syscgocall6(unsafe.Pointer(&libc_Mkdir), 2, uintptr(unsafe.Pointer(_p0)), uintptr(mode), 0, 0, 0, 0)
+	runtime.KeepAlive(_p0)
 	if e1 != 0 {
 		err = errnoErr(e1)
 	}
@@ -702,6 +728,7 @@ func Mknod(path string, mode uint32, dev int) (err error) {
 		return
 	}
 	_, _, e1 := syscgocall6(unsafe.Pointer(&libc_Mknod), 3, uintptr(unsafe.Pointer(_p0)), uintptr(mode), uintptr(dev), 0, 0, 0)
+	runtime.KeepAlive(_p0)
 	if e1 != 0 {
 		err = errnoErr(e1)
 	}
@@ -712,6 +739,8 @@ func Mknod(path string, mode uint32, dev int) (err error) {
 
 func Nanosleep(time *Timespec, leftover *Timespec) (err error) {
 	_, _, e1 := syscgocall6(unsafe.Pointer(&libc_Nanosleep), 2, uintptr(unsafe.Pointer(time)), uintptr(unsafe.Pointer(leftover)), 0, 0, 0, 0)
+	runtime.KeepAlive(time)
+	runtime.KeepAlive(leftover)
 	if e1 != 0 {
 		err = errnoErr(e1)
 	}
@@ -727,6 +756,7 @@ func Open(path string, mode int, perm uint32) (fd int, err error) {
 		return
 	}
 	r0, _, e1 := syscgocall6(unsafe.Pointer(&libc_Open), 3, uintptr(unsafe.Pointer(_p0)), uintptr(mode), uintptr(perm), 0, 0, 0)
+	runtime.KeepAlive(_p0)
 	fd = int(r0)
 	if e1 != 0 {
 		err = errnoErr(e1)
@@ -743,6 +773,7 @@ func Pathconf(path string, name int) (val int, err error) {
 		return
 	}
 	r0, _, e1 := syscgocall6(unsafe.Pointer(&libc_Pathconf), 2, uintptr(unsafe.Pointer(_p0)), uintptr(name), 0, 0, 0, 0)
+	runtime.KeepAlive(_p0)
 	val = int(r0)
 	if e1 != 0 {
 		err = errnoErr(e1)
@@ -758,6 +789,7 @@ func pread(fd int, p []byte, offset int64) (n int, err error) {
 		_p0 = &p[0]
 	}
 	r0, _, e1 := syscgocall6(unsafe.Pointer(&libc_pread), 4, uintptr(fd), uintptr(unsafe.Pointer(_p0)), uintptr(len(p)), uintptr(offset), 0, 0)
+	runtime.KeepAlive(p)
 	n = int(r0)
 	if e1 != 0 {
 		err = errnoErr(e1)
@@ -773,6 +805,7 @@ func pwrite(fd int, p []byte, offset int64) (n int, err error) {
 		_p0 = &p[0]
 	}
 	r0, _, e1 := syscgocall6(unsafe.Pointer(&libc_pwrite), 4, uintptr(fd), uintptr(unsafe.Pointer(_p0)), uintptr(len(p)), uintptr(offset), 0, 0)
+	runtime.KeepAlive(p)
 	n = int(r0)
 	if e1 != 0 {
 		err = errnoErr(e1)
@@ -788,6 +821,7 @@ func read(fd int, p []byte) (n int, err error) {
 		_p0 = &p[0]
 	}
 	r0, _, e1 := syscgocall6(unsafe.Pointer(&libc_read), 3, uintptr(fd), uintptr(unsafe.Pointer(_p0)), uintptr(len(p)), 0, 0, 0)
+	runtime.KeepAlive(p)
 	n = int(r0)
 	if e1 != 0 {
 		err = errnoErr(e1)
@@ -808,6 +842,8 @@ func Readlink(path string, buf []byte) (n int, err error) {
 		_p1 = &buf[0]
 	}
 	r0, _, e1 := syscgocall6(unsafe.Pointer(&libc_Readlink), 3, uintptr(unsafe.Pointer(_p0)), uintptr(unsafe.Pointer(_p1)), uintptr(len(buf)), 0, 0, 0)
+	runtime.KeepAlive(_p0)
+	runtime.KeepAlive(buf)
 	n = int(r0)
 	if e1 != 0 {
 		err = errnoErr(e1)
@@ -829,6 +865,8 @@ func Rename(from string, to string) (err error) {
 		return
 	}
 	_, _, e1 := syscgocall6(unsafe.Pointer(&libc_Rename), 2, uintptr(unsafe.Pointer(_p0)), uintptr(unsafe.Pointer(_p1)), 0, 0, 0, 0)
+	runtime.KeepAlive(_p0)
+	runtime.KeepAlive(_p1)
 	if e1 != 0 {
 		err = errnoErr(e1)
 	}
@@ -844,6 +882,7 @@ func Rmdir(path string) (err error) {
 		return
 	}
 	_, _, e1 := syscgocall6(unsafe.Pointer(&libc_Rmdir), 1, uintptr(unsafe.Pointer(_p0)), 0, 0, 0, 0, 0)
+	runtime.KeepAlive(_p0)
 	if e1 != 0 {
 		err = errnoErr(e1)
 	}
@@ -858,9 +897,6 @@ func Seek(fd int, offset int64, whence int) (newoffset int64, err error) {
 	if e1 != 0 {
 		err = errnoErr(e1)
 	}
-	if err == nil {
-		redoxMaybeSetDirentOffset(fd, uint64(newoffset))
-	}
 	return
 }
 
@@ -868,6 +904,7 @@ func Seek(fd int, offset int64, whence int) (newoffset int64, err error) {
 
 func sendfile(outfd int, infd int, offset *int64, count int) (written int, err error) {
 	r0, _, e1 := syscgocall6(unsafe.Pointer(&libc_sendfile), 4, uintptr(outfd), uintptr(infd), uintptr(unsafe.Pointer(offset)), uintptr(count), 0, 0)
+	runtime.KeepAlive(offset)
 	written = int(r0)
 	if e1 != 0 {
 		err = errnoErr(e1)
@@ -949,6 +986,7 @@ func Setreuid(ruid int, euid int) (err error) {
 
 func setrlimit(which int, lim *Rlimit) (err error) {
 	_, _, e1 := rawsyscgocall6(unsafe.Pointer(&libc_setrlimit), 2, uintptr(which), uintptr(unsafe.Pointer(lim)), 0, 0, 0, 0)
+	runtime.KeepAlive(lim)
 	if e1 != 0 {
 		err = errnoErr(e1)
 	}
@@ -995,6 +1033,8 @@ func Stat(path string, stat *Stat_t) (err error) {
 		return
 	}
 	_, _, e1 := syscgocall6(unsafe.Pointer(&libc_Stat), 2, uintptr(unsafe.Pointer(_p0)), uintptr(unsafe.Pointer(stat)), 0, 0, 0, 0)
+	runtime.KeepAlive(_p0)
+	runtime.KeepAlive(stat)
 	if e1 != 0 {
 		err = errnoErr(e1)
 	}
@@ -1015,6 +1055,8 @@ func Symlink(path string, link string) (err error) {
 		return
 	}
 	_, _, e1 := syscgocall6(unsafe.Pointer(&libc_Symlink), 2, uintptr(unsafe.Pointer(_p0)), uintptr(unsafe.Pointer(_p1)), 0, 0, 0, 0)
+	runtime.KeepAlive(_p0)
+	runtime.KeepAlive(_p1)
 	if e1 != 0 {
 		err = errnoErr(e1)
 	}
@@ -1040,6 +1082,7 @@ func Truncate(path string, length int64) (err error) {
 		return
 	}
 	_, _, e1 := syscgocall6(unsafe.Pointer(&libc_Truncate), 2, uintptr(unsafe.Pointer(_p0)), uintptr(length), 0, 0, 0, 0)
+	runtime.KeepAlive(_p0)
 	if e1 != 0 {
 		err = errnoErr(e1)
 	}
@@ -1048,12 +1091,13 @@ func Truncate(path string, length int64) (err error) {
 
 // THIS FILE IS GENERATED BY THE COMMAND AT THE TOP; DO NOT EDIT
 
-func PosixGetdents(fd int, buf []byte, flags int) (n int, err error) {
+func PosixGetdents(fd int, buf []byte, flag int) (n int, err error) {
 	var _p0 *byte
 	if len(buf) > 0 {
 		_p0 = &buf[0]
 	}
-	r0, _, e1 := syscgocall6(unsafe.Pointer(&libc_PosixGetdents), 4, uintptr(fd), uintptr(unsafe.Pointer(_p0)), uintptr(len(buf)), uintptr(flags), 0, 0)
+	r0, _, e1 := syscgocall6(unsafe.Pointer(&libc_posix_getdents), 4, uintptr(fd), uintptr(unsafe.Pointer(_p0)), uintptr(len(buf)), uintptr(flag), 0, 0)
+	runtime.KeepAlive(buf)
 	n = int(r0)
 	if e1 != 0 {
 		err = errnoErr(e1)
@@ -1098,6 +1142,7 @@ func Unlink(path string) (err error) {
 		return
 	}
 	_, _, e1 := syscgocall6(unsafe.Pointer(&libc_Unlink), 1, uintptr(unsafe.Pointer(_p0)), 0, 0, 0, 0, 0)
+	runtime.KeepAlive(_p0)
 	if e1 != 0 {
 		err = errnoErr(e1)
 	}
@@ -1113,6 +1158,8 @@ func utimes(path string, times *[2]Timeval) (err error) {
 		return
 	}
 	_, _, e1 := syscgocall6(unsafe.Pointer(&libc_utimes), 2, uintptr(unsafe.Pointer(_p0)), uintptr(unsafe.Pointer(times)), 0, 0, 0, 0)
+	runtime.KeepAlive(_p0)
+	runtime.KeepAlive(times)
 	if e1 != 0 {
 		err = errnoErr(e1)
 	}
@@ -1123,6 +1170,7 @@ func utimes(path string, times *[2]Timeval) (err error) {
 
 func bind(s int, addr unsafe.Pointer, addrlen _Socklen) (err error) {
 	_, _, e1 := syscgocall6(unsafe.Pointer(&libc_bind), 3, uintptr(s), uintptr(addr), uintptr(addrlen), 0, 0, 0)
+	runtime.KeepAlive(addr)
 	if e1 != 0 {
 		err = errnoErr(e1)
 	}
@@ -1133,6 +1181,7 @@ func bind(s int, addr unsafe.Pointer, addrlen _Socklen) (err error) {
 
 func connect(s int, addr unsafe.Pointer, addrlen _Socklen) (err error) {
 	_, _, e1 := syscgocall6(unsafe.Pointer(&libc_connect), 3, uintptr(s), uintptr(addr), uintptr(addrlen), 0, 0, 0)
+	runtime.KeepAlive(addr)
 	if e1 != 0 {
 		err = errnoErr(e1)
 	}
@@ -1168,6 +1217,8 @@ func sendto(s int, buf []byte, flags int, to unsafe.Pointer, addrlen _Socklen) (
 		_p0 = &buf[0]
 	}
 	_, _, e1 := syscgocall6(unsafe.Pointer(&libc_sendto), 6, uintptr(s), uintptr(unsafe.Pointer(_p0)), uintptr(len(buf)), uintptr(flags), uintptr(to), uintptr(addrlen))
+	runtime.KeepAlive(buf)
+	runtime.KeepAlive(to)
 	if e1 != 0 {
 		err = errnoErr(e1)
 	}
@@ -1189,6 +1240,7 @@ func socket(domain int, typ int, proto int) (fd int, err error) {
 
 func socketpair(domain int, typ int, proto int, fd *[2]int32) (err error) {
 	_, _, e1 := rawsyscgocall6(unsafe.Pointer(&libc_socketpair), 4, uintptr(domain), uintptr(typ), uintptr(proto), uintptr(unsafe.Pointer(fd)), 0, 0)
+	runtime.KeepAlive(fd)
 	if e1 != 0 {
 		err = errnoErr(e1)
 	}
@@ -1199,6 +1251,7 @@ func socketpair(domain int, typ int, proto int, fd *[2]int32) (err error) {
 
 func Uname(buf *Utsname) (err error) {
 	_, _, e1 := rawsyscgocall6(unsafe.Pointer(&libc_uname), 1, uintptr(unsafe.Pointer(buf)), 0, 0, 0, 0, 0)
+	runtime.KeepAlive(buf)
 	if e1 != 0 {
 		err = errnoErr(e1)
 	}
@@ -1213,6 +1266,7 @@ func write(fd int, p []byte) (n int, err error) {
 		_p0 = &p[0]
 	}
 	r0, _, e1 := syscgocall6(unsafe.Pointer(&libc_write), 3, uintptr(fd), uintptr(unsafe.Pointer(_p0)), uintptr(len(p)), 0, 0, 0)
+	runtime.KeepAlive(p)
 	n = int(r0)
 	if e1 != 0 {
 		err = errnoErr(e1)
@@ -1228,6 +1282,7 @@ func writev(fd int, iovecs []Iovec) (n uintptr, err error) {
 		_p0 = &iovecs[0]
 	}
 	r0, _, e1 := syscgocall6(unsafe.Pointer(&libc_writev), 3, uintptr(fd), uintptr(unsafe.Pointer(_p0)), uintptr(len(iovecs)), 0, 0, 0)
+	runtime.KeepAlive(iovecs)
 	n = uintptr(r0)
 	if e1 != 0 {
 		err = errnoErr(e1)
@@ -1239,6 +1294,8 @@ func writev(fd int, iovecs []Iovec) (n uintptr, err error) {
 
 func getsockopt(s int, level int, name int, val unsafe.Pointer, vallen *_Socklen) (err error) {
 	_, _, e1 := syscgocall6(unsafe.Pointer(&libc_getsockopt), 5, uintptr(s), uintptr(level), uintptr(name), uintptr(val), uintptr(unsafe.Pointer(vallen)), 0)
+	runtime.KeepAlive(val)
+	runtime.KeepAlive(vallen)
 	if e1 != 0 {
 		err = errnoErr(e1)
 	}
@@ -1249,6 +1306,8 @@ func getsockopt(s int, level int, name int, val unsafe.Pointer, vallen *_Socklen
 
 func getpeername(fd int, rsa *RawSockaddrAny, addrlen *_Socklen) (err error) {
 	_, _, e1 := rawsyscgocall6(unsafe.Pointer(&libc_getpeername), 3, uintptr(fd), uintptr(unsafe.Pointer(rsa)), uintptr(unsafe.Pointer(addrlen)), 0, 0, 0)
+	runtime.KeepAlive(rsa)
+	runtime.KeepAlive(addrlen)
 	if e1 != 0 {
 		err = errnoErr(e1)
 	}
@@ -1259,6 +1318,8 @@ func getpeername(fd int, rsa *RawSockaddrAny, addrlen *_Socklen) (err error) {
 
 func getsockname(fd int, rsa *RawSockaddrAny, addrlen *_Socklen) (err error) {
 	_, _, e1 := syscgocall6(unsafe.Pointer(&libc_getsockname), 3, uintptr(fd), uintptr(unsafe.Pointer(rsa)), uintptr(unsafe.Pointer(addrlen)), 0, 0, 0)
+	runtime.KeepAlive(rsa)
+	runtime.KeepAlive(addrlen)
 	if e1 != 0 {
 		err = errnoErr(e1)
 	}
@@ -1269,6 +1330,7 @@ func getsockname(fd int, rsa *RawSockaddrAny, addrlen *_Socklen) (err error) {
 
 func setsockopt(s int, level int, name int, val unsafe.Pointer, vallen uintptr) (err error) {
 	_, _, e1 := syscgocall6(unsafe.Pointer(&libc_setsockopt), 5, uintptr(s), uintptr(level), uintptr(name), uintptr(val), uintptr(vallen), 0)
+	runtime.KeepAlive(val)
 	if e1 != 0 {
 		err = errnoErr(e1)
 	}
@@ -1283,6 +1345,9 @@ func recvfrom(fd int, p []byte, flags int, from *RawSockaddrAny, fromlen *_Sockl
 		_p0 = &p[0]
 	}
 	r0, _, e1 := syscgocall6(unsafe.Pointer(&libc_recvfrom), 6, uintptr(fd), uintptr(unsafe.Pointer(_p0)), uintptr(len(p)), uintptr(flags), uintptr(unsafe.Pointer(from)), uintptr(unsafe.Pointer(fromlen)))
+	runtime.KeepAlive(p)
+	runtime.KeepAlive(from)
+	runtime.KeepAlive(fromlen)
 	n = int(r0)
 	if e1 != 0 {
 		err = errnoErr(e1)
@@ -1294,6 +1359,7 @@ func recvfrom(fd int, p []byte, flags int, from *RawSockaddrAny, fromlen *_Sockl
 
 func recvmsg(s int, msg *Msghdr, flags int) (n int, err error) {
 	r0, _, e1 := syscgocall6(unsafe.Pointer(&libc_recvmsg), 3, uintptr(s), uintptr(unsafe.Pointer(msg)), uintptr(flags), 0, 0, 0)
+	runtime.KeepAlive(msg)
 	n = int(r0)
 	if e1 != 0 {
 		err = errnoErr(e1)

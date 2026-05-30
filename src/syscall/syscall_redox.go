@@ -13,6 +13,7 @@
 package syscall
 
 import (
+	"runtime"
 	"sync"
 	"unsafe"
 )
@@ -302,6 +303,7 @@ func redoxGetdents(fd int, buf []byte, offset uint64) (n int, err error) {
 	}
 	r0, _, e1 := syscgocall6(unsafe.Pointer(&libc_redox_getdents), 4,
 		uintptr(fd), uintptr(unsafe.Pointer(p)), uintptr(len(buf)), uintptr(offset), 0, 0)
+	runtime.KeepAlive(buf)
 	if e1 != 0 {
 		return 0, e1
 	}
@@ -609,7 +611,7 @@ func sendmsgN(fd int, p, oob []byte, ptr unsafe.Pointer, salen _Socklen, flags i
 //sys	Symlink(path string, link string) (err error)
 //sys	Sync() (err error)
 //sys	Truncate(path string, length int64) (err error)
-//sys	PosixGetdents(fd int, buf []byte, flag int) (n int, err error)
+//sys	PosixGetdents(fd int, buf []byte, flag int) (n int, err error) = posix_getdents
 //sys	Fsync(fd int) (err error)
 //sys	Ftruncate(fd int, length int64) (err error)
 //sys	Umask(newmask int) (oldmask int)
@@ -639,6 +641,7 @@ func Getexecname() (path string, err error) {
 
 func readlen(fd int, buf *byte, nbuf int) (n int, err error) {
 	r0, _, e1 := syscgocall6(unsafe.Pointer(&libc_read), 3, uintptr(fd), uintptr(unsafe.Pointer(buf)), uintptr(nbuf), 0, 0, 0)
+	runtime.KeepAlive(buf)
 	n = int(r0)
 	if e1 != 0 {
 		err = e1

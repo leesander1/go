@@ -454,7 +454,7 @@ func sendmsgN(fd int, iov []Iovec, oob []byte, ptr unsafe.Pointer, salen _Sockle
 //sys	Symlink(path string, link string) (err error)
 //sys	Sync() (err error)
 //sys	Truncate(path string, length int64) (err error)
-//sys	PosixGetdents(fd int, buf []byte, flag int) (n int, err error)
+//sys	PosixGetdents(fd int, buf []byte, flag int) (n int, err error) = posix_getdents
 //sys	Fsync(fd int) (err error)
 //sys	Ftruncate(fd int, length int64) (err error)
 //sys	Umask(newmask int) (oldmask int)

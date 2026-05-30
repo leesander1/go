@@ -5,6 +5,7 @@
 package unix
 
 import (
+	"runtime"
 	"syscall"
 	"unsafe"
 )
@@ -71,6 +72,7 @@ func Unlinkat(dirfd int, path string, flags int) error {
 		uintptr(unsafe.Pointer(p)),
 		uintptr(flags),
 		0, 0, 0)
+	runtime.KeepAlive(p)
 	if errno != 0 {
 		return errno
 	}
@@ -89,6 +91,7 @@ func Openat(dirfd int, path string, flags int, perm uint32) (int, error) {
 		uintptr(flags),
 		uintptr(perm),
 		0, 0)
+	runtime.KeepAlive(p)
 	if errno != 0 {
 		return 0, errno
 	}
@@ -107,6 +110,8 @@ func Fstatat(dirfd int, path string, stat *syscall.Stat_t, flags int) error {
 		uintptr(unsafe.Pointer(stat)),
 		uintptr(flags),
 		0, 0)
+	runtime.KeepAlive(p)
+	runtime.KeepAlive(stat)
 	if errno != 0 {
 		return errno
 	}
@@ -128,6 +133,8 @@ func Readlinkat(dirfd int, path string, buf []byte) (int, error) {
 		uintptr(unsafe.Pointer(b)),
 		uintptr(len(buf)),
 		0, 0)
+	runtime.KeepAlive(p)
+	runtime.KeepAlive(buf)
 	if errno != 0 {
 		return 0, errno
 	}
@@ -145,6 +152,7 @@ func Mkdirat(dirfd int, path string, mode uint32) error {
 		uintptr(unsafe.Pointer(p)),
 		uintptr(mode),
 		0, 0, 0)
+	runtime.KeepAlive(p)
 	if errno != 0 {
 		return errno
 	}
@@ -163,6 +171,7 @@ func Fchmodat(dirfd int, path string, mode uint32, flags int) error {
 		uintptr(mode),
 		uintptr(flags),
 		0, 0)
+	runtime.KeepAlive(p)
 	if errno != 0 {
 		return errno
 	}
@@ -182,6 +191,7 @@ func Fchownat(dirfd int, path string, uid, gid int, flags int) error {
 		uintptr(gid),
 		uintptr(flags),
 		0)
+	runtime.KeepAlive(p)
 	if errno != 0 {
 		return errno
 	}
@@ -204,6 +214,8 @@ func Renameat(olddirfd int, oldpath string, newdirfd int, newpath string) error 
 		uintptr(newdirfd),
 		uintptr(unsafe.Pointer(newp)),
 		0, 0)
+	runtime.KeepAlive(oldp)
+	runtime.KeepAlive(newp)
 	if errno != 0 {
 		return errno
 	}
@@ -227,6 +239,8 @@ func Linkat(olddirfd int, oldpath string, newdirfd int, newpath string, flag int
 		uintptr(unsafe.Pointer(newp)),
 		uintptr(flag),
 		0)
+	runtime.KeepAlive(oldp)
+	runtime.KeepAlive(newp)
 	if errno != 0 {
 		return errno
 	}
@@ -248,6 +262,8 @@ func Symlinkat(oldpath string, newdirfd int, newpath string) error {
 		uintptr(newdirfd),
 		uintptr(unsafe.Pointer(newp)),
 		0, 0, 0)
+	runtime.KeepAlive(oldp)
+	runtime.KeepAlive(newp)
 	if errno != 0 {
 		return errno
 	}

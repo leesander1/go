@@ -3,8 +3,10 @@
 // license that can be found in the LICENSE file.
 
 #include <pthread.h>
+#include <errno.h>
 #include <string.h>
 #include <signal.h>
+#include <stdlib.h>
 #include "libcgo.h"
 #include "libcgo_unix.h"
 
@@ -14,8 +16,16 @@ static void (*setg_gcc)(void*);
 void
 x_cgo_init(G *g, void (*setg)(void*))
 {
+	uintptr *pbounds;
+
 	setg_gcc = setg;
-	_cgo_set_stacklo(g, NULL);
+	pbounds = (uintptr*)malloc(2 * sizeof(uintptr));
+	if (pbounds == NULL) {
+		fprintf(stderr, "runtime/cgo: malloc failed: %s\n", strerror(errno));
+		abort();
+	}
+	_cgo_set_stacklo(g, pbounds);
+	free(pbounds);
 }
 
 void

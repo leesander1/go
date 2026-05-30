@@ -6,7 +6,10 @@
 
 package syscall
 
-import "unsafe"
+import (
+	"runtime"
+	"unsafe"
+)
 
 //go:cgo_import_static _cgo_libc_utimensat
 //go:linkname libc_utimensat _cgo_libc_utimensat
@@ -20,6 +23,8 @@ func utimensat(dirfd int, path string, times *[2]Timespec, flag int) (err error)
 		return
 	}
 	_, _, e1 := syscgocall6(unsafe.Pointer(&libc_utimensat), 4, uintptr(dirfd), uintptr(unsafe.Pointer(_p0)), uintptr(unsafe.Pointer(times)), uintptr(flag), 0, 0)
+	runtime.KeepAlive(_p0)
+	runtime.KeepAlive(times)
 	if e1 != 0 {
 		err = errnoErr(e1)
 	}
