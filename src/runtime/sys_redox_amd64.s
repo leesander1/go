@@ -11,7 +11,7 @@
 #include "textflag.h"
 
 #define SYS_futex 240
-#define LIBC_CALL_STACK_SIZE 1048576
+#define LIBC_CALL_STACK_SIZE 16777216
 
 // This is needed by asm_amd64.s
 TEXT runtime·settls(SB),NOSPLIT,$8

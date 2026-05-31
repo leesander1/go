@@ -26,7 +26,10 @@ type mOS struct {
 	libcCallStackInUse uint32
 }
 
-const libcCallStackSize = 1 << 20
+const (
+	libcCallStackSize  = 16 << 20
+	libcCallStackGuard = 4096
+)
 
 type libcFunc uintptr
 
@@ -420,10 +423,12 @@ func goenvs() {
 func mpreinit(mp *m) {
 	mp.gsignal = malg(32 * 1024)
 	mp.gsignal.m = mp
-	mp.libcCallStack = uintptr(persistentalloc(libcCallStackSize, 16, &memstats.other_sys))
-	if mp.libcCallStack == 0 {
+	stack := sysAlloc(libcCallStackGuard+libcCallStackSize, &memstats.other_sys, "libc call stack")
+	if stack == nil {
 		throw("libc call stack")
 	}
+	sysFault(stack, libcCallStackGuard)
+	mp.libcCallStack = uintptr(stack) + libcCallStackGuard
 }
 
 func miniterrno()
