@@ -44,8 +44,12 @@ TEXT runtime·miniterrno(SB),NOSPLIT,$0
 // NOT USING GO CALLING CONVENTION.
 TEXT runtime·asmsysvicall6(SB),NOSPLIT,$0
 	// asmcgocall will put first argument into DI.
+	PUSHQ	BX
+	PUSHQ	BP
 	PUSHQ	R12
 	PUSHQ	R13
+	PUSHQ	R14
+	PUSHQ	R15
 	PUSHQ	DI			// save for later
 	MOVQ	libcall_fn(DI), R10
 	MOVQ	libcall_args(DI), R11
@@ -121,8 +125,12 @@ skipclearstack:
 	MOVQ	AX, libcall_err(DI)
 
 skiperrno2:
+	POPQ	R15
+	POPQ	R14
 	POPQ	R13
 	POPQ	R12
+	POPQ	BP
+	POPQ	BX
 	RET
 
 // Call a cgo syscall wrapper on the Redox libc call stack.
@@ -131,8 +139,12 @@ skiperrno2:
 // NOT USING GO CALLING CONVENTION.
 TEXT runtime·redoxCgoCall(SB),NOSPLIT,$0
 	// asmcgocall will put first argument into DI.
+	PUSHQ	BX
+	PUSHQ	BP
 	PUSHQ	R12
 	PUSHQ	R13
+	PUSHQ	R14
+	PUSHQ	R15
 	PUSHQ	DI
 	MOVQ	0(DI), R10	// redoxCgoCallArgs.fn
 	MOVQ	8(DI), DI	// redoxCgoCallArgs.arg
@@ -173,8 +185,12 @@ skipcgorestorestack:
 
 skipcgoclearstack:
 	POPQ	DI
+	POPQ	R15
+	POPQ	R14
 	POPQ	R13
 	POPQ	R12
+	POPQ	BP
+	POPQ	BX
 	RET
 
 // int32 futex(uint32 *addr, int32 op, uint32 val,
