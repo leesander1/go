@@ -17,6 +17,7 @@
 #include <semaphore.h>
 #include <sched.h>
 #include <stdlib.h>
+#include <stdint.h>
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <sys/socket.h>
@@ -56,6 +57,26 @@ extern uintptr_t redox_getdents_v0(uintptr_t fd, void* buf, uintptr_t count, uin
 // They return 0 on success and an error number on failure.
 #define SET_PTHREAD_RETVAL(fn) \
 	x->retval = (uintptr_t) fn;
+
+#if defined(__x86_64__)
+#define REDOX_SYS_LSEEK 0x20000013UL
+#define REDOX_MAX_ERRNO 4095UL
+
+static uintptr_t
+redox_raw_syscall3(uintptr_t number, uintptr_t a1, uintptr_t a2, uintptr_t a3) {
+	__asm__ volatile(
+		"syscall"
+		: "+a"(number)
+		: "D"(a1), "S"(a2), "d"(a3)
+		: "rcx", "r11", "memory");
+	return number;
+}
+
+static int
+redox_raw_syscall_is_error(uintptr_t ret) {
+	return ret >= (uintptr_t)-REDOX_MAX_ERRNO;
+}
+#endif
 
 
 // --- File Descriptor Operations ---
@@ -129,7 +150,31 @@ _cgo_libc_lseek(argset_t* x) {
 	int fd = (int)x->args[0];
 	off_t offset = (off_t)x->args[1];
 	int whence = (int)x->args[2];
+#if defined(__x86_64__)
+	struct stat st;
+	uintptr_t ret;
+
+	if (fstat(fd, &st) == 0) {
+		mode_t kind = st.st_mode & S_IFMT;
+		if (kind == S_IFIFO || kind == S_IFSOCK) {
+			x->error = ESPIPE;
+			return;
+		}
+	}
+
+	ret = redox_raw_syscall3(
+		REDOX_SYS_LSEEK,
+		(uintptr_t)fd,
+		(uintptr_t)offset,
+		(uintptr_t)whence);
+	if (redox_raw_syscall_is_error(ret)) {
+		x->error = (int)(-(intptr_t)ret);
+	} else {
+		x->retval = ret;
+	}
+#else
 	SET_RETVAL(lseek(fd, offset, whence));
+#endif
 }
 
 void
