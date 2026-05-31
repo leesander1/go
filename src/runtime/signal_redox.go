@@ -22,7 +22,7 @@ var sigtable = [...]sigTabT{
 	/* 14 */ {_SigNotify, "SIGALRM: alarm clock"},
 	/* 15 */ {_SigNotify + _SigKill, "SIGTERM: termination"},
 	/* 16 */ {_SigThrow + _SigUnblock, "SIGSTKFLT: stack fault"},
-	/* 17 */ {_SigNotify + _SigUnblock + _SigIgn, "SIGCHLD: child status has changed"},
+	/* 17 */ {_SigNotify + _SigDefault + _SigUnblock + _SigIgn, "SIGCHLD: child status has changed"},
 	/* 18 */ {_SigNotify + _SigDefault + _SigIgn, "SIGCONT: continue"},
 	/* 19 */ {0, "SIGSTOP: stop, unblockable"},
 	/* 20 */ {_SigNotify + _SigDefault + _SigIgn, "SIGTSTP: keyboard stop"},
