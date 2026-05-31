@@ -361,7 +361,7 @@ func usleep_no_g(µs uint32) {
 
 //go:nosplit
 func usleep(µs uint32) {
-	usleep1(µs)
+	sysvicall1(&libc_usleep, uintptr(µs))
 }
 
 func walltime() (sec int64, nsec int32) {

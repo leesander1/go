@@ -110,7 +110,7 @@ type argset struct {
 //go:uintptrescapes
 func syscall_cgocaller(fn unsafe.Pointer, args ...uintptr) uintptr {
 	as := argset{args: unsafe.Pointer(&args[0])}
-	cgocall(fn, unsafe.Pointer(&as))
+	cgocallLibc(fn, unsafe.Pointer(&as))
 	return as.retval
 }
 
@@ -118,7 +118,7 @@ func syscall_cgocaller(fn unsafe.Pointer, args ...uintptr) uintptr {
 //go:uintptrescapes
 func syscall_cgocaller2(fn unsafe.Pointer, args ...uintptr) (r0 uintptr, err int32) {
 	as := argset{args: unsafe.Pointer(&args[0])}
-	cgocall(fn, unsafe.Pointer(&as))
+	cgocallLibc(fn, unsafe.Pointer(&as))
 	r0 = as.retval
 	err = as.errno
 	return
@@ -127,7 +127,7 @@ func syscall_cgocaller2(fn unsafe.Pointer, args ...uintptr) (r0 uintptr, err int
 //go:nosplit
 func cgocaller0(fn unsafe.Pointer) (r0 uintptr, err int32) {
 	as := argset{}
-	asmcgocall(fn, unsafe.Pointer(&as))
+	asmcgocallLibc(fn, unsafe.Pointer(&as))
 	r0 = as.retval
 	err = as.errno
 	return
@@ -136,7 +136,7 @@ func cgocaller0(fn unsafe.Pointer) (r0 uintptr, err int32) {
 //go:nosplit
 func cgocaller1(fn unsafe.Pointer, a uintptr) (r0 uintptr, err int32) {
 	as := argset{args: unsafe.Pointer(&a)}
-	asmcgocall(fn, unsafe.Pointer(&as))
+	asmcgocallLibc(fn, unsafe.Pointer(&as))
 	r0 = as.retval
 	err = as.errno
 	return
@@ -146,7 +146,7 @@ func cgocaller1(fn unsafe.Pointer, a uintptr) (r0 uintptr, err int32) {
 func cgocaller2(fn unsafe.Pointer, a, b uintptr) (r0 uintptr, err int32) {
 	args := [2]uintptr{a, b}
 	as := argset{args: unsafe.Pointer(&args[0])}
-	asmcgocall(fn, unsafe.Pointer(&as))
+	asmcgocallLibc(fn, unsafe.Pointer(&as))
 	r0 = as.retval
 	err = as.errno
 	return
@@ -156,7 +156,7 @@ func cgocaller2(fn unsafe.Pointer, a, b uintptr) (r0 uintptr, err int32) {
 func cgocaller3(fn unsafe.Pointer, a, b, c uintptr) (r0 uintptr, err int32) {
 	args := [3]uintptr{a, b, c}
 	as := argset{args: unsafe.Pointer(&args[0])}
-	asmcgocall(fn, unsafe.Pointer(&as))
+	asmcgocallLibc(fn, unsafe.Pointer(&as))
 	r0 = as.retval
 	err = as.errno
 	return
@@ -166,7 +166,7 @@ func cgocaller3(fn unsafe.Pointer, a, b, c uintptr) (r0 uintptr, err int32) {
 func cgocaller4(fn unsafe.Pointer, a, b, c, d uintptr) (r0 uintptr, err int32) {
 	args := [4]uintptr{a, b, c, d}
 	as := argset{args: unsafe.Pointer(&args[0])}
-	asmcgocall(fn, unsafe.Pointer(&as))
+	asmcgocallLibc(fn, unsafe.Pointer(&as))
 	r0 = as.retval
 	err = as.errno
 	return
