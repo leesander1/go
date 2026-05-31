@@ -231,6 +231,7 @@ func forkExec(argv0 string, argv []string, attr *ProcAttr) (pid int, err error) 
 		runtime.KeepAlive(envvp)
 		runtime.KeepAlive(chroot)
 		runtime.KeepAlive(dir)
+		redoxExecStackRelease()
 	}
 	if err != nil || n != 0 {
 		if n == int(unsafe.Sizeof(err1)) {

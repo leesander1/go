@@ -70,7 +70,10 @@ func init() {
 
 func execveLibcWrapper(path *byte, argv **byte, envp **byte) error {
 	if runtime.GOOS == "redox" {
-		execStackTop := redoxExecStackAcquire()
+		execStackTop, errno := redoxExecStackAcquire()
+		if errno != 0 {
+			return errno
+		}
 		err := execveStack(
 			uintptr(unsafe.Pointer(path)),
 			uintptr(unsafe.Pointer(argv)),
@@ -130,7 +133,10 @@ func forkAndExecInChild(argv0 *byte, argv, envv []*byte, chroot, dir *byte, attr
 	}
 	nextfd++
 	if runtime.GOOS == "redox" {
-		execStackTop = redoxExecStackAcquire()
+		execStackTop, err1 = redoxExecStackAcquire()
+		if err1 != 0 {
+			return 0, err1
+		}
 	}
 
 	// About to call fork.
@@ -159,9 +165,6 @@ func forkAndExecInChild(argv0 *byte, argv, envv []*byte, chroot, dir *byte, attr
 			runtime_AfterForkRedox()
 		} else {
 			runtime_AfterFork()
-		}
-		if runtime.GOOS == "redox" {
-			redoxExecStackRelease()
 		}
 		return int(r1), 0
 	}
