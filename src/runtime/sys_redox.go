@@ -5,6 +5,7 @@
 package runtime
 
 import (
+	"internal/runtime/atomic"
 	"unsafe"
 )
 
@@ -346,6 +347,94 @@ func sigprocmask(how int32, set *sigset, oset *sigset) /* int32 */ {
 	sysvicall3(&libc_sigprocmask, uintptr(how), uintptr(unsafe.Pointer(set)), uintptr(unsafe.Pointer(oset)))
 	KeepAlive(set)
 	KeepAlive(oset)
+}
+
+//go:nosplit
+//go:nowritebarrierrec
+func forkRestoreSigmask(sigmask sigset) {
+	// The post-fork path cannot safely call back into relibc's signal
+	// machinery, which may hold locks copied from other threads.
+	redoxSigprocmask(_SIG_SETMASK, &sigmask, nil)
+}
+
+type redoxSigcontrol struct {
+	word            [2]uint64
+	senderInfos     [32]uint64
+	controlFlags    uintptr
+	savedIP         uintptr
+	savedArchdepReg uintptr
+}
+
+func redoxSigcontrolCurrent() *redoxSigcontrol
+
+const redoxSigmaskAllowAlways = uint64(1<<(_SIGKILL-1) | 1<<(_SIGSTOP-1))
+
+//go:nosplit
+//go:nowritebarrierrec
+func redoxSigprocmask(how int32, set *sigset, oset *sigset) {
+	old := redoxSigmaskLoad()
+	if oset != nil {
+		redoxSigsetSet(oset, old)
+	}
+	if set == nil {
+		return
+	}
+
+	next := old
+	mask := redoxSigsetGet(set)
+	switch how {
+	case _SIG_SETMASK:
+		next = mask
+	case _SIG_BLOCK:
+		next = old | mask
+	case _SIG_UNBLOCK:
+		next = old &^ mask
+	default:
+		return
+	}
+	redoxSigmaskStore(next)
+}
+
+//go:nosplit
+//go:nowritebarrierrec
+func redoxSigmaskLoad() uint64 {
+	ctl := redoxSigcontrolCurrent()
+	w0 := atomic.Load64(&ctl.word[0])
+	w1 := atomic.Load64(&ctl.word[1])
+	allow := (w0 >> 32) | ((w1 >> 32) << 32)
+	return ^allow
+}
+
+//go:nosplit
+//go:nowritebarrierrec
+func redoxSigmaskStore(mask uint64) {
+	allow := ^mask | redoxSigmaskAllowAlways
+	ctl := redoxSigcontrolCurrent()
+	redoxSigmaskStoreWord(&ctl.word[0], (allow&0xffffffff)<<32)
+	redoxSigmaskStoreWord(&ctl.word[1], allow&0xffffffff00000000)
+}
+
+//go:nosplit
+//go:nowritebarrierrec
+func redoxSigmaskStoreWord(word *uint64, allow uint64) {
+	for {
+		old := atomic.Load64(word)
+		next := (old & 0xffffffff) | allow
+		if atomic.Cas64(word, old, next) {
+			return
+		}
+	}
+}
+
+//go:nosplit
+func redoxSigsetGet(set *sigset) uint64 {
+	return uint64(set.__bits[0]) | uint64(set.__bits[1])<<32
+}
+
+//go:nosplit
+func redoxSigsetSet(set *sigset, mask uint64) {
+	set.__bits[0] = uint32(mask)
+	set.__bits[1] = uint32(mask >> 32)
 }
 
 func sysconf(name int32) int64 {

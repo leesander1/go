@@ -193,6 +193,12 @@ skipcgoclearstack:
 	POPQ	BX
 	RET
 
+TEXT runtime·redoxSigcontrolCurrent(SB),NOSPLIT|NOFRAME,$0-8
+	MOVQ	0x10(FS), AX	// GenericTcb.tcb_ptr
+	ADDQ	$32, AX		// GenericTcb.os_specific.control
+	MOVQ	AX, ret+0(FP)
+	RET
+
 // int32 futex(uint32 *addr, int32 op, uint32 val,
 //	struct timespec *timeout, uint32 *addr2, uint32 val3);
 TEXT runtime·futex(SB),NOSPLIT,$0

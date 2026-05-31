@@ -5206,7 +5206,7 @@ func syscall_runtime_AfterFork() {
 	// See the comments in beforefork.
 	gp.stackguard0 = gp.stack.lo + stackGuard
 
-	msigrestore(gp.m.sigmask)
+	forkRestoreSigmask(gp.m.sigmask)
 
 	gp.m.locks--
 }
@@ -5229,7 +5229,7 @@ func syscall_runtime_AfterForkRedox() {
 	gp := getg().m.curg
 
 	gp.stackguard0 = gp.stack.lo + stackGuard
-	msigrestore(gp.m.sigmask)
+	forkRestoreSigmask(gp.m.sigmask)
 	gp.m.locks--
 }
 
@@ -5274,7 +5274,7 @@ func syscall_runtime_AfterForkInChild() {
 
 	// When we are the child we are the only thread running,
 	// so we know that nothing else has changed gp.m.sigmask.
-	msigrestore(getg().m.sigmask)
+	forkRestoreSigmask(getg().m.sigmask)
 
 	inForkedChild = false
 }
@@ -5285,7 +5285,7 @@ func syscall_runtime_AfterForkInChild() {
 func syscall_runtime_AfterForkInChildRedox() {
 	setg(getg())
 	inForkedChild = true
-	msigrestore(getg().m.sigmask)
+	forkRestoreSigmask(getg().m.sigmask)
 	inForkedChild = false
 }
 
