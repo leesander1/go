@@ -368,7 +368,7 @@ func (c *DiskCache) markUsed(file string) (isDir bool) {
 		return false
 	}
 	if now := c.now(); now.Sub(info.ModTime()) >= mtimeInterval {
-		os.Chtimes(file, now, now)
+		cacheChtimes(file, now, now)
 	}
 	return info.IsDir()
 }
@@ -493,7 +493,7 @@ func (c *DiskCache) putIndexEntry(id ActionID, out OutputID, size int64, allowVe
 	file := c.fileName(id, "a")
 
 	// Copy file to cache directory.
-	mode := os.O_WRONLY | os.O_CREATE
+	mode := cacheIndexOpenMode()
 	f, err := os.OpenFile(file, mode, 0o666)
 	if err != nil {
 		return err
@@ -518,7 +518,7 @@ func (c *DiskCache) putIndexEntry(id ActionID, out OutputID, size int64, allowVe
 		os.Remove(file)
 		return err
 	}
-	os.Chtimes(file, c.now(), c.now()) // mainly for tests
+	cacheChtimes(file, c.now(), c.now()) // mainly for tests
 
 	return nil
 }
@@ -624,6 +624,11 @@ func (c *DiskCache) copyFile(file io.ReadSeeker, executableName string, out Outp
 		info, err = os.Stat(name)
 	}
 	if err == nil && info.Size() == size {
+		if size == 0 {
+			// A zero-length file has only one possible hash, so there is
+			// nothing to verify by opening and reading it again.
+			return nil
+		}
 		// Check hash.
 		if f, err := os.Open(name); err == nil {
 			h := sha256.New()
@@ -703,7 +708,7 @@ func (c *DiskCache) copyFile(file io.ReadSeeker, executableName string, out Outp
 		os.Remove(name)
 		return err
 	}
-	os.Chtimes(name, c.now(), c.now()) // mainly for tests
+	cacheChtimes(name, c.now(), c.now()) // mainly for tests
 
 	return nil
 }
