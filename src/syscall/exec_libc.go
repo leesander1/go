@@ -111,6 +111,7 @@ func forkAndExecInChild(argv0 *byte, argv, envv []*byte, chroot, dir *byte, attr
 		r1              uintptr
 		err1            Errno
 		nextfd          int
+		closeUntil      int
 		i               int
 		pgrp            _Pid_t
 		cred            *Credential
@@ -351,6 +352,38 @@ func forkAndExecInChild(argv0 *byte, argv, envv []*byte, chroot, dir *byte, attr
 			if err1 != 0 {
 				goto childerror
 			}
+		}
+	}
+
+	if runtime.GOOS == "redox" {
+		// Redox exec is implemented in userspace. Close descriptors above the
+		// requested child files after duping them down, instead of relying only
+		// on close-on-exec to drop pipe ends that must not survive into the new
+		// image. The fork/exec status pipe is allocated after os/exec's I/O
+		// pipes, so sweeping through it also covers the parent's pipe ends.
+		closeUntil = nextfd
+		if closeUntil <= pipe {
+			closeUntil = pipe + 1
+		}
+		if closeUntil < 256 {
+			closeUntil = 256
+		}
+		for i = len(fd); i < closeUntil; i++ {
+			if i != pipe {
+				closeFD(uintptr(i))
+			}
+		}
+
+		// The fork/exec status pipe must close as soon as exec succeeds so
+		// StartProcess can return before the new image exits. Force the flag
+		// here with the raw fcntl path even when pipe2 created the descriptor.
+		r1, err1 = fcntl1(uintptr(pipe), F_GETFD, 0)
+		if err1 != 0 {
+			goto childerror
+		}
+		_, err1 = fcntl1(uintptr(pipe), F_SETFD, r1|FD_CLOEXEC)
+		if err1 != 0 {
+			goto childerror
 		}
 	}
 
