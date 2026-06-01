@@ -210,6 +210,12 @@ func netpoll(delay int64) (gList, int32) {
 		waitms = 1
 	} else if delay < 1e15 {
 		waitms = int32(delay / 1e6)
+		if waitms > 10 {
+			// Redox can miss a newly earlier Go timer while an M is parked in the
+			// event queue. Keep timed polls short so the scheduler rechecks all
+			// timer heaps promptly even when the poll deadline is stale.
+			waitms = 10
+		}
 	} else {
 		// An arbitrary cap on how long to wait for a timer.
 		// 1e9 ms == ~11.5 days.
