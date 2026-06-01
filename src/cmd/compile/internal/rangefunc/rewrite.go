@@ -606,7 +606,10 @@ func Rewrite(pkg *types2.Package, info *types2.Info, files []*syntax.File) map[*
 		syntax.Inspect(file, func(n syntax.Node) bool {
 			switch n := n.(type) {
 			case *syntax.FuncDecl:
-				sig, _ := info.Defs[n.Name].Type().(*types2.Signature)
+				var sig *types2.Signature
+				if obj := info.Defs[n.Name]; obj != nil {
+					sig, _ = obj.Type().(*types2.Signature)
+				}
 				rewriteFunc(pkg, info, n.Type, n.Body, sig, ri)
 				return false
 			case *syntax.FuncLit:

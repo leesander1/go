@@ -584,7 +584,13 @@ func semasleep(ns int64) int32 {
 		if int32(v) >= 0 {
 			return 0
 		}
-		futexsleep(&mp.waitsema, v, ns)
+		sleepns := ns
+		if sleepns < 0 {
+			// Avoid parking an M forever if a Redox futex wake races with
+			// entering the kernel wait.
+			sleepns = 10e6
+		}
+		futexsleep(&mp.waitsema, v, sleepns)
 		if ns >= 0 {
 			if int32(v) >= 0 {
 				return 0

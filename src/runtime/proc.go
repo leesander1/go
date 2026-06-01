@@ -1691,6 +1691,20 @@ func stopTheWorldWithSema(reason stwReason) worldStop {
 	// Wait for remaining Ps to stop voluntarily.
 	if wait {
 		for {
+			if GOOS == "redox" {
+				if atomic.Loadint32(&sched.stopwait) == 0 {
+					noteclear(&sched.stopnote)
+					break
+				}
+				procyield(1000)
+				if atomic.Loadint32(&sched.stopwait) == 0 {
+					noteclear(&sched.stopnote)
+					break
+				}
+				preemptall()
+				continue
+			}
+
 			// wait for 100us, then try to re-preempt in case of any races
 			if notetsleep(&sched.stopnote, 100*1000) {
 				noteclear(&sched.stopnote)
@@ -1763,7 +1777,7 @@ func startTheWorldWithSema(now int64, w worldStop) int64 {
 	assertWorldStopped()
 
 	mp := acquirem() // disable preemption because it can be holding p in a local var
-	if netpollinited() {
+	if GOOS != "redox" && netpollinited() {
 		list, delta := netpoll(0) // non-blocking
 		injectglist(&list)
 		netpollAdjustWaiters(delta)
@@ -2194,6 +2208,25 @@ func forEachPInternal(fn func(*p)) {
 	// Wait for remaining Ps to run fn.
 	if wait {
 		for {
+			if GOOS == "redox" {
+				lock(&sched.lock)
+				for _, p2 := range allp {
+					if p2 != pp && p2.status == _Pidle && atomic.Cas(&p2.runSafePointFn, 1, 0) {
+						fn(p2)
+						sched.safePointWait--
+					}
+				}
+				done := sched.safePointWait == 0
+				unlock(&sched.lock)
+				if done {
+					noteclear(&sched.safePointNote)
+					break
+				}
+				procyield(1000)
+				preemptall()
+				continue
+			}
+
 			// Wait for 100us, then try to re-preempt in
 			// case of any races.
 			//
@@ -3074,6 +3107,25 @@ func startm(pp *p, spinning, lockheld bool) {
 			releasem(mp)
 			return
 		}
+	}
+	if GOOS == "redox" && sched.gcwaiting.Load() && sched.stopwait > 0 {
+		// On Redox, a P handed to a parked M may stay transiently _Pidle long
+		// enough for STW to wait on it. Since startm owns pp here and still
+		// holds sched.lock, stop it directly instead of handing it off.
+		pp.status = _Pgcstop
+		pp.gcStopTime = nanotime()
+		sched.stopwait--
+		if sched.stopwait == 0 {
+			notewakeup(&sched.stopnote)
+		}
+		if spinning && sched.nmspinning.Add(-1) < 0 {
+			throw("startm: negative nmspinning")
+		}
+		if !lockheld {
+			unlock(&sched.lock)
+		}
+		releasem(mp)
+		return
 	}
 	nmp := mget()
 	if nmp == nil {

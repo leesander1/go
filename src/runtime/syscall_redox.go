@@ -274,35 +274,17 @@ func syscall_syscall(trap, a1, a2, a3 uintptr) (r1, r2, err uintptr) {
 //go:linkname syscall_wait4
 //go:cgo_unsafe_args
 func syscall_wait4(pid uintptr, wstatus *uint32, options uintptr, rusage unsafe.Pointer) (wpid int, err uintptr) {
-	const _WNOHANG = 0x1
-
-	waitOptions := options
-	blocking := options&_WNOHANG == 0
-	if blocking {
-		waitOptions |= _WNOHANG
+	args := [3]uintptr{pid, uintptr(unsafe.Pointer(wstatus)), options}
+	as := argset{args: unsafe.Pointer(&args[0])}
+	cgocallLibc(unsafe.Pointer(&libc_waitpid), unsafe.Pointer(&as))
+	KeepAlive(wstatus)
+	KeepAlive(rusage)
+	if as.errno != 0 {
+		err = uintptr(as.errno)
+	} else {
+		wpid = int(as.retval)
 	}
-
-	for {
-		ret, errno := cgocaller3(unsafe.Pointer(&libc_waitpid), pid, uintptr(unsafe.Pointer(wstatus)), waitOptions)
-		KeepAlive(wstatus)
-		KeepAlive(rusage)
-		if errno != 0 {
-			err = uintptr(errno)
-			return
-		}
-		if ret != 0 || !blocking {
-			wpid = int(ret)
-			return
-		}
-
-		// Redox waitpid goes through libc/proc-scheme code. Polling with
-		// WNOHANG keeps the wait cooperative so os/exec copy goroutines can
-		// run while the parent is waiting for the child to exit.
-		Gosched()
-		entersyscallblock()
-		usleep_no_g(1000)
-		exitsyscall()
-	}
+	return
 }
 
 //go:nosplit
