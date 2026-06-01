@@ -20,6 +20,13 @@ var asynctimerchan = godebug.New("asynctimerchan")
 // code, then syncTimer always returns nil, to disable the special
 // channel code paths in the runtime.
 func syncTimer(c chan Time) unsafe.Pointer {
+	if asyncTimerChanForOS() {
+		// Redox currently misses wakeups in the synchronous timer-channel
+		// path. Keep timer channels on the older asynchronous runtime path
+		// until the scheduler/netpoll wakeup path is fixed.
+		return nil
+	}
+
 	// If asynctimerchan=1, we don't even tell the runtime
 	// about channel timers, so that we get the pre-Go 1.23 code paths.
 	if asynctimerchan.Value() == "1" {
