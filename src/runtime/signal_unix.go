@@ -358,7 +358,10 @@ func doSigPreempt(gp *g, ctxt *sigctxt) {
 	}
 }
 
-const preemptMSupported = true
+// Redox signal delivery currently corrupts register state when Go injects
+// async preemption frames from a signal handler. Keep preemption cooperative
+// until that signal context path is fixed.
+const preemptMSupported = GOOS != "redox"
 
 // preemptM sends a preemption request to mp. This request may be
 // handled asynchronously and may be coalesced with other requests to
