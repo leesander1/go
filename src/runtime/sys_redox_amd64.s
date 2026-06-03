@@ -285,8 +285,19 @@ TEXT runtime·sigtramp(SB),NOSPLIT|TOPFRAME|NOFRAME,$0
 	// more stack available than NOSPLIT would have us believe.
 	// To defeat the linker, we make our own stack frame with
 	// more space:
-	SUBQ    $168, SP
-	// save registers
+	SUBQ    $240, SP
+	// Save registers. Signals can interrupt Go code at any instruction,
+	// including between a runtime helper returning a value in a volatile
+	// register and the caller consuming it.
+	MOVQ	AX, 168(SP)
+	MOVQ	CX, 176(SP)
+	MOVQ	DX, 184(SP)
+	MOVQ	DI, 192(SP)
+	MOVQ	SI, 200(SP)
+	MOVQ	R8, 208(SP)
+	MOVQ	R9, 216(SP)
+	MOVQ	R10, 224(SP)
+	MOVQ	R11, 232(SP)
 	MOVQ    BX, 24(SP)
 	MOVQ    BP, 32(SP)
 	MOVQ	R12, 40(SP)
@@ -390,13 +401,22 @@ allgood:
 
 exit:
 	// restore registers
+	MOVQ	168(SP), AX
+	MOVQ	176(SP), CX
+	MOVQ	184(SP), DX
+	MOVQ	192(SP), DI
+	MOVQ	200(SP), SI
+	MOVQ	208(SP), R8
+	MOVQ	216(SP), R9
+	MOVQ	224(SP), R10
+	MOVQ	232(SP), R11
 	MOVQ	24(SP), BX
 	MOVQ	32(SP), BP
 	MOVQ	40(SP), R12
 	MOVQ	48(SP), R13
 	MOVQ	56(SP), R14
 	MOVQ	64(SP), R15
-	ADDQ    $168, SP
+	ADDQ    $240, SP
 	RET
 
 TEXT runtime·sigfwd(SB),NOSPLIT,$0-32
