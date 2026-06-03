@@ -2922,6 +2922,10 @@ func TestAutoAligned64(t *testing.T) {
 }
 
 func TestNilDeref(t *testing.T) {
+	if runtime.GOOS == "redox" {
+		t.Skip("Redox does not yet route hardware exceptions through sigaction")
+	}
+
 	funcs := [...]func(){
 		func() { CompareAndSwapInt32(nil, 0, 0) },
 		func() { (*Int32)(nil).CompareAndSwap(0, 0) },
