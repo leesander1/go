@@ -12,9 +12,7 @@ package testing
 
 import (
 	"fmt"
-	"io"
 	"os"
-	"strings"
 	"time"
 )
 
@@ -25,23 +23,7 @@ func runExample(eg InternalExample) (ok bool) {
 
 	// Capture stdout.
 	stdout := os.Stdout
-	r, w, err := os.Pipe()
-	if err != nil {
-		fmt.Fprintln(os.Stderr, err)
-		os.Exit(1)
-	}
-	os.Stdout = w
-	outC := make(chan string)
-	go func() {
-		var buf strings.Builder
-		_, err := io.Copy(&buf, r)
-		r.Close()
-		if err != nil {
-			fmt.Fprintf(os.Stderr, "testing: copying pipe: %v\n", err)
-			os.Exit(1)
-		}
-		outC <- buf.String()
-	}()
+	finishCapture := captureStdout(stdout)
 
 	finished := false
 	start := time.Now()
@@ -51,9 +33,7 @@ func runExample(eg InternalExample) (ok bool) {
 		timeSpent := time.Since(start)
 
 		// Close pipe, restore stdout, get output.
-		w.Close()
-		os.Stdout = stdout
-		out := <-outC
+		out := finishCapture()
 
 		err := recover()
 		ok = eg.processRunResult(out, timeSpent, finished, err)
