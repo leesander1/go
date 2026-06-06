@@ -32,6 +32,11 @@ func SkipTestAllocations(t *testing.T) {
 		t.Skip("skipping allocations test on plan9")
 	}
 
+	// Redox's libc-backed random device reads allocate.
+	if runtime.GOOS == "redox" {
+		t.Skip("skipping allocations test on redox")
+	}
+
 	// s390x deviates from other assembly implementations and is very hard to
 	// test due to the lack of LUCI builders. See #67307.
 	if runtime.GOARCH == "s390x" {
