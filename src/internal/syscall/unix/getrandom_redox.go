@@ -4,19 +4,7 @@
 
 package unix
 
-import (
-	"sync/atomic"
-	"syscall"
-	"unsafe"
-)
-
-//go:cgo_import_dynamic libc_getrandom getrandom "libc.so"
-
-//go:linkname procGetrandom libc_getrandom
-
-var procGetrandom uintptr
-
-var getrandomUnsupported atomic.Bool
+import "syscall"
 
 // GetRandomFlag is a flag supported by the getrandom system call.
 type GetRandomFlag uintptr
@@ -34,21 +22,5 @@ func GetRandom(p []byte, flags GetRandomFlag) (n int, err error) {
 	if len(p) == 0 {
 		return 0, nil
 	}
-	if getrandomUnsupported.Load() {
-		return 0, syscall.ENOSYS
-	}
-	print("bout to sys call procGetrandom\n")
-	r1, _, errno := syscall6(uintptr(unsafe.Pointer(&procGetrandom)),
-		3,
-		uintptr(unsafe.Pointer(&p[0])),
-		uintptr(len(p)),
-		uintptr(flags),
-		0, 0, 0)
-	if errno != 0 {
-		if errno == syscall.ENOSYS {
-			getrandomUnsupported.Store(true)
-		}
-		return 0, errno
-	}
-	return int(r1), nil
+	return 0, syscall.ENOSYS
 }
