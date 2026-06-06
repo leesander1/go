@@ -3050,6 +3050,7 @@ func TestInvalidPolicyWithAnyKeyUsage(t *testing.T) {
 		Intermediates:       intermediates,
 		KeyUsages:           []ExtKeyUsage{ExtKeyUsageAny},
 		CertificatePolicies: []OID{testOID3},
+		CurrentTime:         leaf.NotBefore.Add(time.Second),
 	})
 	if err == nil {
 		t.Fatal("unexpected success, invalid policy shouldn't be bypassed by passing VerifyOptions.KeyUsages with ExtKeyUsageAny")
