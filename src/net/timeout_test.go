@@ -450,6 +450,11 @@ var readFromTimeoutTests = []struct {
 }
 
 func TestReadFromTimeout(t *testing.T) {
+	switch runtime.GOOS {
+	case "redox":
+		t.Skipf("not supported on %s", runtime.GOOS)
+	}
+
 	ch := make(chan Addr)
 	defer close(ch)
 	handler := func(ls *localPacketServer, c PacketConn) {
