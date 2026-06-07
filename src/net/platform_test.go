@@ -20,7 +20,7 @@ func testableNetwork(network string) bool {
 	case "ip+nopriv":
 	case "ip", "ip4", "ip6":
 		switch runtime.GOOS {
-		case "plan9":
+		case "plan9", "redox":
 			return false
 		default:
 			if os.Getuid() != 0 {

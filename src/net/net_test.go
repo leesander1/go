@@ -443,6 +443,11 @@ func withTCPConnPair(t *testing.T, peer1, peer2 func(c *TCPConn) error) {
 // See golang.org/cl/30164 which documented this. The net/http package
 // depends on this.
 func TestReadTimeoutUnblocksRead(t *testing.T) {
+	switch runtime.GOOS {
+	case "redox":
+		t.Skipf("not supported on %s", runtime.GOOS)
+	}
+
 	serverDone := make(chan struct{})
 	server := func(cs *TCPConn) error {
 		defer close(serverDone)

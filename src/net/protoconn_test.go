@@ -111,6 +111,11 @@ func TestTCPConnSpecificMethods(t *testing.T) {
 }
 
 func TestUDPConnSpecificMethods(t *testing.T) {
+	switch runtime.GOOS {
+	case "redox":
+		t.Skipf("not supported on %s", runtime.GOOS)
+	}
+
 	la, err := ResolveUDPAddr("udp4", "127.0.0.1:0")
 	if err != nil {
 		t.Fatal(err)

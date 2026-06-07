@@ -167,7 +167,7 @@ func TestRawConnReadWrite(t *testing.T) {
 
 func TestRawConnControl(t *testing.T) {
 	switch runtime.GOOS {
-	case "plan9", "js", "wasip1":
+	case "plan9", "js", "redox", "wasip1":
 		t.Skipf("not supported on %s", runtime.GOOS)
 	}
 
