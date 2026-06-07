@@ -8,6 +8,10 @@ package net
 
 import "io"
 
+func tcpReadFromConn(c *TCPConn) io.Writer {
+	return tcpConnWithoutReadFrom{TCPConn: c}
+}
+
 func tcpReadFromReader(r io.Reader) io.Reader {
 	return r
 }

@@ -38,7 +38,7 @@ func testableNetwork(network string) bool {
 		return supportsUnixSocket()
 	case "unixpacket":
 		switch runtime.GOOS {
-		case "aix", "android", "darwin", "ios", "plan9", "windows":
+		case "aix", "android", "darwin", "ios", "plan9", "redox", "windows":
 			return false
 		}
 	}

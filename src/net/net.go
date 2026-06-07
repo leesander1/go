@@ -769,7 +769,7 @@ type tcpConnWithoutReadFrom struct {
 // applicable.
 func genericReadFrom(c *TCPConn, r io.Reader) (n int64, err error) {
 	// Use wrapper to hide existing r.ReadFrom from io.Copy.
-	return io.Copy(tcpConnWithoutReadFrom{TCPConn: c}, tcpReadFromReader(r))
+	return io.Copy(tcpReadFromConn(c), tcpReadFromReader(r))
 }
 
 // noWriteTo can be embedded alongside another type to

@@ -31,7 +31,7 @@ func init() {
 
 func supportsUnixSocket() bool {
 	switch runtime.GOOS {
-	case "android", "ios":
+	case "android", "ios", "redox":
 		return false
 	case "aix":
 		return unixEnabledOnAIX
