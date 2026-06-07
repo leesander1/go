@@ -489,7 +489,7 @@ func TestUDPReadTimeout(t *testing.T) {
 
 func TestAllocs(t *testing.T) {
 	switch runtime.GOOS {
-	case "plan9", "js", "wasip1":
+	case "plan9", "js", "redox", "wasip1":
 		// These implementations have not been optimized.
 		t.Skipf("skipping on %v", runtime.GOOS)
 	case "windows":
@@ -719,7 +719,7 @@ func TestIPv6WriteMsgUDPAddrPortTargetAddrIPVersion(t *testing.T) {
 // and rejects IPv6 destination addresses on a "udp4" connection.
 func TestIPv4WriteMsgUDPAddrPortTargetAddrIPVersion(t *testing.T) {
 	switch runtime.GOOS {
-	case "plan9":
+	case "plan9", "redox":
 		t.Skipf("not supported on %s", runtime.GOOS)
 	}
 
@@ -758,7 +758,7 @@ func TestIPv4WriteMsgUDPAddrPortTargetAddrIPVersion(t *testing.T) {
 // This is a regression test for https://golang.org/issue/77875.
 func TestReadWriteMsgUDPAddrPortEmptyCmsg(t *testing.T) {
 	switch runtime.GOOS {
-	case "plan9":
+	case "plan9", "redox":
 		t.Skipf("not supported on %s", runtime.GOOS)
 	}
 
