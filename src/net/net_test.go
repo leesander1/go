@@ -552,6 +552,11 @@ func TestCloseUnblocksReadUDP(t *testing.T) {
 func TestNotTemporaryRead(t *testing.T) {
 	t.Parallel()
 
+	switch runtime.GOOS {
+	case "redox":
+		t.Skipf("not supported on %s", runtime.GOOS)
+	}
+
 	ln := newLocalListener(t, "tcp")
 	serverDone := make(chan struct{})
 	dialed := make(chan struct{})
