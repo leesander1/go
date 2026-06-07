@@ -338,6 +338,10 @@ func localServer(l net.Listener) {
 var isConnRefused = func(err error) bool { return false }
 
 func localPipe(t testing.TB) (net.Conn, net.Conn) {
+	if c1, c2, ok := localPipeOS(t); ok {
+		return c1, c2
+	}
+
 	localListener.mu.Lock()
 	defer localListener.mu.Unlock()
 
