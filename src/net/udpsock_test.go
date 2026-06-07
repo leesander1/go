@@ -113,7 +113,7 @@ func TestResolveUDPAddr(t *testing.T) {
 
 func TestWriteToUDP(t *testing.T) {
 	switch runtime.GOOS {
-	case "plan9":
+	case "plan9", "redox":
 		t.Skipf("not supported on %s", runtime.GOOS)
 	}
 
@@ -379,7 +379,7 @@ func TestUDPZeroBytePayload(t *testing.T) {
 
 func TestUDPZeroByteBuffer(t *testing.T) {
 	switch runtime.GOOS {
-	case "plan9":
+	case "plan9", "redox":
 		t.Skipf("not supported on %s", runtime.GOOS)
 	}
 	if !testableNetwork("udp") {
@@ -416,7 +416,7 @@ func TestUDPZeroByteBuffer(t *testing.T) {
 
 func TestUDPReadSizeError(t *testing.T) {
 	switch runtime.GOOS {
-	case "plan9":
+	case "plan9", "redox":
 		t.Skipf("not supported on %s", runtime.GOOS)
 	}
 	if !testableNetwork("udp") {
