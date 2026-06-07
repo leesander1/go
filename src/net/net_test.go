@@ -492,6 +492,12 @@ func TestReadTimeoutUnblocksRead(t *testing.T) {
 // Issue 17695: verify that a blocked Read is woken up by a Close.
 func TestCloseUnblocksRead(t *testing.T) {
 	t.Parallel()
+
+	switch runtime.GOOS {
+	case "redox":
+		t.Skipf("not supported on %s", runtime.GOOS)
+	}
+
 	server := func(cs *TCPConn) error {
 		// Give the client time to get stuck in a Read:
 		time.Sleep(20 * time.Millisecond)
