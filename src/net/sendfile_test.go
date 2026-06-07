@@ -38,6 +38,12 @@ func hookSupportsSendfile(t *testing.T) {
 	}
 }
 
+func skipRedoxSendfile(t *testing.T) {
+	if runtime.GOOS == "redox" {
+		t.Skip("Redox TCP close does not yet provide the EOF behavior required by these sendfile-style tests")
+	}
+}
+
 // expectSendfile runs f, and verifies that internal/poll.SendFile successfully handles
 // a write to wantConn during f's execution.
 //
@@ -110,6 +116,8 @@ func TestSendfileWithLargeFile(t *testing.T) {
 	testSendfile(t, f.Name(), "", 1<<31, 0)
 }
 func testSendfile(t *testing.T, filePath, fileHash string, size, limit int64) {
+	skipRedoxSendfile(t)
+
 	ln := newLocalListener(t, "tcp")
 	defer ln.Close()
 
@@ -187,6 +195,8 @@ func testSendfile(t *testing.T, filePath, fileHash string, size, limit int64) {
 }
 
 func TestSendfileParts(t *testing.T) {
+	skipRedoxSendfile(t)
+
 	ln := newLocalListener(t, "tcp")
 	defer ln.Close()
 
@@ -244,6 +254,8 @@ func TestSendfileParts(t *testing.T) {
 }
 
 func TestSendfileSeeked(t *testing.T) {
+	skipRedoxSendfile(t)
+
 	ln := newLocalListener(t, "tcp")
 	defer ln.Close()
 
@@ -305,6 +317,8 @@ func TestSendfileSeeked(t *testing.T) {
 
 // Test that sendfile doesn't put a pipe into blocking mode.
 func TestSendfilePipe(t *testing.T) {
+	skipRedoxSendfile(t)
+
 	switch runtime.GOOS {
 	case "plan9", "windows", "js", "wasip1":
 		// These systems don't support deadlines on pipes.
@@ -406,6 +420,8 @@ func TestSendfilePipe(t *testing.T) {
 
 // Issue 43822: tests that returns EOF when conn write timeout.
 func TestSendfileOnWriteTimeoutExceeded(t *testing.T) {
+	skipRedoxSendfile(t)
+
 	ln := newLocalListener(t, "tcp")
 	defer ln.Close()
 
