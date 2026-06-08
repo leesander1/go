@@ -72,6 +72,9 @@ func TestFcntlFlock(t *testing.T) {
 	if runtime.GOOS == "ios" {
 		t.Skip("skipping; no child processes allowed on iOS")
 	}
+	if runtime.GOOS == "redox" {
+		t.Skip("skipping; FcntlFlock is not implemented on Redox")
+	}
 	flock := syscall.Flock_t{
 		Type:  syscall.F_WRLCK,
 		Start: 31415, Len: 271828, Whence: 1,
@@ -134,6 +137,9 @@ func TestFcntlFlock(t *testing.T) {
 // that the test should become the child process instead.
 func TestPassFD(t *testing.T) {
 	testenv.MustHaveExec(t)
+	if runtime.GOOS == "redox" {
+		t.Skip("skipping; SCM_RIGHTS fd passing is not implemented on Redox")
+	}
 
 	if os.Getenv("GO_WANT_HELPER_PROCESS") == "1" {
 		passFDChild()
@@ -339,6 +345,9 @@ func TestSeekFailure(t *testing.T) {
 }
 
 func TestSetsockoptString(t *testing.T) {
+	if runtime.GOOS == "redox" {
+		t.Skip("skipping; Redox setsockopt does not report EBADF for this case")
+	}
 	// should not panic on empty string, see issue #31277
 	err := syscall.SetsockoptString(-1, 0, 0, "")
 	if err == nil {
