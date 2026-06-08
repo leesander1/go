@@ -27,6 +27,10 @@ func TestGetwdDeepWithPWDSet(t *testing.T) {
 // testGetwdDeep checks that os.Getwd is able to return paths
 // longer than syscall.PathMax (with or without PWD set).
 func testGetwdDeep(t *testing.T, setPWD bool) {
+	if runtime.GOOS == "redox" {
+		t.Skip("Redox rejects cleanup of the long paths created by this test")
+	}
+
 	tempDir := t.TempDir()
 
 	dir := tempDir

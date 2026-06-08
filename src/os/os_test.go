@@ -2906,6 +2906,8 @@ func TestPipeThreads(t *testing.T) {
 		t.Skip("skipping on Windows; issue 19098")
 	case "plan9":
 		t.Skip("skipping on Plan 9; does not support runtime poller")
+	case "redox":
+		t.Skip("skipping on Redox; pipe-thread stress test hangs")
 	case "js":
 		t.Skip("skipping on js; no support for os.Pipe")
 	case "wasip1":

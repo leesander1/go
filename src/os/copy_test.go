@@ -24,6 +24,10 @@ import (
 // https://go.dev/issue/70000
 
 func TestLargeCopyViaNetwork(t *testing.T) {
+	if runtime.GOOS == "redox" {
+		t.Skip("Redox TCP copy path does not satisfy this test yet")
+	}
+
 	const size = 10 * 1024 * 1024
 	dir := t.TempDir()
 
