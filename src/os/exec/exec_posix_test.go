@@ -79,6 +79,10 @@ func TestCredentialNoSetGroups(t *testing.T) {
 // For issue #19314: make sure that SIGSTOP does not cause the process
 // to appear done.
 func TestWaitid(t *testing.T) {
+	if runtime.GOOS == "redox" {
+		t.Skip("Redox SIGSTOP/SIGCONT process wait behavior is not supported yet")
+	}
+
 	t.Parallel()
 
 	cmd := helperCommand(t, "pipetest")
