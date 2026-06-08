@@ -278,6 +278,10 @@ func TestReadNonblockingFd(t *testing.T) {
 }
 
 func TestCloseWithBlockingReadByNewFile(t *testing.T) {
+	if runtime.GOOS == "redox" {
+		t.Skip("Redox pipe close does not unblock blocking readers yet")
+	}
+
 	t.Parallel()
 
 	var p [2]syscallDescriptor
@@ -290,6 +294,10 @@ func TestCloseWithBlockingReadByNewFile(t *testing.T) {
 }
 
 func TestCloseWithBlockingReadByFd(t *testing.T) {
+	if runtime.GOOS == "redox" {
+		t.Skip("Redox pipe close does not unblock blocking readers yet")
+	}
+
 	t.Parallel()
 
 	r, w, err := os.Pipe()
