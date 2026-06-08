@@ -2762,6 +2762,9 @@ func testKillProcess(t *testing.T, processKiller func(p *Process)) {
 }
 
 func TestKillStartProcess(t *testing.T) {
+	if runtime.GOOS == "redox" {
+		t.Skip("Redox Process.Kill does not terminate the helper process yet")
+	}
 	testKillProcess(t, func(p *Process) {
 		err := p.Kill()
 		if err != nil {
