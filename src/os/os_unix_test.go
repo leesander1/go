@@ -231,6 +231,9 @@ func TestMkdirStickyUmask(t *testing.T) {
 	if runtime.GOOS == "wasip1" {
 		t.Skip("file permissions not supported on " + runtime.GOOS)
 	}
+	if runtime.GOOS == "redox" {
+		t.Skip("Redox mkdir does not preserve the sticky bit yet")
+	}
 	// Issue #69788: This test temporarily changes the umask for testing purposes,
 	// so it shouldn't be run in parallel with other test cases
 	// to avoid other tests (e.g., TestCopyFS) creating files with an unintended umask.
