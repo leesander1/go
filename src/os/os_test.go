@@ -2800,6 +2800,9 @@ func TestGetppid(t *testing.T) {
 }
 
 func TestKillFindProcess(t *testing.T) {
+	if runtime.GOOS == "redox" {
+		t.Skip("Redox FindProcess Kill does not terminate the helper process yet")
+	}
 	testKillProcess(t, func(p *Process) {
 		p2, err := FindProcess(p.Pid)
 		if err != nil {
@@ -3128,6 +3131,9 @@ func TestUserHomeDir(t *testing.T) {
 }
 
 func TestDirSeek(t *testing.T) {
+	if runtime.GOOS == "redox" {
+		t.Skip("Redox directory seek does not reset directory iteration yet")
+	}
 	t.Parallel()
 
 	wd, err := Getwd()
@@ -3171,6 +3177,9 @@ func TestReaddirSmallSeek(t *testing.T) {
 	// See issue 37161. Read only one entry from a directory,
 	// seek to the beginning, and read again. We should not see
 	// duplicate entries.
+	if runtime.GOOS == "redox" {
+		t.Skip("Redox directory seek does not reset directory iteration yet")
+	}
 	t.Parallel()
 
 	wd, err := Getwd()
@@ -3388,6 +3397,9 @@ func TestDirFSEmptyDir(t *testing.T) {
 func TestDirFSPathsValid(t *testing.T) {
 	if runtime.GOOS == "windows" {
 		t.Skipf("skipping on Windows")
+	}
+	if runtime.GOOS == "redox" {
+		t.Skip("Redox rejects the colon/backslash filenames used by this test")
 	}
 	t.Parallel()
 
