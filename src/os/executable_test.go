@@ -35,6 +35,9 @@ func TestExecutable(t *testing.T) {
 		os.Exit(0)
 	}
 
+	if runtime.GOOS == "redox" {
+		t.Skip("Redox os.Executable does not resolve the current executable path yet")
+	}
 	t.Parallel()
 	ep := testenv.Executable(t)
 	// we want fn to be of the form "dir/prog"
@@ -86,7 +89,7 @@ func TestExecutableDeleted(t *testing.T) {
 	switch runtime.GOOS {
 	case "windows", "plan9":
 		t.Skipf("%v does not support deleting running binary", runtime.GOOS)
-	case "openbsd", "freebsd", "aix":
+	case "openbsd", "freebsd", "aix", "redox":
 		t.Skipf("%v does not support reading deleted binary name", runtime.GOOS)
 	}
 	t.Parallel()

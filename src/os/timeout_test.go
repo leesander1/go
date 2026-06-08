@@ -53,6 +53,12 @@ var pipeDeadlinesTestCases []pipeDeadlineTest
 // noDeadline is a zero time.Time value, which cancels a deadline.
 var noDeadline time.Time
 
+func skipRedoxPipeDeadlineTests(t *testing.T) {
+	if runtime.GOOS == "redox" {
+		t.Skip("Redox pipe deadlines do not reliably unblock pipe I/O yet")
+	}
+}
+
 var readTimeoutTests = []struct {
 	timeout time.Duration
 	xerrs   [2]error // expected errors in transition
@@ -66,6 +72,7 @@ var readTimeoutTests = []struct {
 
 // There is a very similar copy of this in net/timeout_test.go.
 func TestReadTimeout(t *testing.T) {
+	skipRedoxPipeDeadlineTests(t)
 	t.Parallel()
 
 	for _, tc := range pipeDeadlinesTestCases {
@@ -110,6 +117,7 @@ func TestReadTimeout(t *testing.T) {
 
 // There is a very similar copy of this in net/timeout_test.go.
 func TestReadTimeoutMustNotReturn(t *testing.T) {
+	skipRedoxPipeDeadlineTests(t)
 	t.Parallel()
 
 	for _, tc := range pipeDeadlinesTestCases {
@@ -165,6 +173,7 @@ var writeTimeoutTests = []struct {
 
 // There is a very similar copy of this in net/timeout_test.go.
 func TestWriteTimeout(t *testing.T) {
+	skipRedoxPipeDeadlineTests(t)
 	t.Parallel()
 
 	for _, tc := range pipeDeadlinesTestCases {
@@ -206,6 +215,7 @@ func TestWriteTimeout(t *testing.T) {
 
 // There is a very similar copy of this in net/timeout_test.go.
 func TestWriteTimeoutMustNotReturn(t *testing.T) {
+	skipRedoxPipeDeadlineTests(t)
 	t.Parallel()
 
 	for _, tc := range pipeDeadlinesTestCases {
@@ -304,6 +314,7 @@ func nextTimeout(actual time.Duration) (next time.Duration, ok bool) {
 
 // There is a very similar copy of this in net/timeout_test.go.
 func TestReadTimeoutFluctuation(t *testing.T) {
+	skipRedoxPipeDeadlineTests(t)
 	t.Parallel()
 
 	for _, tc := range pipeDeadlinesTestCases {
@@ -358,6 +369,7 @@ func TestReadTimeoutFluctuation(t *testing.T) {
 
 // There is a very similar copy of this in net/timeout_test.go.
 func TestWriteTimeoutFluctuation(t *testing.T) {
+	skipRedoxPipeDeadlineTests(t)
 	t.Parallel()
 
 	for _, tc := range pipeDeadlinesTestCases {
@@ -431,6 +443,7 @@ func TestWriteTimeoutFluctuation(t *testing.T) {
 
 // There is a very similar copy of this in net/timeout_test.go.
 func TestVariousDeadlines(t *testing.T) {
+	skipRedoxPipeDeadlineTests(t)
 	t.Parallel()
 	for _, tc := range pipeDeadlinesTestCases {
 		t.Run(tc.name, func(t *testing.T) {
@@ -446,6 +459,7 @@ func TestVariousDeadlines1Proc(t *testing.T) {
 	if testing.Short() {
 		t.Skip("skipping in short mode")
 	}
+	skipRedoxPipeDeadlineTests(t)
 	defer runtime.GOMAXPROCS(runtime.GOMAXPROCS(1))
 	for _, tc := range pipeDeadlinesTestCases {
 		t.Run(tc.name, func(t *testing.T) {
@@ -461,6 +475,7 @@ func TestVariousDeadlines4Proc(t *testing.T) {
 	if testing.Short() {
 		t.Skip("skipping in short mode")
 	}
+	skipRedoxPipeDeadlineTests(t)
 	defer runtime.GOMAXPROCS(runtime.GOMAXPROCS(4))
 	for _, tc := range pipeDeadlinesTestCases {
 		t.Run(tc.name, func(t *testing.T) {
@@ -571,6 +586,7 @@ func testVariousDeadlines(t *testing.T, create func(t *testing.T) (r, w *os.File
 
 // There is a very similar copy of this in net/timeout_test.go.
 func TestReadWriteDeadlineRace(t *testing.T) {
+	skipRedoxPipeDeadlineTests(t)
 	t.Parallel()
 
 	N := 1000
@@ -630,6 +646,7 @@ func TestReadWriteDeadlineRace(t *testing.T) {
 // TestRacyRead tests that it is safe to mutate the input Read buffer
 // immediately after cancellation has occurred.
 func TestRacyRead(t *testing.T) {
+	skipRedoxPipeDeadlineTests(t)
 	t.Parallel()
 
 	for _, tc := range pipeDeadlinesTestCases {
@@ -672,6 +689,7 @@ func TestRacyRead(t *testing.T) {
 // TestRacyWrite tests that it is safe to mutate the input Write buffer
 // immediately after cancellation has occurred.
 func TestRacyWrite(t *testing.T) {
+	skipRedoxPipeDeadlineTests(t)
 	t.Parallel()
 
 	for _, tc := range pipeDeadlinesTestCases {

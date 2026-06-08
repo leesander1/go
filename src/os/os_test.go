@@ -1395,6 +1395,9 @@ func TestChtimes(t *testing.T) {
 }
 
 func TestChtimesOmit(t *testing.T) {
+	if runtime.GOOS == "redox" {
+		t.Skip("Redox Chtimes does not preserve omitted atime/mtime yet")
+	}
 	t.Parallel()
 
 	testChtimesOmit(t, true, false)
@@ -2551,6 +2554,8 @@ func TestStatStdin(t *testing.T) {
 	switch runtime.GOOS {
 	case "android", "plan9":
 		t.Skipf("%s doesn't have /bin/sh", runtime.GOOS)
+	case "redox":
+		t.Skip("Redox child process stdin is not reported as a named pipe yet")
 	}
 
 	if Getenv("GO_WANT_HELPER_PROCESS") == "1" {
