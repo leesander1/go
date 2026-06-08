@@ -287,6 +287,10 @@ func TestFileAndSymlinkStats(t *testing.T) {
 
 // see issue 27225 for details
 func TestSymlinkWithTrailingSlash(t *testing.T) {
+	if runtime.GOOS == "redox" {
+		t.Skip("Redox does not resolve symlink metadata through a trailing slash yet")
+	}
+
 	testenv.MustHaveSymlink(t)
 	t.Parallel()
 

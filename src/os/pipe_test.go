@@ -437,6 +437,10 @@ func TestFdRace(t *testing.T) {
 }
 
 func TestFdReadRace(t *testing.T) {
+	if runtime.GOOS == "redox" {
+		t.Skip("Redox pipe read and Fd interaction can hang in this race test")
+	}
+
 	t.Parallel()
 
 	r, w, err := os.Pipe()
