@@ -642,6 +642,12 @@ func TestZeroTimerResetPanics(t *testing.T) {
 	tr.Reset(1)
 }
 
+func TestNilTimerResetPanics(t *testing.T) {
+	defer checkZeroPanicString(t)
+	var tr *Timer
+	tr.Reset(1)
+}
+
 func TestZeroTimerStopPanics(t *testing.T) {
 	defer checkZeroPanicString(t)
 	var tr Timer

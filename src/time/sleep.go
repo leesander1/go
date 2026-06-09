@@ -118,7 +118,7 @@ type Timer struct {
 // <-t.C if Stop returned false to drain a potential stale value.
 // See the [NewTimer] documentation for more details.
 func (t *Timer) Stop() bool {
-	if !t.initTimer {
+	if t == nil || !t.initTimer {
 		panic("time: Stop called on uninitialized Timer")
 	}
 	return stopTimer(t)
@@ -176,7 +176,7 @@ func NewTimer(d Duration) *Timer {
 // and explicitly drain the timer first.
 // See the [NewTimer] documentation for more details.
 func (t *Timer) Reset(d Duration) bool {
-	if !t.initTimer {
+	if t == nil || !t.initTimer {
 		panic("time: Reset called on uninitialized Timer")
 	}
 	w := when(d)
