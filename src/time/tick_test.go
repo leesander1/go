@@ -269,6 +269,9 @@ func TestTimerGC(t *testing.T) {
 	if AsynctimerChan.Value() == "1" {
 		t.Skip("skipping TestTimerGC with asynctimerchan=1")
 	}
+	if AsyncTimerChanForOS() {
+		t.Skip("skipping TestTimerGC when OS requires asynchronous timer channels")
+	}
 
 	run := func(t *testing.T, what string, f func()) {
 		t.Helper()
@@ -320,11 +323,11 @@ func TestChan(t *testing.T) {
 			t.Setenv("GODEBUG", "asynctimerchan="+name)
 			t.Run("Timer", func(t *testing.T) {
 				tim := NewTimer(10000 * Second)
-				testTimerChan(t, tim, tim.C, name == "0")
+				testTimerChan(t, tim, tim.C, name == "0" && !AsyncTimerChanForOS())
 			})
 			t.Run("Ticker", func(t *testing.T) {
 				tim := &tickerTimer{Ticker: NewTicker(10000 * Second)}
-				testTimerChan(t, tim, tim.C, name == "0")
+				testTimerChan(t, tim, tim.C, name == "0" && !AsyncTimerChanForOS())
 			})
 		})
 	}

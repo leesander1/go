@@ -41,6 +41,7 @@ var (
 	TzsetName              = tzsetName
 	TzsetOffset            = tzsetOffset
 	AsynctimerChan         = asynctimerchan
+	AsyncTimerChanForOS    = asyncTimerChanForOS
 )
 
 func LoadFromEmbeddedTZData(zone string) (string, error) {
