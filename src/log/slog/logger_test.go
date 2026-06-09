@@ -103,10 +103,12 @@ func TestConnections(t *testing.T) {
 	Info("msg", "p", nil)
 	checkLogOutput(t, logbuf.String(), `logger_test.go:\d+: INFO msg p=<nil>`)
 	logbuf.Reset()
-	var r *regexp.Regexp
-	Info("msg", "r", r)
-	checkLogOutput(t, logbuf.String(), `logger_test.go:\d+: INFO msg r=<nil>`)
-	logbuf.Reset()
+	if canRecoverNilReceiverPanic() {
+		var r *regexp.Regexp
+		Info("msg", "r", r)
+		checkLogOutput(t, logbuf.String(), `logger_test.go:\d+: INFO msg r=<nil>`)
+		logbuf.Reset()
+	}
 	Warn("msg", "b", 2)
 	checkLogOutput(t, logbuf.String(), `logger_test.go:\d+: WARN msg b=2`)
 	logbuf.Reset()
@@ -786,14 +788,18 @@ func TestPanics(t *testing.T) {
 
 	SetDefault(New(newDefaultHandler(loginternal.DefaultOutput)))
 	for _, pt := range []struct {
-		in  any
-		out string
+		in                       any
+		out                      string
+		needsNilReceiverRecovery bool
 	}{
-		{(*panicTextAndJsonMarshaler)(nil), `logger_test.go:\d+: INFO msg p=<nil>`},
-		{panicTextAndJsonMarshaler{io.ErrUnexpectedEOF}, `logger_test.go:\d+: INFO msg p="!PANIC: unexpected EOF"`},
-		{panicTextAndJsonMarshaler{"panicking"}, `logger_test.go:\d+: INFO msg p="!PANIC: panicking"`},
-		{panicTextAndJsonMarshaler{42}, `logger_test.go:\d+: INFO msg p="!PANIC: 42"`},
+		{(*panicTextAndJsonMarshaler)(nil), `logger_test.go:\d+: INFO msg p=<nil>`, true},
+		{panicTextAndJsonMarshaler{io.ErrUnexpectedEOF}, `logger_test.go:\d+: INFO msg p="!PANIC: unexpected EOF"`, false},
+		{panicTextAndJsonMarshaler{"panicking"}, `logger_test.go:\d+: INFO msg p="!PANIC: panicking"`, false},
+		{panicTextAndJsonMarshaler{42}, `logger_test.go:\d+: INFO msg p="!PANIC: 42"`, false},
 	} {
+		if pt.needsNilReceiverRecovery && !canRecoverNilReceiverPanic() {
+			continue
+		}
 		Info("msg", "p", pt.in)
 		checkLogOutput(t, logBuf.String(), pt.out)
 		logBuf.Reset()
