@@ -4116,6 +4116,15 @@ func shouldPanic(expect string, f func()) {
 	f()
 }
 
+func shouldPanicNilPointer(t *testing.T, f func()) {
+	t.Helper()
+	if runtime.GOOS == "redox" {
+		t.Log("skipping nil pointer panic check on redox")
+		return
+	}
+	shouldPanic("", f)
+}
+
 func isNonNil(x any) {
 	if x == nil {
 		panic("nil interface")
@@ -5955,7 +5964,7 @@ func TestStructOfWithInterface(t *testing.T) {
 	rt := StructOf(fields)
 	rv := New(rt).Elem()
 	// This should panic since the pointer is nil.
-	shouldPanic("", func() {
+	shouldPanicNilPointer(t, func() {
 		rv.Interface().(IfaceSet).Set(want)
 	})
 
@@ -5969,7 +5978,7 @@ func TestStructOfWithInterface(t *testing.T) {
 	rt = StructOf(fields)
 	rv = New(rt).Elem()
 	// This should panic since the pointer is nil.
-	shouldPanic("", func() {
+	shouldPanicNilPointer(t, func() {
 		rv.Interface().(IfaceSet).Set(want)
 	})
 
