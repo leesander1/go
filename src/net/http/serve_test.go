@@ -3493,6 +3493,9 @@ func testServerGracefulClose(t *testing.T, mode testMode) {
 
 func TestCaseSensitiveMethod(t *testing.T) { run(t, testCaseSensitiveMethod) }
 func testCaseSensitiveMethod(t *testing.T, mode testMode) {
+	if runtime.GOOS == "redox" && mode == http2Mode {
+		t.Skip("redox can hang completing the HTTP/2 case-sensitive method request")
+	}
 	cst := newClientServerTest(t, mode, HandlerFunc(func(w ResponseWriter, r *Request) {
 		if r.Method != "get" {
 			t.Errorf(`Got method %q; want "get"`, r.Method)
