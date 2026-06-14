@@ -1318,6 +1318,9 @@ func testTransportRejectsInvalidHeaders(t *testing.T, mode testMode) {
 }
 
 func TestInterruptWithPanic(t *testing.T) {
+	if runtime.GOOS == "redox" {
+		t.Skip("redox does not reliably return an error after a handler panic closes the response")
+	}
 	run(t, func(t *testing.T, mode testMode) {
 		t.Run("boom", func(t *testing.T) { testInterruptWithPanic(t, mode, "boom") })
 		t.Run("nil", func(t *testing.T) { t.Setenv("GODEBUG", "panicnil=1"); testInterruptWithPanic(t, mode, nil) })
