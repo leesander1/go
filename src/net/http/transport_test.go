@@ -7591,6 +7591,10 @@ func TestTransportServerProtocols(t *testing.T) {
 		want: "error",
 	}} {
 		t.Run(test.name, func(t *testing.T) {
+			if runtime.GOOS == "redox" && test.name == "HTTP1 with no server support" {
+				t.Skip("redox can hang waiting for the HTTP/1 to HTTP/2-only protocol mismatch error")
+			}
+
 			// We don't use httptest here because it makes its own decisions
 			// about how to enable/disable HTTP/2.
 			srv := &Server{
