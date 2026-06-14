@@ -1371,6 +1371,9 @@ func TestHandlersCanSetConnectionClose11(t *testing.T) {
 }
 
 func TestHandlersCanSetConnectionClose10(t *testing.T) {
+	if runtime.GOOS == "redox" {
+		t.Skip("redox can hang waiting for EOF after an HTTP/1.0 handler sets Connection: close")
+	}
 	testTCPConnectionCloses(t, "GET / HTTP/1.0\r\nConnection: keep-alive\r\n\r\n", HandlerFunc(func(w ResponseWriter, r *Request) {
 		w.Header().Set("Connection", "close")
 	}))
