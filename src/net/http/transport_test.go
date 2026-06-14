@@ -2380,6 +2380,10 @@ func testChunkedNoContent(t *testing.T, mode testMode) {
 }
 
 func TestTransportConcurrency(t *testing.T) {
+	if runtime.GOOS == "redox" {
+		t.Skip("redox does not reliably complete high-concurrency localhost transport requests")
+	}
+
 	run(t, testTransportConcurrency, testNotParallel, []testMode{http1Mode})
 }
 func testTransportConcurrency(t *testing.T, mode testMode) {
