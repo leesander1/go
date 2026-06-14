@@ -3379,6 +3379,9 @@ func testClientWriteShutdown(t *testing.T, mode testMode) {
 	if runtime.GOOS == "plan9" {
 		t.Skip("skipping test; see https://golang.org/issue/17906")
 	}
+	if runtime.GOOS == "redox" {
+		t.Skip("redox can hang completing the client write shutdown")
+	}
 	ts := newClientServerTest(t, mode, HandlerFunc(func(w ResponseWriter, r *Request) {})).ts
 	conn, err := net.Dial("tcp", ts.Listener.Addr().String())
 	if err != nil {
