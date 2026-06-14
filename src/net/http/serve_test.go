@@ -1365,6 +1365,9 @@ func TestClientCanClose(t *testing.T) {
 // TestHandlersCanSetConnectionClose verifies that handlers can force a connection to close,
 // even for HTTP/1.1 requests.
 func TestHandlersCanSetConnectionClose11(t *testing.T) {
+	if runtime.GOOS == "redox" {
+		t.Skip("redox can hang waiting for EOF after an HTTP/1.1 handler sets Connection: close")
+	}
 	testTCPConnectionCloses(t, "GET / HTTP/1.1\r\nHost: foo\r\n\r\n\r\n", HandlerFunc(func(w ResponseWriter, r *Request) {
 		w.Header().Set("Connection", "close")
 	}))
