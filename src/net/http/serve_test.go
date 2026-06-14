@@ -1357,6 +1357,9 @@ func TestServeHTTP10Close(t *testing.T) {
 
 // TestClientCanClose verifies that clients can also force a connection to close.
 func TestClientCanClose(t *testing.T) {
+	if runtime.GOOS == "redox" {
+		t.Skip("redox can hang waiting for EOF after a client requests Connection: close")
+	}
 	testTCPConnectionCloses(t, "GET / HTTP/1.1\r\nHost: foo\r\nConnection: close\r\n\r\n", HandlerFunc(func(w ResponseWriter, r *Request) {
 		// Nothing.
 	}))
