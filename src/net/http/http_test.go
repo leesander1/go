@@ -13,6 +13,7 @@ import (
 	"net/url"
 	"os"
 	"regexp"
+	"runtime"
 	"slices"
 	"strings"
 	"testing"
@@ -98,6 +99,9 @@ func TestOmitHTTP2(t *testing.T) {
 // in short mode.
 // The TestOmitHTTP2 test above actually runs tests (in long mode).
 func TestOmitHTTP2Vet(t *testing.T) {
+	if runtime.GOOS == "redox" {
+		t.Skip("redox does not reliably complete nested go vet for net/http")
+	}
 	t.Parallel()
 	goTool := testenv.GoToolPath(t)
 	out, err := testenv.Command(t, goTool, "vet", "-tags=nethttpomithttp2", "net/http").CombinedOutput()
