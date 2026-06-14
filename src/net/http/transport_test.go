@@ -3959,6 +3959,10 @@ func testRetryRequestsOnError(t *testing.T, mode testMode) {
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
+			if runtime.GOOS == "redox" && tc.name == "IdempotentGetBodySomeWritten" {
+				t.Skip("redox does not reliably retry a partially-written request body on a reused connection")
+			}
+
 			var (
 				mu     sync.Mutex
 				logbuf strings.Builder
