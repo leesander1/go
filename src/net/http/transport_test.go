@@ -5104,6 +5104,9 @@ func TestTransportEventTrace(t *testing.T) {
 
 // test a non-nil httptrace.ClientTrace but with all hooks set to zero.
 func TestTransportEventTrace_NoHooks(t *testing.T) {
+	if runtime.GOOS == "redox" {
+		t.Skip("redox can hang closing the idle server connection after the zero-hook trace request")
+	}
 	run(t, func(t *testing.T, mode testMode) {
 		testTransportEventTrace(t, mode, true)
 	}, testNotParallel)
