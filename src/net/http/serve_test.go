@@ -4944,6 +4944,9 @@ func TestHandlerFinishSkipBigContentLengthRead(t *testing.T) {
 
 func TestHandlerSetsBodyNil(t *testing.T) { run(t, testHandlerSetsBodyNil) }
 func testHandlerSetsBodyNil(t *testing.T, mode testMode) {
+	if runtime.GOOS == "redox" && mode == http2Mode {
+		t.Skip("redox can hang reusing an HTTP/2 connection after a handler clears the request body")
+	}
 	cst := newClientServerTest(t, mode, HandlerFunc(func(w ResponseWriter, r *Request) {
 		r.Body = nil
 		fmt.Fprintf(w, "%v", r.RemoteAddr)

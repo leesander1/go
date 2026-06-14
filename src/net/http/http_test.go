@@ -53,6 +53,9 @@ func TestForeachHeaderElement(t *testing.T) {
 // This catches accidental dependencies between the HTTP transport and
 // server code.
 func TestCmdGoNoHTTPServer(t *testing.T) {
+	if runtime.GOOS == "redox" {
+		t.Skip("redox runs go tool nm too slowly for this nested command test")
+	}
 	t.Parallel()
 	goBin := testenv.GoToolPath(t)
 	out, err := testenv.Command(t, goBin, "tool", "nm", goBin).CombinedOutput()
