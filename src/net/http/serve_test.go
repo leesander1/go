@@ -3764,7 +3764,12 @@ func testHijackBeforeRequestBodyRead(t *testing.T, mode testMode) {
 	<-gotCloseNotify
 }
 
-func TestOptions(t *testing.T) { run(t, testOptions, []testMode{http1Mode}) }
+func TestOptions(t *testing.T) {
+	if runtime.GOOS == "redox" {
+		t.Skip("redox can hang closing the raw OPTIONS star request connection")
+	}
+	run(t, testOptions, []testMode{http1Mode})
+}
 func testOptions(t *testing.T, mode testMode) {
 	uric := make(chan string, 2) // only expect 1, but leave space for 2
 	mux := NewServeMux()
