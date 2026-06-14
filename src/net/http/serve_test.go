@@ -1350,6 +1350,9 @@ func testTCPConnectionStaysOpen(t *testing.T, req string, handler Handler) {
 
 // TestServeHTTP10Close verifies that HTTP/1.0 requests won't be kept alive.
 func TestServeHTTP10Close(t *testing.T) {
+	if runtime.GOOS == "redox" {
+		t.Skip("redox can hang waiting for EOF after an HTTP/1.0 response closes the connection")
+	}
 	testTCPConnectionCloses(t, "GET / HTTP/1.0\r\n\r\n", HandlerFunc(func(w ResponseWriter, r *Request) {
 		ServeFile(w, r, "testdata/file")
 	}))
