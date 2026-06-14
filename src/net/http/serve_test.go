@@ -3586,6 +3586,9 @@ For:
 //
 // Issue 13165 (where it used to deadlock), but behavior changed in Issue 23921.
 func TestCloseNotifierPipelined(t *testing.T) {
+	if runtime.GOOS == "redox" {
+		t.Skip("redox can hang finishing a request with a pending CloseNotifier read")
+	}
 	run(t, testCloseNotifierPipelined, []testMode{http1Mode})
 }
 func testCloseNotifierPipelined(t *testing.T, mode testMode) {
