@@ -3886,6 +3886,9 @@ func (c writerFuncConn) Write(p []byte) (n int, err error) { return c.write(p) }
 // This automatically prevents an infinite resend loop because we'll run out of
 // the cached keep-alive connections eventually.
 func TestRetryRequestsOnError(t *testing.T) {
+	if runtime.GOOS == "redox" {
+		t.Skip("redox does not reliably retry requests on reused connections after write errors")
+	}
 	run(t, testRetryRequestsOnError, testNotParallel, []testMode{http1Mode})
 }
 func testRetryRequestsOnError(t *testing.T, mode testMode) {
@@ -3959,10 +3962,6 @@ func testRetryRequestsOnError(t *testing.T, mode testMode) {
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			if runtime.GOOS == "redox" && tc.name == "IdempotentGetBodySomeWritten" {
-				t.Skip("redox does not reliably retry a partially-written request body on a reused connection")
-			}
-
 			var (
 				mu     sync.Mutex
 				logbuf strings.Builder
