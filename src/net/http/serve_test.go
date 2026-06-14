@@ -3714,6 +3714,9 @@ func testHijackAfterCloseNotifier(t *testing.T, mode testMode) {
 }
 
 func TestHijackBeforeRequestBodyRead(t *testing.T) {
+	if runtime.GOOS == "redox" {
+		t.Skip("redox can hang waiting for close notification after a raw request body read")
+	}
 	run(t, testHijackBeforeRequestBodyRead, []testMode{http1Mode})
 }
 func testHijackBeforeRequestBodyRead(t *testing.T, mode testMode) {
