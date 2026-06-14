@@ -3667,6 +3667,9 @@ func TestCloseNotifierChanLeak(t *testing.T) {
 // Issue 9763.
 // HTTP/1-only test. (http2 doesn't have Hijack)
 func TestHijackAfterCloseNotifier(t *testing.T) {
+	if runtime.GOOS == "redox" {
+		t.Skip("redox can hang aborting the pending CloseNotifier read before hijack")
+	}
 	run(t, testHijackAfterCloseNotifier, []testMode{http1Mode})
 }
 func testHijackAfterCloseNotifier(t *testing.T, mode testMode) {
