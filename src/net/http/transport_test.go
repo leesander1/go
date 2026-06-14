@@ -1742,6 +1742,10 @@ func TestOnProxyConnectResponse(t *testing.T) {
 // Issue 28012: verify that the Transport closes its TCP connection to http proxies
 // when they're slow to reply to HTTPS CONNECT responses.
 func TestTransportProxyHTTPSConnectLeak(t *testing.T) {
+	if runtime.GOOS == "redox" {
+		t.Skip("redox does not reliably report EOF after canceling a stalled CONNECT")
+	}
+
 	cancelc := make(chan struct{})
 	SetTestHookProxyConnectTimeout(t, func(ctx context.Context, timeout time.Duration) (context.Context, context.CancelFunc) {
 		ctx, cancel := context.WithCancel(ctx)
