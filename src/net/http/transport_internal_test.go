@@ -14,12 +14,17 @@ import (
 	"io"
 	"net"
 	"net/http/internal/testcert"
+	"runtime"
 	"strings"
 	"testing"
 )
 
 // Issue 15446: incorrect wrapping of errors when server closes an idle connection.
 func TestTransportPersistConnReadLoopEOF(t *testing.T) {
+	if runtime.GOOS == "redox" {
+		t.Skip("redox does not reliably report EOF after peer close in this test")
+	}
+
 	ln := newLocalListener(t)
 	defer ln.Close()
 
