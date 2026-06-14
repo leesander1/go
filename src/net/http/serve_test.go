@@ -1377,6 +1377,9 @@ func TestHandlersCanSetConnectionClose10(t *testing.T) {
 }
 
 func TestHTTP2UpgradeClosesConnection(t *testing.T) {
+	if runtime.GOOS == "redox" {
+		t.Skip("redox can hang waiting for EOF after an HTTP/2 upgrade request closes the connection")
+	}
 	testTCPConnectionCloses(t, "PRI * HTTP/2.0\r\n\r\nSM\r\n\r\n", HandlerFunc(func(w ResponseWriter, r *Request) {
 		// Nothing. (if not hijacked, the server should close the connection
 		// afterwards)
