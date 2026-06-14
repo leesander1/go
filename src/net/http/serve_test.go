@@ -3051,6 +3051,10 @@ func TestHandlerPanicWithHijack(t *testing.T) {
 }
 
 func testHandlerPanic(t *testing.T, withHijack bool, mode testMode, wrapper func(Handler) Handler, panicValue any) {
+	if runtime.GOOS == "redox" {
+		t.Skip("redox does not reliably return an error after a handler panic closes the response")
+	}
+
 	// Direct log output to a pipe.
 	//
 	// We read from the pipe to verify that the handler actually caught the panic
