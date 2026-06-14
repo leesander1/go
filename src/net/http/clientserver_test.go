@@ -557,6 +557,9 @@ func TestH12_Head_ImplicitLen(t *testing.T) {
 }
 
 func TestH12_HandlerWritesTooLittle(t *testing.T) {
+	if runtime.GOOS == "redox" {
+		t.Skip("redox can hang reading a response body that is shorter than its declared Content-Length")
+	}
 	h12Compare{
 		Handler: func(w ResponseWriter, r *Request) {
 			w.Header().Set("Content-Length", "3")
