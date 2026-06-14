@@ -4430,7 +4430,12 @@ func TestResponseWriterWriteString(t *testing.T) {
 	}
 }
 
-func TestServerConnState(t *testing.T) { run(t, testServerConnState, []testMode{http1Mode}) }
+func TestServerConnState(t *testing.T) {
+	if runtime.GOOS == "redox" {
+		t.Skip("redox can hang waiting for connection close state transitions")
+	}
+	run(t, testServerConnState, []testMode{http1Mode})
+}
 func testServerConnState(t *testing.T, mode testMode) {
 	handler := map[string]func(w ResponseWriter, r *Request){
 		"/": func(w ResponseWriter, r *Request) {
@@ -4612,7 +4617,12 @@ func testServerKeepAlivesEnabledResultClose(t *testing.T, mode testMode) {
 }
 
 // golang.org/issue/7856
-func TestServerEmptyBodyRace(t *testing.T) { run(t, testServerEmptyBodyRace) }
+func TestServerEmptyBodyRace(t *testing.T) {
+	if runtime.GOOS == "redox" {
+		t.Skip("redox can fail concurrent empty response requests when socket close races are reused")
+	}
+	run(t, testServerEmptyBodyRace)
+}
 func testServerEmptyBodyRace(t *testing.T, mode testMode) {
 	var n int32
 	cst := newClientServerTest(t, mode, HandlerFunc(func(rw ResponseWriter, req *Request) {
