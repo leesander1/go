@@ -3813,7 +3813,12 @@ func testOptions(t *testing.T, mode testMode) {
 	}
 }
 
-func TestOptionsHandler(t *testing.T) { run(t, testOptionsHandler, []testMode{http1Mode}) }
+func TestOptionsHandler(t *testing.T) {
+	if runtime.GOOS == "redox" {
+		t.Skip("redox can hang closing the raw OPTIONS connection")
+	}
+	run(t, testOptionsHandler, []testMode{http1Mode})
+}
 func testOptionsHandler(t *testing.T, mode testMode) {
 	rc := make(chan *Request, 1)
 
@@ -4172,7 +4177,12 @@ func testHTTP10ConnectionHeader(t *testing.T, mode testMode) {
 }
 
 // See golang.org/issue/5660
-func TestServerReaderFromOrder(t *testing.T) { run(t, testServerReaderFromOrder) }
+func TestServerReaderFromOrder(t *testing.T) {
+	if runtime.GOOS == "redox" {
+		t.Skip("redox can corrupt concurrent request-body reads and response writes")
+	}
+	run(t, testServerReaderFromOrder)
+}
 func testServerReaderFromOrder(t *testing.T, mode testMode) {
 	pr, pw := io.Pipe()
 	const size = 3 << 20
