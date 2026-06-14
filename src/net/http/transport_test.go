@@ -5097,6 +5097,9 @@ func testTransportResponseHeaderLength(t *testing.T, mode testMode) {
 }
 
 func TestTransportEventTrace(t *testing.T) {
+	if runtime.GOOS == "redox" {
+		t.Skip("redox can hang during transport event trace request handling")
+	}
 	run(t, func(t *testing.T, mode testMode) {
 		testTransportEventTrace(t, mode, false)
 	}, testNotParallel)
