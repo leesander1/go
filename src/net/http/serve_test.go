@@ -3547,6 +3547,9 @@ func testContentLengthZero(t *testing.T, mode testMode) {
 }
 
 func TestCloseNotifier(t *testing.T) {
+	if runtime.GOOS == "redox" {
+		t.Skip("redox can hang waiting for the CloseNotifier read to unblock")
+	}
 	run(t, testCloseNotifier, []testMode{http1Mode})
 }
 func testCloseNotifier(t *testing.T, mode testMode) {
