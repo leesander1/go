@@ -730,6 +730,9 @@ func benchmarkServeMux(b *testing.B, runHandler bool) {
 
 func TestServerTimeouts(t *testing.T) { run(t, testServerTimeouts, []testMode{http1Mode}) }
 func testServerTimeouts(t *testing.T, mode testMode) {
+	if runtime.GOOS == "redox" {
+		t.Skip("redox can hang waiting for EOF after an HTTP/1 server timeout")
+	}
 	runTimeSensitiveTest(t, []time.Duration{
 		10 * time.Millisecond,
 		50 * time.Millisecond,
