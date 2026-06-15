@@ -18,6 +18,9 @@ import (
 
 func TestResponseControllerFlush(t *testing.T) { run(t, testResponseControllerFlush) }
 func testResponseControllerFlush(t *testing.T, mode testMode) {
+	if runtime.GOOS == "redox" && mode == http2Mode {
+		t.Skip("redox can hang finishing an HTTP/2 response after controller flush")
+	}
 	continuec := make(chan struct{})
 	cst := newClientServerTest(t, mode, HandlerFunc(func(w ResponseWriter, r *Request) {
 		ctl := NewResponseController(w)
