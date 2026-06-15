@@ -124,6 +124,9 @@ func TestResponseControllerSetFutureWriteDeadline(t *testing.T) {
 	run(t, testResponseControllerSetFutureWriteDeadline)
 }
 func testResponseControllerSetFutureWriteDeadline(t *testing.T, mode testMode) {
+	if runtime.GOOS == "redox" && mode == http1Mode {
+		t.Skip("redox can hang reading an HTTP/1 response after a future write deadline")
+	}
 	errc := make(chan error, 1)
 	startwritec := make(chan struct{})
 	cst := newClientServerTest(t, mode, HandlerFunc(func(w ResponseWriter, r *Request) {
