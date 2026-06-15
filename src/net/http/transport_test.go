@@ -1287,6 +1287,9 @@ func (test *transport100ContinueTest) wantRequestDone(want int) {
 }
 
 func TestTransportExpect100ContinueSent(t *testing.T) {
+	if runtime.GOOS == "redox" {
+		t.Skip("redox can hang waiting for idle Expect: 100-continue connection cleanup")
+	}
 	test := newTransport100ContinueTest(t, 1*time.Hour)
 	// Server sends a 100 Continue response, and the client sends the request body.
 	test.respond("HTTP/1.1 100 Continue")
@@ -1296,6 +1299,9 @@ func TestTransportExpect100ContinueSent(t *testing.T) {
 }
 
 func TestTransportExpect100Continue200ResponseNoConnClose(t *testing.T) {
+	if runtime.GOOS == "redox" {
+		t.Skip("redox can hang waiting for idle Expect: 100-continue connection cleanup")
+	}
 	test := newTransport100ContinueTest(t, 1*time.Hour)
 	// No 100 Continue response, no Connection: close header.
 	test.respond("HTTP/1.1 200", "Content-Length: 0")
@@ -1311,6 +1317,9 @@ func TestTransportExpect100Continue200ResponseWithConnClose(t *testing.T) {
 }
 
 func TestTransportExpect100Continue500ResponseNoConnClose(t *testing.T) {
+	if runtime.GOOS == "redox" {
+		t.Skip("redox can hang waiting for idle Expect: 100-continue connection cleanup")
+	}
 	test := newTransport100ContinueTest(t, 1*time.Hour)
 	// No 100 Continue response, no Connection: close header.
 	test.respond("HTTP/1.1 500", "Content-Length: 0")
