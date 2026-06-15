@@ -1577,6 +1577,10 @@ func testServerAllowsBlockingRemoteAddr(t *testing.T, mode testMode) {
 // counting of GET requests also happens on HEAD requests.
 func TestHeadResponses(t *testing.T) { run(t, testHeadResponses) }
 func testHeadResponses(t *testing.T, mode testMode) {
+	if runtime.GOOS == "redox" && mode == http2Mode {
+		t.Skip("redox can hang reading an HTTP/2 HEAD response after the ReaderFrom path")
+	}
+
 	cst := newClientServerTest(t, mode, HandlerFunc(func(w ResponseWriter, r *Request) {
 		_, err := w.Write([]byte("<html>"))
 		if err != nil {
