@@ -2589,6 +2589,9 @@ func (c cancelableTimeoutContext) Err() error {
 
 func TestTimeoutHandler(t *testing.T) { run(t, testTimeoutHandler) }
 func testTimeoutHandler(t *testing.T, mode testMode) {
+	if runtime.GOOS == "redox" && mode == http2Mode {
+		t.Skip("redox can hang completing an HTTP/2 timeout handler response")
+	}
 	sendHi := make(chan bool, 1)
 	writeErrors := make(chan error, 1)
 	sayHi := HandlerFunc(func(w ResponseWriter, r *Request) {
