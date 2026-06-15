@@ -2024,7 +2024,12 @@ var serverExpectTests = []serverExpectTest{
 
 // Tests that the server responds to the "Expect" request header
 // correctly.
-func TestServerExpect(t *testing.T) { run(t, testServerExpect, []testMode{http1Mode}) }
+func TestServerExpect(t *testing.T) {
+	if runtime.GOOS == "redox" {
+		t.Skip("redox can hang closing an HTTP/1 expect request")
+	}
+	run(t, testServerExpect, []testMode{http1Mode})
+}
 func testServerExpect(t *testing.T, mode testMode) {
 	ts := newClientServerTest(t, mode, HandlerFunc(func(w ResponseWriter, r *Request) {
 		// Note using r.FormValue("readbody") because for POST
