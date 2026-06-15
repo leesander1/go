@@ -342,6 +342,9 @@ func testRequestRedirect(t *testing.T, mode testMode) {
 	if runtime.GOOS == "redox" && mode == http1Mode {
 		t.Skip("redox can hang following HTTP/1 redirects")
 	}
+	if runtime.GOOS == "redox" && mode == http2Mode {
+		t.Skip("redox can hang following HTTP/2 redirects")
+	}
 	cst := newClientServerTest(t, mode, HandlerFunc(func(w ResponseWriter, r *Request) {
 		switch r.URL.Path {
 		case "/":
