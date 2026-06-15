@@ -1741,6 +1741,9 @@ func testFileServerDirWithRootFile(t *testing.T, mode testMode) {
 	})
 
 	t.Run("FileServerFS", func(t *testing.T) {
+		if runtime.GOOS == "redox" && mode == http1Mode {
+			t.Skip("redox can hang closing an HTTP/1 FileServerFS response rooted at a file")
+		}
 		testDirFile(t, FileServerFS(os.DirFS("testdata/index.html")))
 	})
 }
