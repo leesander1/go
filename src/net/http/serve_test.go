@@ -2725,6 +2725,9 @@ func testTimeoutHandlerRaceHeader(t *testing.T, mode testMode) {
 // Issue 9162
 func TestTimeoutHandlerRaceHeaderTimeout(t *testing.T) { run(t, testTimeoutHandlerRaceHeaderTimeout) }
 func testTimeoutHandlerRaceHeaderTimeout(t *testing.T, mode testMode) {
+	if runtime.GOOS == "redox" && mode == http2Mode {
+		t.Skip("redox can hang completing an HTTP/2 timeout handler race after header write")
+	}
 	sendHi := make(chan bool, 1)
 	writeErrors := make(chan error, 1)
 	sayHi := HandlerFunc(func(w ResponseWriter, r *Request) {
