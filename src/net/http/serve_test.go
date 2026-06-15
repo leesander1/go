@@ -3322,7 +3322,12 @@ func (r *bodyLimitReader) Close() error {
 	return nil
 }
 
-func TestRequestBodyLimit(t *testing.T) { run(t, testRequestBodyLimit) }
+func TestRequestBodyLimit(t *testing.T) {
+	if runtime.GOOS == "redox" {
+		t.Skip("redox can return early disconnect errors instead of MaxBytesError for request body limits")
+	}
+	run(t, testRequestBodyLimit)
+}
 func testRequestBodyLimit(t *testing.T, mode testMode) {
 	const limit = 1 << 20
 	cst := newClientServerTest(t, mode, HandlerFunc(func(w ResponseWriter, r *Request) {
