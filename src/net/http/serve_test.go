@@ -3245,7 +3245,12 @@ func TestStripPrefixNotModifyRequest(t *testing.T) {
 	}
 }
 
-func TestRequestLimit(t *testing.T) { run(t, testRequestLimit) }
+func TestRequestLimit(t *testing.T) {
+	if runtime.GOOS == "redox" {
+		t.Skip("redox can reject oversized request headers differently across HTTP modes")
+	}
+	run(t, testRequestLimit)
+}
 func testRequestLimit(t *testing.T, mode testMode) {
 	cst := newClientServerTest(t, mode, HandlerFunc(func(w ResponseWriter, r *Request) {
 		t.Fatalf("didn't expect to get request in Handler")
