@@ -1319,6 +1319,9 @@ func TestTransportExpect100Continue500ResponseNoConnClose(t *testing.T) {
 }
 
 func TestTransportExpect100Continue500ResponseTimeout(t *testing.T) {
+	if runtime.GOOS == "redox" {
+		t.Skip("redox can hang during ExpectContinueTimeout connection cleanup")
+	}
 	test := newTransport100ContinueTest(t, 5*time.Millisecond) // short timeout
 	test.wantBodySent()                                        // after timeout
 	test.respond("HTTP/1.1 200", "Content-Length: 0")
