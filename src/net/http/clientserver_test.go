@@ -525,6 +525,9 @@ func TestH12_FlushBeforeBody(t *testing.T) {
 }
 
 func TestH12_FlushMidBody(t *testing.T) {
+	if runtime.GOOS == "redox" {
+		t.Skip("redox can hang finishing a flushed response body")
+	}
 	h12Compare{Handler: func(w ResponseWriter, r *Request) {
 		io.WriteString(w, "foo")
 		w.(Flusher).Flush()
