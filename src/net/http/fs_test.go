@@ -1522,6 +1522,10 @@ func TestServeFileRejectsInvalidSuffixLengths(t *testing.T) {
 	run(t, testServeFileRejectsInvalidSuffixLengths, []testMode{http1Mode, https1Mode, http2Mode})
 }
 func testServeFileRejectsInvalidSuffixLengths(t *testing.T, mode testMode) {
+	if runtime.GOOS == "redox" && mode == http2Mode {
+		t.Skip("redox can hang completing an HTTP/2 ServeFile invalid suffix range response")
+	}
+
 	cst := newClientServerTest(t, mode, FileServer(Dir("testdata"))).ts
 
 	tests := []struct {
