@@ -2822,6 +2822,9 @@ func testTimeoutHandlerStartTimerWhenServing(t *testing.T, mode testMode) {
 
 func TestTimeoutHandlerContextCanceled(t *testing.T) { run(t, testTimeoutHandlerContextCanceled) }
 func testTimeoutHandlerContextCanceled(t *testing.T, mode testMode) {
+	if runtime.GOOS == "redox" {
+		t.Skip("redox can hang completing a timeout handler after context cancellation")
+	}
 	writeErrors := make(chan error, 1)
 	sayHi := HandlerFunc(func(w ResponseWriter, r *Request) {
 		w.Header().Set("Content-Type", "text/plain")
