@@ -10,6 +10,7 @@ import (
 	"io"
 	. "net/http"
 	"os"
+	"runtime"
 	"sync"
 	"testing"
 	"time"
@@ -223,6 +224,9 @@ func TestResponseControllerSetFutureReadDeadline(t *testing.T) {
 	run(t, testResponseControllerSetFutureReadDeadline)
 }
 func testResponseControllerSetFutureReadDeadline(t *testing.T, mode testMode) {
+	if runtime.GOOS == "redox" && mode == http2Mode {
+		t.Skip("redox can hang waiting for an HTTP/2 read deadline response")
+	}
 	respBody := "response body"
 	cst := newClientServerTest(t, mode, HandlerFunc(func(w ResponseWriter, req *Request) {
 		ctl := NewResponseController(w)
