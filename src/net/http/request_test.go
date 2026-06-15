@@ -297,6 +297,9 @@ func TestMaxInt64ForMultipartFormMaxMemoryOverflow(t *testing.T) {
 	run(t, testMaxInt64ForMultipartFormMaxMemoryOverflow)
 }
 func testMaxInt64ForMultipartFormMaxMemoryOverflow(t *testing.T, mode testMode) {
+	if runtime.GOOS == "redox" && mode == http1Mode {
+		t.Skip("redox can hang posting multipart overflow requests over HTTP/1")
+	}
 	payloadSize := 1 << 10
 	cst := newClientServerTest(t, mode, HandlerFunc(func(rw ResponseWriter, req *Request) {
 		// The combination of:
