@@ -82,6 +82,9 @@ func TestResponseControllerSetPastWriteDeadline(t *testing.T) {
 	run(t, testResponseControllerSetPastWriteDeadline)
 }
 func testResponseControllerSetPastWriteDeadline(t *testing.T, mode testMode) {
+	if runtime.GOOS == "redox" && mode == http1Mode {
+		t.Skip("redox can hang reading an HTTP/1 response after an expired write deadline")
+	}
 	cst := newClientServerTest(t, mode, HandlerFunc(func(w ResponseWriter, r *Request) {
 		ctl := NewResponseController(w)
 		w.Write([]byte("one"))
