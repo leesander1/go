@@ -1615,6 +1615,10 @@ func testHeadResponses(t *testing.T, mode testMode) {
 // https://go.dev/issue/68609
 func TestHeadReaderFrom(t *testing.T) { run(t, testHeadReaderFrom, []testMode{http1Mode}) }
 func testHeadReaderFrom(t *testing.T, mode testMode) {
+	if runtime.GOOS == "redox" && mode == http1Mode {
+		t.Skip("redox can hang reusing an HTTP/1 connection after a HEAD ReaderFrom response")
+	}
+
 	// Body is large enough to exceed the content-sniffing length.
 	wantBody := strings.Repeat("a", 4096)
 	cst := newClientServerTest(t, mode, HandlerFunc(func(w ResponseWriter, r *Request) {
