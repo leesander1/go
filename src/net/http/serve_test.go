@@ -1272,6 +1272,9 @@ func testIdentityResponse(t *testing.T, mode testMode) {
 	if mode != http1Mode {
 		return
 	}
+	if runtime.GOOS == "redox" {
+		t.Skip("redox can hang reading EOF after an underwritten HTTP/1 identity response")
+	}
 
 	// Verify that the connection is closed when the declared Content-Length
 	// is larger than what the handler wrote.
