@@ -1628,6 +1628,9 @@ func testHeadReaderFrom(t *testing.T, mode testMode) {
 }
 
 func TestTLSHandshakeTimeout(t *testing.T) {
+	if runtime.GOOS == "redox" {
+		t.Skip("redox can hang waiting for TLS handshake timeout")
+	}
 	run(t, testTLSHandshakeTimeout, []testMode{https1Mode, http2Mode})
 }
 func testTLSHandshakeTimeout(t *testing.T, mode testMode) {
