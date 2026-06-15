@@ -621,6 +621,9 @@ func testHandlerWritesTooMuch(t *testing.T, mode testMode) {
 // Verify that both our HTTP/1 and HTTP/2 request and auto-decompress gzip.
 // Some hosts send gzip even if you don't ask for it; see golang.org/issue/13298
 func TestH12_AutoGzip(t *testing.T) {
+	if runtime.GOOS == "redox" {
+		t.Skip("redox can hang completing the auto-gzip response")
+	}
 	h12Compare{
 		Handler: func(w ResponseWriter, r *Request) {
 			if ae := r.Header.Get("Accept-Encoding"); ae != "gzip" {
