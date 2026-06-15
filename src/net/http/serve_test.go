@@ -1458,8 +1458,8 @@ func testKeepAliveFinalChunkWithEOF(t *testing.T, mode testMode) {
 
 func TestSetsRemoteAddr(t *testing.T) { run(t, testSetsRemoteAddr) }
 func testSetsRemoteAddr(t *testing.T, mode testMode) {
-	if runtime.GOOS == "redox" && mode == http2Mode {
-		t.Skip("redox can hang reading RemoteAddr over HTTP/2")
+	if runtime.GOOS == "redox" {
+		t.Skip("redox can hang reading RemoteAddr over loopback HTTP connections")
 	}
 
 	cst := newClientServerTest(t, mode, HandlerFunc(func(w ResponseWriter, r *Request) {
