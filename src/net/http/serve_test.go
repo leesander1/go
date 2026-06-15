@@ -1148,6 +1148,10 @@ func testNoWriteDeadline(t *testing.T, mode testMode, timeout time.Duration) err
 // request) that will never happen.
 func TestOnlyWriteTimeout(t *testing.T) { run(t, testOnlyWriteTimeout, []testMode{http1Mode}) }
 func testOnlyWriteTimeout(t *testing.T, mode testMode) {
+	if runtime.GOOS == "redox" {
+		t.Skip("redox can hang after forcing an expired HTTP/1 write deadline")
+	}
+
 	var (
 		mu   sync.RWMutex
 		conn net.Conn
