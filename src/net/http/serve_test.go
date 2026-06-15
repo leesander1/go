@@ -3164,6 +3164,9 @@ func testServerWriteHijackZeroBytes(t *testing.T, mode testMode) {
 
 func TestServerNoDate(t *testing.T) {
 	run(t, func(t *testing.T, mode testMode) {
+		if runtime.GOOS == "redox" && mode == http2Mode {
+			t.Skip("redox can hang connecting to HTTP/2 responses with suppressed Date")
+		}
 		testServerNoHeader(t, mode, "Date")
 	})
 }
