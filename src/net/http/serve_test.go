@@ -1451,6 +1451,10 @@ func testKeepAliveFinalChunkWithEOF(t *testing.T, mode testMode) {
 
 func TestSetsRemoteAddr(t *testing.T) { run(t, testSetsRemoteAddr) }
 func testSetsRemoteAddr(t *testing.T, mode testMode) {
+	if runtime.GOOS == "redox" && mode == http2Mode {
+		t.Skip("redox can hang reading RemoteAddr over HTTP/2")
+	}
+
 	cst := newClientServerTest(t, mode, HandlerFunc(func(w ResponseWriter, r *Request) {
 		fmt.Fprintf(w, "%s", r.RemoteAddr)
 	}))
