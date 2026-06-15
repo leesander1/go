@@ -902,6 +902,10 @@ func testServerNoReadTimeout(t *testing.T, mode testMode) {
 
 func TestServerWriteTimeout(t *testing.T) { run(t, testServerWriteTimeout) }
 func testServerWriteTimeout(t *testing.T, mode testMode) {
+	if runtime.GOOS == "redox" {
+		t.Skip("redox can hang while enforcing server write timeouts")
+	}
+
 	for timeout := 5 * time.Millisecond; ; timeout *= 2 {
 		errc := make(chan error, 2)
 		cst := newClientServerTest(t, mode, HandlerFunc(func(res ResponseWriter, req *Request) {
