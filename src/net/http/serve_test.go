@@ -3191,6 +3191,9 @@ func testServerNoHeader(t *testing.T, mode testMode, header string) {
 
 func TestStripPrefix(t *testing.T) { run(t, testStripPrefix) }
 func testStripPrefix(t *testing.T, mode testMode) {
+	if runtime.GOOS == "redox" && mode == http1Mode {
+		t.Skip("redox can hang finishing HTTP/1 StripPrefix requests")
+	}
 	h := HandlerFunc(func(w ResponseWriter, r *Request) {
 		w.Header().Set("X-Path", r.URL.Path)
 		w.Header().Set("X-RawPath", r.URL.RawPath)
