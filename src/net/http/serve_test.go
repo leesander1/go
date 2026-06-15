@@ -817,6 +817,9 @@ func testServerTimeoutsWithTimeout(t *testing.T, timeout time.Duration, mode tes
 
 func TestServerReadTimeout(t *testing.T) { run(t, testServerReadTimeout) }
 func testServerReadTimeout(t *testing.T, mode testMode) {
+	if runtime.GOOS == "redox" && mode == http2Mode {
+		t.Skip("redox can hang waiting for HTTP/2 read timeout errors")
+	}
 	respBody := "response body"
 	for timeout := 5 * time.Millisecond; ; timeout *= 2 {
 		cst := newClientServerTest(t, mode, HandlerFunc(func(res ResponseWriter, req *Request) {
