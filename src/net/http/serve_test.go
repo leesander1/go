@@ -1806,6 +1806,9 @@ func TestServeTLS(t *testing.T) {
 
 // Test that the HTTPS server nicely rejects plaintext HTTP/1.x requests.
 func TestTLSServerRejectHTTPRequests(t *testing.T) {
+	if runtime.GOOS == "redox" {
+		t.Skip("redox can hang rejecting plaintext HTTP on a TLS server")
+	}
 	run(t, testTLSServerRejectHTTPRequests, []testMode{https1Mode, http2Mode})
 }
 func testTLSServerRejectHTTPRequests(t *testing.T, mode testMode) {
