@@ -339,6 +339,9 @@ func testMaxInt64ForMultipartFormMaxMemoryOverflow(t *testing.T, mode testMode) 
 
 func TestRequestRedirect(t *testing.T) { run(t, testRequestRedirect) }
 func testRequestRedirect(t *testing.T, mode testMode) {
+	if runtime.GOOS == "redox" && mode == http1Mode {
+		t.Skip("redox can hang following HTTP/1 redirects")
+	}
 	cst := newClientServerTest(t, mode, HandlerFunc(func(w ResponseWriter, r *Request) {
 		switch r.URL.Path {
 		case "/":
