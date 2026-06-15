@@ -1241,6 +1241,9 @@ func testIdentityResponse(t *testing.T, mode testMode) {
 	if mode == http2Mode {
 		t.Skip("https://go.dev/issue/56019")
 	}
+	if runtime.GOOS == "redox" && mode == http1Mode {
+		t.Skip("redox can hang cleaning up after an HTTP/1 identity response")
+	}
 
 	handler := HandlerFunc(func(rw ResponseWriter, req *Request) {
 		rw.Header().Set("Content-Length", "3")
@@ -1295,9 +1298,6 @@ func testIdentityResponse(t *testing.T, mode testMode) {
 
 	if mode != http1Mode {
 		return
-	}
-	if runtime.GOOS == "redox" {
-		t.Skip("redox can hang reading EOF after an underwritten HTTP/1 identity response")
 	}
 
 	// Verify that the connection is closed when the declared Content-Length
