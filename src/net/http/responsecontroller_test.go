@@ -271,6 +271,9 @@ func (w wrapWriter) Unwrap() ResponseWriter {
 
 func TestWrappedResponseController(t *testing.T) { run(t, testWrappedResponseController) }
 func testWrappedResponseController(t *testing.T, mode testMode) {
+	if runtime.GOOS == "redox" && mode == http1Mode {
+		t.Skip("redox can hang draining an HTTP/1 response after wrapped controller deadlines")
+	}
 	cst := newClientServerTest(t, mode, HandlerFunc(func(w ResponseWriter, r *Request) {
 		w = wrapWriter{w}
 		ctl := NewResponseController(w)
