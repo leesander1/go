@@ -3170,6 +3170,9 @@ func TestServerNoDate(t *testing.T) {
 
 func TestServerContentType(t *testing.T) {
 	run(t, func(t *testing.T, mode testMode) {
+		if runtime.GOOS == "redox" && mode == http1Mode {
+			t.Skip("redox can hang finishing HTTP/1 responses with suppressed Content-Type")
+		}
 		testServerNoHeader(t, mode, "Content-Type")
 	})
 }
