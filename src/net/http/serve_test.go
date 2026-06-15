@@ -1419,6 +1419,10 @@ func TestHTTP10KeepAlive304Response(t *testing.T) {
 // Issue 15703
 func TestKeepAliveFinalChunkWithEOF(t *testing.T) { run(t, testKeepAliveFinalChunkWithEOF) }
 func testKeepAliveFinalChunkWithEOF(t *testing.T, mode testMode) {
+	if runtime.GOOS == "redox" && mode == http1Mode {
+		t.Skip("redox can hang reusing an HTTP/1 connection after a final chunk")
+	}
+
 	cst := newClientServerTest(t, mode, HandlerFunc(func(w ResponseWriter, r *Request) {
 		w.(Flusher).Flush() // force chunked encoding
 		w.Write([]byte("{\"Addr\": \"" + r.RemoteAddr + "\"}"))
