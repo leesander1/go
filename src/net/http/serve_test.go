@@ -867,8 +867,8 @@ func testServerReadTimeout(t *testing.T, mode testMode) {
 
 func TestServerNoReadTimeout(t *testing.T) { run(t, testServerNoReadTimeout) }
 func testServerNoReadTimeout(t *testing.T, mode testMode) {
-	if runtime.GOOS == "redox" && mode == http2Mode {
-		t.Skip("redox can hang reading full-duplex HTTP/2 request bodies without read timeout")
+	if runtime.GOOS == "redox" {
+		t.Skip("redox can hang reading full-duplex request bodies without read timeout")
 	}
 	reqBody := "Hello, Gophers!"
 	resBody := "Hi, Gophers!"
