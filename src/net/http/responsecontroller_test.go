@@ -18,6 +18,9 @@ import (
 
 func TestResponseControllerFlush(t *testing.T) { run(t, testResponseControllerFlush) }
 func testResponseControllerFlush(t *testing.T, mode testMode) {
+	if runtime.GOOS == "redox" && mode == http1Mode {
+		t.Skip("redox can hang finishing an HTTP/1 response after controller flush")
+	}
 	if runtime.GOOS == "redox" && mode == http2Mode {
 		t.Skip("redox can hang finishing an HTTP/2 response after controller flush")
 	}
