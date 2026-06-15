@@ -2854,8 +2854,8 @@ func testTimeoutHandlerContextCanceled(t *testing.T, mode testMode) {
 // https://golang.org/issue/15948
 func TestTimeoutHandlerEmptyResponse(t *testing.T) { run(t, testTimeoutHandlerEmptyResponse) }
 func testTimeoutHandlerEmptyResponse(t *testing.T, mode testMode) {
-	if runtime.GOOS == "redox" && mode == http2Mode {
-		t.Skip("redox can hang completing an HTTP/2 timeout handler empty response")
+	if runtime.GOOS == "redox" {
+		t.Skip("redox can hang completing a timeout handler empty response")
 	}
 	var handler HandlerFunc = func(w ResponseWriter, _ *Request) {
 		// No response.
