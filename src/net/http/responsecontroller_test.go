@@ -51,6 +51,9 @@ func testResponseControllerFlush(t *testing.T, mode testMode) {
 
 func TestResponseControllerHijack(t *testing.T) { run(t, testResponseControllerHijack) }
 func testResponseControllerHijack(t *testing.T, mode testMode) {
+	if runtime.GOOS == "redox" && mode == http2Mode {
+		t.Skip("redox can hang waiting for an HTTP/2 response after failed hijack")
+	}
 	const header = "X-Header"
 	const value = "set"
 	cst := newClientServerTest(t, mode, HandlerFunc(func(w ResponseWriter, r *Request) {
