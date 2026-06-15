@@ -2646,6 +2646,9 @@ func testTimeoutHandler(t *testing.T, mode testMode) {
 // See issues 8209 and 8414.
 func TestTimeoutHandlerRace(t *testing.T) { run(t, testTimeoutHandlerRace) }
 func testTimeoutHandlerRace(t *testing.T, mode testMode) {
+	if runtime.GOOS == "redox" && mode == http1Mode {
+		t.Skip("redox can hang completing concurrent HTTP/1 timeout handler requests")
+	}
 	delayHi := HandlerFunc(func(w ResponseWriter, r *Request) {
 		ms, _ := strconv.Atoi(r.URL.Path[1:])
 		if ms == 0 {
