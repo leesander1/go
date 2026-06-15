@@ -518,6 +518,9 @@ func TestH12_ExplicitContentLength(t *testing.T) {
 }
 
 func TestH12_FlushBeforeBody(t *testing.T) {
+	if runtime.GOOS == "redox" {
+		t.Skip("redox can hang finishing a response flushed before the body")
+	}
 	h12Compare{Handler: func(w ResponseWriter, r *Request) {
 		w.(Flusher).Flush()
 		io.WriteString(w, "foo")
