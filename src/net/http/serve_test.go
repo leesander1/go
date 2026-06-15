@@ -254,6 +254,9 @@ var vtests = []struct {
 
 func TestHostHandlers(t *testing.T) { run(t, testHostHandlers, []testMode{http1Mode}) }
 func testHostHandlers(t *testing.T, mode testMode) {
+	if runtime.GOOS == "redox" {
+		t.Skip("redox can hang reading an HTTP/1 host handler response")
+	}
 	mux := NewServeMux()
 	for _, h := range handlers {
 		mux.Handle(h.pattern, stringHandler(h.msg))
