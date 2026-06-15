@@ -3520,6 +3520,9 @@ func testCaseSensitiveMethod(t *testing.T, mode testMode) {
 // response, the net/http package adds a "Content-Length: 0" response
 // header.
 func TestContentLengthZero(t *testing.T) {
+	if runtime.GOOS == "redox" {
+		t.Skip("redox can hang finishing empty keep-alive responses")
+	}
 	run(t, testContentLengthZero, []testMode{http1Mode})
 }
 func testContentLengthZero(t *testing.T, mode testMode) {
