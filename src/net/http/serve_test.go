@@ -1497,6 +1497,10 @@ func TestServerAllowsBlockingRemoteAddr(t *testing.T) {
 	run(t, testServerAllowsBlockingRemoteAddr, []testMode{http1Mode})
 }
 func testServerAllowsBlockingRemoteAddr(t *testing.T, mode testMode) {
+	if runtime.GOOS == "redox" && mode == http1Mode {
+		t.Skip("redox can hang serving a request with a blocking RemoteAddr")
+	}
+
 	conns := make(chan net.Conn)
 	ts := newClientServerTest(t, mode, HandlerFunc(func(w ResponseWriter, r *Request) {
 		fmt.Fprintf(w, "RA:%s", r.RemoteAddr)
