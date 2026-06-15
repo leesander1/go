@@ -286,6 +286,9 @@ func testWrappedResponseController(t *testing.T, mode testMode) {
 	if runtime.GOOS == "redox" && mode == http1Mode {
 		t.Skip("redox can hang draining an HTTP/1 response after wrapped controller deadlines")
 	}
+	if runtime.GOOS == "redox" && mode == http2Mode {
+		t.Skip("redox can hang draining an HTTP/2 response after wrapped controller deadlines")
+	}
 	cst := newClientServerTest(t, mode, HandlerFunc(func(w ResponseWriter, r *Request) {
 		w = wrapWriter{w}
 		ctl := NewResponseController(w)
