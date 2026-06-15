@@ -967,6 +967,10 @@ func testServerWriteTimeout(t *testing.T, mode testMode) {
 
 func TestServerNoWriteTimeout(t *testing.T) { run(t, testServerNoWriteTimeout) }
 func testServerNoWriteTimeout(t *testing.T, mode testMode) {
+	if runtime.GOOS == "redox" {
+		t.Skip("redox can corrupt or hang streaming responses with no write timeout")
+	}
+
 	for _, timeout := range []time.Duration{0, -1} {
 		cst := newClientServerTest(t, mode, HandlerFunc(func(res ResponseWriter, req *Request) {
 			_, err := io.Copy(res, neverEnding('a'))
