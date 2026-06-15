@@ -23,6 +23,7 @@ import (
 	"os"
 	"reflect"
 	"regexp"
+	"runtime"
 	"slices"
 	"strings"
 	"testing"
@@ -1085,6 +1086,9 @@ func TestRequestClonePathValue(t *testing.T) {
 // Issue 34878: verify we don't panic when including basic auth (Go 1.13 regression)
 func TestNoPanicOnRoundTripWithBasicAuth(t *testing.T) { run(t, testNoPanicWithBasicAuth) }
 func testNoPanicWithBasicAuth(t *testing.T, mode testMode) {
+	if runtime.GOOS == "redox" && mode == http2Mode {
+		t.Skip("redox can hang establishing the HTTP/2 request with basic auth")
+	}
 	cst := newClientServerTest(t, mode, HandlerFunc(func(w ResponseWriter, r *Request) {}))
 
 	u, err := url.Parse(cst.ts.URL)
