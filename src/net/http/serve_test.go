@@ -2691,6 +2691,9 @@ func testTimeoutHandlerRace(t *testing.T, mode testMode) {
 // Both issues involved panics in the implementation of TimeoutHandler.
 func TestTimeoutHandlerRaceHeader(t *testing.T) { run(t, testTimeoutHandlerRaceHeader) }
 func testTimeoutHandlerRaceHeader(t *testing.T, mode testMode) {
+	if runtime.GOOS == "redox" && mode == http1Mode {
+		t.Skip("redox can hang completing concurrent HTTP/1 timeout handler header requests")
+	}
 	delay204 := HandlerFunc(func(w ResponseWriter, r *Request) {
 		w.WriteHeader(204)
 	})
