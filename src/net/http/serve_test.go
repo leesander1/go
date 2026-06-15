@@ -3016,6 +3016,10 @@ func TestRedirectContentTypeAndBody(t *testing.T) {
 func TestZeroLengthPostAndResponse(t *testing.T) { run(t, testZeroLengthPostAndResponse) }
 
 func testZeroLengthPostAndResponse(t *testing.T, mode testMode) {
+	if runtime.GOOS == "redox" && mode == http1Mode {
+		t.Skip("redox can hang reusing an HTTP/1 connection after a zero-length post")
+	}
+
 	cst := newClientServerTest(t, mode, HandlerFunc(func(rw ResponseWriter, r *Request) {
 		all, err := io.ReadAll(r.Body)
 		if err != nil {
