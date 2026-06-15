@@ -172,6 +172,9 @@ func TestResponseControllerSetPastReadDeadline(t *testing.T) {
 	run(t, testResponseControllerSetPastReadDeadline)
 }
 func testResponseControllerSetPastReadDeadline(t *testing.T, mode testMode) {
+	if runtime.GOOS == "redox" && mode == http2Mode {
+		t.Skip("redox can hang waiting for an HTTP/2 read deadline after a past deadline")
+	}
 	readc := make(chan struct{})
 	donec := make(chan struct{})
 	cst := newClientServerTest(t, mode, HandlerFunc(func(w ResponseWriter, r *Request) {
