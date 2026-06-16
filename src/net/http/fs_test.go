@@ -560,6 +560,9 @@ func testServeFileFromCWD(t *testing.T, mode testMode) {
 // Issue 13996
 func TestServeDirWithoutTrailingSlash(t *testing.T) { run(t, testServeDirWithoutTrailingSlash) }
 func testServeDirWithoutTrailingSlash(t *testing.T, mode testMode) {
+	if runtime.GOOS == "redox" && mode == http1Mode {
+		t.Skip("redox can hang completing an HTTP/1 ServeFile directory redirect without a trailing slash")
+	}
 	e := "/testdata/"
 	ts := newClientServerTest(t, mode, HandlerFunc(func(w ResponseWriter, r *Request) {
 		ServeFile(w, r, ".")
