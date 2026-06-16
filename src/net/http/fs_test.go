@@ -1472,6 +1472,9 @@ func TestLinuxSendfileChild(*testing.T) {
 func TestFileServerNotDirError(t *testing.T) {
 	run(t, func(t *testing.T, mode testMode) {
 		t.Run("Dir", func(t *testing.T) {
+			if runtime.GOOS == "redox" && mode == http1Mode {
+				t.Skip("redox can hang closing an HTTP/1 FileServer not-directory response")
+			}
 			testFileServerNotDirError(t, mode, func(path string) FileSystem { return Dir(path) })
 		})
 		t.Run("FS", func(t *testing.T) {
