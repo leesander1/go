@@ -1475,6 +1475,9 @@ func TestFileServerNotDirError(t *testing.T) {
 			testFileServerNotDirError(t, mode, func(path string) FileSystem { return Dir(path) })
 		})
 		t.Run("FS", func(t *testing.T) {
+			if runtime.GOOS == "redox" && mode == http2Mode {
+				t.Skip("redox can hang completing an HTTP/2 FileServerFS not-directory response")
+			}
 			testFileServerNotDirError(t, mode, func(path string) FileSystem { return FS(os.DirFS(path)) })
 		})
 	})
