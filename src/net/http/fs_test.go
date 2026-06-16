@@ -844,6 +844,10 @@ func (fsys fakeFS) Open(name string) (File, error) {
 
 func TestDirectoryIfNotModified(t *testing.T) { run(t, testDirectoryIfNotModified) }
 func testDirectoryIfNotModified(t *testing.T, mode testMode) {
+	if runtime.GOOS == "redox" && mode == http1Mode {
+		t.Skip("redox can hang completing an HTTP/1 directory If-Modified-Since request")
+	}
+
 	const indexContents = "I am a fake index.html file"
 	fileMod := time.Unix(1000000000, 0).UTC()
 	fileModStr := fileMod.Format(TimeFormat)
