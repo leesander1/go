@@ -503,6 +503,10 @@ func TestEmptyDirOpenCWD(t *testing.T) {
 
 func TestServeFileContentType(t *testing.T) { run(t, testServeFileContentType) }
 func testServeFileContentType(t *testing.T, mode testMode) {
+	if runtime.GOOS == "redox" && mode == http2Mode {
+		t.Skip("redox can hang completing an HTTP/2 ServeFile content-type response")
+	}
+
 	const ctype = "icecream/chocolate"
 	ts := newClientServerTest(t, mode, HandlerFunc(func(w ResponseWriter, r *Request) {
 		switch r.FormValue("override") {
