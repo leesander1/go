@@ -578,6 +578,9 @@ func testServeDirWithoutTrailingSlash(t *testing.T, mode testMode) {
 // specified.
 func TestServeFileWithContentEncoding(t *testing.T) { run(t, testServeFileWithContentEncoding) }
 func testServeFileWithContentEncoding(t *testing.T, mode testMode) {
+	if runtime.GOOS == "redox" && mode == http1Mode {
+		t.Skip("redox can hang completing an HTTP/1 ServeFile content-encoding response")
+	}
 	cst := newClientServerTest(t, mode, HandlerFunc(func(w ResponseWriter, r *Request) {
 		w.Header().Set("Content-Encoding", "foo")
 		ServeFile(w, r, "testdata/file")
