@@ -579,6 +579,9 @@ func testServeDirWithoutTrailingSlash(t *testing.T, mode testMode) {
 	if runtime.GOOS == "redox" && mode == http1Mode {
 		t.Skip("redox can hang completing an HTTP/1 ServeFile directory redirect without a trailing slash")
 	}
+	if runtime.GOOS == "redox" && mode == http2Mode {
+		t.Skip("redox can hang completing an HTTP/2 ServeFile directory redirect without a trailing slash")
+	}
 	e := "/testdata/"
 	ts := newClientServerTest(t, mode, HandlerFunc(func(w ResponseWriter, r *Request) {
 		ServeFile(w, r, ".")
