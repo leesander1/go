@@ -743,6 +743,10 @@ func testFileServerZeroByte(t *testing.T, mode testMode) {
 
 func TestFileServerNullByte(t *testing.T) { run(t, testFileServerNullByte) }
 func testFileServerNullByte(t *testing.T, mode testMode) {
+	if runtime.GOOS == "redox" && mode == http1Mode {
+		t.Skip("redox can hang completing an HTTP/1 FileServer null byte response")
+	}
+
 	ts := newClientServerTest(t, mode, FileServer(Dir("testdata"))).ts
 
 	for _, path := range []string{
