@@ -666,8 +666,8 @@ func testServeIndexHtml(t *testing.T, mode testMode) {
 			name = "DirFS"
 		}
 		t.Run(name, func(t *testing.T) {
-			if runtime.GOOS == "redox" && mode == http2Mode && name == "Dir" {
-				t.Skip("redox can hang completing an HTTP/2 FileServer index.html response")
+			if runtime.GOOS == "redox" && name == "Dir" {
+				t.Skip("redox can hang completing FileServer directory index.html responses")
 			}
 
 			const want = "index.html says hello\n"
