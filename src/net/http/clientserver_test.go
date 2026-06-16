@@ -494,7 +494,12 @@ func TestH12_200NoBody(t *testing.T) {
 	h12Compare{Handler: func(w ResponseWriter, r *Request) {}}.run(t)
 }
 
-func TestH2_204NoBody(t *testing.T) { testH12_noBody(t, 204) }
+func TestH2_204NoBody(t *testing.T) {
+	if runtime.GOOS == "redox" {
+		t.Skip("redox can hang completing an HTTP/2 204 no-body response")
+	}
+	testH12_noBody(t, 204)
+}
 func TestH2_304NoBody(t *testing.T) { testH12_noBody(t, 304) }
 func TestH2_404NoBody(t *testing.T) { testH12_noBody(t, 404) }
 
