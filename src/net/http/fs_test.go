@@ -1576,6 +1576,9 @@ func testFileServerMethods(t *testing.T, mode testMode) {
 	if runtime.GOOS == "redox" && mode == http1Mode {
 		t.Skip("redox can hang completing repeated HTTP/1 FileServer method requests")
 	}
+	if runtime.GOOS == "redox" && mode == http2Mode {
+		t.Skip("redox can hang completing repeated HTTP/2 FileServer method requests")
+	}
 
 	ts := newClientServerTest(t, mode, FileServer(Dir("testdata"))).ts
 
