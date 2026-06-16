@@ -528,6 +528,9 @@ func testServeFileContentType(t *testing.T, mode testMode) {
 
 func TestServeFileMimeType(t *testing.T) { run(t, testServeFileMimeType) }
 func testServeFileMimeType(t *testing.T, mode testMode) {
+	if runtime.GOOS == "redox" && mode == http1Mode {
+		t.Skip("redox can hang completing an HTTP/1 ServeFile MIME type response")
+	}
 	ts := newClientServerTest(t, mode, HandlerFunc(func(w ResponseWriter, r *Request) {
 		ServeFile(w, r, "testdata/style.css")
 	})).ts
