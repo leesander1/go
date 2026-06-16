@@ -544,6 +544,9 @@ func testServeFileMimeType(t *testing.T, mode testMode) {
 
 func TestServeFileFromCWD(t *testing.T) { run(t, testServeFileFromCWD) }
 func testServeFileFromCWD(t *testing.T, mode testMode) {
+	if runtime.GOOS == "redox" && mode == http1Mode {
+		t.Skip("redox can hang completing an HTTP/1 ServeFile response from the current directory")
+	}
 	ts := newClientServerTest(t, mode, HandlerFunc(func(w ResponseWriter, r *Request) {
 		ServeFile(w, r, "fs_test.go")
 	})).ts
