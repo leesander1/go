@@ -423,6 +423,9 @@ func mustRemoveAll(dir string) {
 
 func TestFileServerImplicitLeadingSlash(t *testing.T) { run(t, testFileServerImplicitLeadingSlash) }
 func testFileServerImplicitLeadingSlash(t *testing.T, mode testMode) {
+	if runtime.GOOS == "redox" && mode == http1Mode {
+		t.Skip("redox can hang completing an HTTP/1 FileServer request with an implicit leading slash")
+	}
 	if runtime.GOOS == "redox" && mode == http2Mode {
 		t.Skip("redox can hang completing an HTTP/2 FileServer request with an implicit leading slash")
 	}
