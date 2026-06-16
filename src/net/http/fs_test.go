@@ -423,6 +423,9 @@ func mustRemoveAll(dir string) {
 
 func TestFileServerImplicitLeadingSlash(t *testing.T) { run(t, testFileServerImplicitLeadingSlash) }
 func testFileServerImplicitLeadingSlash(t *testing.T, mode testMode) {
+	if runtime.GOOS == "redox" && mode == http2Mode {
+		t.Skip("redox can hang completing an HTTP/2 FileServer request with an implicit leading slash")
+	}
 	tempDir := t.TempDir()
 	if err := os.WriteFile(filepath.Join(tempDir, "foo.txt"), []byte("Hello world"), 0644); err != nil {
 		t.Fatalf("WriteFile: %v", err)
