@@ -689,6 +689,10 @@ func testServeIndexHtml(t *testing.T, mode testMode) {
 
 func TestServeIndexHtmlFS(t *testing.T) { run(t, testServeIndexHtmlFS) }
 func testServeIndexHtmlFS(t *testing.T, mode testMode) {
+	if runtime.GOOS == "redox" && mode == http1Mode {
+		t.Skip("redox can hang completing an HTTP/1 FileServer index.html response")
+	}
+
 	const want = "index.html says hello\n"
 	ts := newClientServerTest(t, mode, FileServer(Dir("."))).ts
 	defer ts.Close()
