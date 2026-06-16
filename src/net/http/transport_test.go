@@ -7366,6 +7366,10 @@ func TestValidateClientRequestTrailers(t *testing.T) {
 }
 
 func testValidateClientRequestTrailers(t *testing.T, mode testMode) {
+	if runtime.GOOS == "redox" && mode == http2Mode {
+		t.Skip("redox can hang validating HTTP/2 client request trailers")
+	}
+
 	cst := newClientServerTest(t, mode, HandlerFunc(func(rw ResponseWriter, req *Request) {
 		rw.Write([]byte("Hello"))
 	})).ts
