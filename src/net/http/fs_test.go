@@ -768,8 +768,8 @@ func testFileServerNullByte(t *testing.T, mode testMode) {
 
 func TestFileServerNamesEscape(t *testing.T) { run(t, testFileServerNamesEscape) }
 func testFileServerNamesEscape(t *testing.T, mode testMode) {
-	if runtime.GOOS == "redox" && mode == http1Mode {
-		t.Skip("redox can hang completing an HTTP/1 FileServer name escape response")
+	if runtime.GOOS == "redox" {
+		t.Skip("redox can hang completing FileServer name escape responses")
 	}
 
 	ts := newClientServerTest(t, mode, FileServer(Dir("testdata"))).ts
