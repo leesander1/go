@@ -922,6 +922,10 @@ func mustStat(t *testing.T, fileName string) fs.FileInfo {
 
 func TestServeContent(t *testing.T) { run(t, testServeContent) }
 func testServeContent(t *testing.T, mode testMode) {
+	if runtime.GOOS == "redox" && mode == http1Mode {
+		t.Skip("redox can hang completing an HTTP/1 ServeContent response")
+	}
+
 	type serveParam struct {
 		name        string
 		modtime     time.Time
