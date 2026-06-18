@@ -326,6 +326,9 @@ func TestFileServerCleans(t *testing.T) {
 
 func TestFileServerEscapesNames(t *testing.T) { run(t, testFileServerEscapesNames) }
 func testFileServerEscapesNames(t *testing.T, mode testMode) {
+	if runtime.GOOS == "redox" && mode == http1Mode {
+		t.Skip("redox can hang completing an HTTP/1 FileServer escaped-name directory listing")
+	}
 	if runtime.GOOS == "redox" && mode == http2Mode {
 		t.Skip("redox can hang completing an HTTP/2 FileServer escaped-name directory listing")
 	}
