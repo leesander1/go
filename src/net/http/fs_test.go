@@ -277,6 +277,10 @@ var fsRedirectTestData = []struct {
 
 func TestFSRedirect(t *testing.T) { run(t, testFSRedirect) }
 func testFSRedirect(t *testing.T, mode testMode) {
+	if runtime.GOOS == "redox" && mode == http2Mode {
+		t.Skip("redox can hang completing an HTTP/2 FileServer redirect")
+	}
+
 	ts := newClientServerTest(t, mode, StripPrefix("/test", FileServer(Dir(".")))).ts
 
 	for _, data := range fsRedirectTestData {
