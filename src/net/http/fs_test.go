@@ -388,6 +388,10 @@ func testFileServerEscapesNames(t *testing.T, mode testMode) {
 
 func TestFileServerSortsNames(t *testing.T) { run(t, testFileServerSortsNames) }
 func testFileServerSortsNames(t *testing.T, mode testMode) {
+	if runtime.GOOS == "redox" {
+		t.Skip("redox can hang completing FileServer directory listings")
+	}
+
 	const contents = "I am a fake file"
 	dirMod := time.Unix(123, 0).UTC()
 	fileMod := time.Unix(1000000000, 0).UTC()
