@@ -1782,8 +1782,8 @@ func testIdentityTransferEncoding(t *testing.T, mode testMode) {
 
 func TestEarlyHintsRequest(t *testing.T) { run(t, testEarlyHintsRequest) }
 func testEarlyHintsRequest(t *testing.T, mode testMode) {
-	if runtime.GOOS == "redox" && mode == http1Mode {
-		t.Skip("redox can hang waiting for HTTP/1 103 Early Hints")
+	if runtime.GOOS == "redox" {
+		t.Skip("redox can hang waiting for HTTP 103 Early Hints")
 	}
 
 	var wg sync.WaitGroup
