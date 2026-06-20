@@ -1750,6 +1750,10 @@ func TestH12_WebSocketUpgrade(t *testing.T) {
 
 func TestIdentityTransferEncoding(t *testing.T) { run(t, testIdentityTransferEncoding) }
 func testIdentityTransferEncoding(t *testing.T, mode testMode) {
+	if runtime.GOOS == "redox" && mode == http1Mode {
+		t.Skip("redox can hang reading an HTTP/1 response with identity transfer encoding")
+	}
+
 	const body = "body"
 	cst := newClientServerTest(t, mode, HandlerFunc(func(w ResponseWriter, r *Request) {
 		gotBody, _ := io.ReadAll(r.Body)
