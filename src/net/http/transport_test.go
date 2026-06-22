@@ -1430,6 +1430,9 @@ func testSOCKS5Proxy(t *testing.T, mode testMode) {
 	})
 	for _, useTLS := range []bool{false, true} {
 		t.Run(fmt.Sprintf("useTLS=%v", useTLS), func(t *testing.T) {
+			if runtime.GOOS == "redox" && mode == http1Mode && !useTLS {
+				t.Skip("redox can hang waiting for a plain HTTP SOCKS5 proxy connection to close")
+			}
 			if runtime.GOOS == "redox" && (mode == http1Mode || mode == http2Mode) && useTLS {
 				t.Skip("redox can hang waiting for a SOCKS5 proxy TLS tunnel to close")
 			}
