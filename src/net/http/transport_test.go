@@ -7220,6 +7220,10 @@ func testCancelRequestWhenSharingConnection(t *testing.T, mode testMode) {
 
 func TestHandlerAbortRacesBodyRead(t *testing.T) { run(t, testHandlerAbortRacesBodyRead) }
 func testHandlerAbortRacesBodyRead(t *testing.T, mode testMode) {
+	if runtime.GOOS == "redox" && mode == http1Mode {
+		t.Skip("redox can hang writing a large HTTP/1 request body after handler abort")
+	}
+
 	ts := newClientServerTest(t, mode, HandlerFunc(func(rw ResponseWriter, req *Request) {
 		go io.Copy(io.Discard, req.Body)
 		panic(ErrAbortHandler)

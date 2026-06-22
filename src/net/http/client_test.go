@@ -1198,6 +1198,10 @@ func TestStripPasswordFromError(t *testing.T) {
 
 func TestClientTimeout(t *testing.T) { run(t, testClientTimeout) }
 func testClientTimeout(t *testing.T, mode testMode) {
+	if runtime.GOOS == "redox" {
+		t.Skip("redox can fail sockets before the tiny client timeout is observed")
+	}
+
 	var (
 		mu           sync.Mutex
 		nonce        string // a unique per-request string
