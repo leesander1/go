@@ -1937,6 +1937,9 @@ func testTransportProxyDialDoesNotMutateProxyConnectHeader(t *testing.T, mode te
 // Content-Encoding is removed.
 func TestTransportGzipRecursive(t *testing.T) { run(t, testTransportGzipRecursive) }
 func testTransportGzipRecursive(t *testing.T, mode testMode) {
+	if runtime.GOOS == "redox" && mode == http1Mode {
+		t.Skip("redox can hang reading a recursive gzip HTTP/1 response")
+	}
 	ts := newClientServerTest(t, mode, HandlerFunc(func(w ResponseWriter, r *Request) {
 		w.Header().Set("Content-Encoding", "gzip")
 		w.Write(rgz)
