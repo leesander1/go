@@ -2211,6 +2211,9 @@ func testTransportPersistConnContextLeakMaxConnsPerHost(t *testing.T, mode testM
 	if mode == http2Mode {
 		t.Skip("https://go.dev/issue/56021")
 	}
+	if runtime.GOOS == "redox" && mode == http1Mode {
+		t.Skip("redox can hang under MaxConnsPerHost=1 while many HTTP/1 requests wait on the persistent connection")
+	}
 
 	ts := newClientServerTest(t, mode, HandlerFunc(func(w ResponseWriter, r *Request) {
 		runtime.Gosched()
