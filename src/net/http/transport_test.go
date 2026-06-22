@@ -1341,6 +1341,10 @@ func TestSOCKS5Proxy(t *testing.T) {
 	run(t, testSOCKS5Proxy, []testMode{http1Mode, https1Mode, http2Mode})
 }
 func testSOCKS5Proxy(t *testing.T, mode testMode) {
+	if runtime.GOOS == "redox" && mode == https1Mode {
+		t.Skip("redox can hang waiting for an HTTPS SOCKS5 proxy tunnel to close")
+	}
+
 	ch := make(chan string, 1)
 	l := newLocalListener(t)
 	defer l.Close()
