@@ -2498,6 +2498,9 @@ func TestIssue4191_InfiniteGetToPutTimeout(t *testing.T) {
 	run(t, testIssue4191_InfiniteGetToPutTimeout, []testMode{http1Mode})
 }
 func testIssue4191_InfiniteGetToPutTimeout(t *testing.T, mode testMode) {
+	if runtime.GOOS == "redox" {
+		t.Skip("redox can hang closing active HTTP/1 connections after a GET-to-PUT timeout")
+	}
 	const debug = false
 	mux := NewServeMux()
 	mux.HandleFunc("/get", func(w ResponseWriter, r *Request) {
