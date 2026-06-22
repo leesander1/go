@@ -6118,6 +6118,9 @@ func TestTransportCheckContextDoneEarly(t *testing.T) {
 // This is the test variant that times out before the server replies with
 // any response headers.
 func TestClientTimeoutKillsConn_BeforeHeaders(t *testing.T) {
+	if runtime.GOOS == "redox" {
+		t.Skip("redox can leave the server waiting on an active TCP connection after client timeout")
+	}
 	run(t, testClientTimeoutKillsConn_BeforeHeaders, []testMode{http1Mode})
 }
 func testClientTimeoutKillsConn_BeforeHeaders(t *testing.T, mode testMode) {
