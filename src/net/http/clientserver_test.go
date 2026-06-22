@@ -1290,6 +1290,10 @@ func testTransportGCRequest(t *testing.T, mode testMode, body bool) {
 
 func TestTransportRejectsInvalidHeaders(t *testing.T) { run(t, testTransportRejectsInvalidHeaders) }
 func testTransportRejectsInvalidHeaders(t *testing.T, mode testMode) {
+	if runtime.GOOS == "redox" && mode == http1Mode {
+		t.Skip("redox can hang while rejecting invalid HTTP/1 transport headers")
+	}
+
 	cst := newClientServerTest(t, mode, HandlerFunc(func(w ResponseWriter, r *Request) {
 		fmt.Fprintf(w, "Handler saw headers: %q", r.Header)
 	}), optQuietLog)
