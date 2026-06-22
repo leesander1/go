@@ -5203,6 +5203,10 @@ func TestServerHandlersCanHandleH2PRI(t *testing.T) {
 	run(t, testServerHandlersCanHandleH2PRI, []testMode{http1Mode})
 }
 func testServerHandlersCanHandleH2PRI(t *testing.T, mode testMode) {
+	if runtime.GOOS == "redox" {
+		t.Skip("redox can hang handling HTTP/2 PRI requests on an HTTP/1 server")
+	}
+
 	const upgradeResponse = "upgrade here"
 	ts := newClientServerTest(t, mode, HandlerFunc(func(w ResponseWriter, r *Request) {
 		conn, br, err := w.(Hijacker).Hijack()

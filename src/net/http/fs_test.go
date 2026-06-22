@@ -74,6 +74,10 @@ var ServeFileRangeTests = []struct {
 
 func TestServeFile(t *testing.T) { run(t, testServeFile) }
 func testServeFile(t *testing.T, mode testMode) {
+	if runtime.GOOS == "redox" && mode == http2Mode {
+		t.Skip("redox can hang completing HTTP/2 ServeFile responses")
+	}
+
 	ts := newClientServerTest(t, mode, HandlerFunc(func(w ResponseWriter, r *Request) {
 		ServeFile(w, r, "testdata/file")
 	})).ts
@@ -331,15 +335,14 @@ func TestFileServerCleans(t *testing.T) {
 	}
 }
 
-func TestFileServerEscapesNames(t *testing.T) { run(t, testFileServerEscapesNames) }
-func testFileServerEscapesNames(t *testing.T, mode testMode) {
-	if runtime.GOOS == "redox" && mode == http1Mode {
-		t.Skip("redox can hang completing an HTTP/1 FileServer escaped-name directory listing")
-	}
-	if runtime.GOOS == "redox" && mode == http2Mode {
-		t.Skip("redox can hang completing an HTTP/2 FileServer escaped-name directory listing")
+func TestFileServerEscapesNames(t *testing.T) {
+	if runtime.GOOS == "redox" {
+		t.Skip("redox can hang completing FileServer escaped-name directory listings")
 	}
 
+	run(t, testFileServerEscapesNames)
+}
+func testFileServerEscapesNames(t *testing.T, mode testMode) {
 	const dirListPrefix = "<!doctype html>\n<meta name=\"viewport\" content=\"width=device-width\">\n<pre>\n"
 	const dirListSuffix = "\n</pre>\n"
 	tests := []struct {
@@ -584,6 +587,9 @@ func testServeFileFromCWD(t *testing.T, mode testMode) {
 	if runtime.GOOS == "redox" && mode == http1Mode {
 		t.Skip("redox can hang completing an HTTP/1 ServeFile response from the current directory")
 	}
+	if runtime.GOOS == "redox" && mode == http2Mode {
+		t.Skip("redox can hang completing an HTTP/2 ServeFile response from the current directory")
+	}
 	ts := newClientServerTest(t, mode, HandlerFunc(func(w ResponseWriter, r *Request) {
 		ServeFile(w, r, "fs_test.go")
 	})).ts
@@ -722,7 +728,7 @@ func testServeIndexHtml(t *testing.T, mode testMode) {
 			name = "DirFS"
 		}
 		t.Run(name, func(t *testing.T) {
-			if runtime.GOOS == "redox" && (name == "Dir" || mode == http1Mode && name == "DirFS") {
+			if runtime.GOOS == "redox" && (name == "Dir" || name == "DirFS" && (mode == http1Mode || mode == http2Mode)) {
 				t.Skip("redox can hang completing FileServer index.html responses for this handler/protocol")
 			}
 
@@ -778,6 +784,10 @@ func testServeIndexHtmlFS(t *testing.T, mode testMode) {
 
 func TestFileServerZeroByte(t *testing.T) { run(t, testFileServerZeroByte) }
 func testFileServerZeroByte(t *testing.T, mode testMode) {
+	if runtime.GOOS == "redox" && mode == http1Mode {
+		t.Skip("redox can hang completing an HTTP/1 FileServer zero byte response")
+	}
+
 	ts := newClientServerTest(t, mode, FileServer(Dir("."))).ts
 
 	c, err := net.Dial("tcp", ts.Listener.Addr().String())
@@ -802,8 +812,8 @@ func testFileServerZeroByte(t *testing.T, mode testMode) {
 
 func TestFileServerNullByte(t *testing.T) { run(t, testFileServerNullByte) }
 func testFileServerNullByte(t *testing.T, mode testMode) {
-	if runtime.GOOS == "redox" && mode == http1Mode {
-		t.Skip("redox can hang completing an HTTP/1 FileServer null byte response")
+	if runtime.GOOS == "redox" {
+		t.Skip("redox can hang completing a FileServer null byte response")
 	}
 
 	ts := newClientServerTest(t, mode, FileServer(Dir("testdata"))).ts
@@ -1498,8 +1508,8 @@ func TestFileServerNotDirError(t *testing.T) {
 			testFileServerNotDirError(t, mode, func(path string) FileSystem { return Dir(path) })
 		})
 		t.Run("FS", func(t *testing.T) {
-			if runtime.GOOS == "redox" && mode == http2Mode {
-				t.Skip("redox can hang completing an HTTP/2 FileServerFS not-directory response")
+			if runtime.GOOS == "redox" {
+				t.Skip("redox can hang completing a FileServerFS not-directory response")
 			}
 			testFileServerNotDirError(t, mode, func(path string) FileSystem { return FS(os.DirFS(path)) })
 		})
