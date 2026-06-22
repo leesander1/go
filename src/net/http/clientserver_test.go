@@ -1251,8 +1251,8 @@ func TestTransportGCRequest(t *testing.T) {
 	})
 }
 func testTransportGCRequest(t *testing.T, mode testMode, body bool) {
-	if runtime.GOOS == "redox" && mode == http2Mode {
-		t.Skip("redox can hang waiting for an HTTP/2 request to become collectible")
+	if runtime.GOOS == "redox" {
+		t.Skip("redox can hang waiting for a request to become collectible")
 	}
 
 	cst := newClientServerTest(t, mode, HandlerFunc(func(w ResponseWriter, r *Request) {
