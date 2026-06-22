@@ -837,6 +837,9 @@ func TestTransportServerClosingUnexpectedly(t *testing.T) {
 	run(t, testTransportServerClosingUnexpectedly, []testMode{http1Mode})
 }
 func testTransportServerClosingUnexpectedly(t *testing.T, mode testMode) {
+	if runtime.GOOS == "redox" {
+		t.Skip("redox can hang after an HTTP/1 keep-alive connection closes unexpectedly")
+	}
 	ts := newClientServerTest(t, mode, hostPortHandler).ts
 	c := ts.Client()
 
