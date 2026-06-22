@@ -1093,6 +1093,9 @@ func testRoundTripGzip(t *testing.T, mode testMode) {
 
 func TestTransportGzip(t *testing.T) { run(t, testTransportGzip) }
 func testTransportGzip(t *testing.T, mode testMode) {
+	if runtime.GOOS == "redox" && mode == http1Mode {
+		t.Skip("redox can hang closing a partially-read gzip HTTP/1 response")
+	}
 	if mode == http2Mode {
 		t.Skip("https://go.dev/issue/56020")
 	}
