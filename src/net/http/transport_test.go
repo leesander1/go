@@ -2136,6 +2136,10 @@ func TestTransportPersistConnLeakNeverIdle(t *testing.T) {
 	run(t, testTransportPersistConnLeakNeverIdle, []testMode{http1Mode})
 }
 func testTransportPersistConnLeakNeverIdle(t *testing.T, mode testMode) {
+	if runtime.GOOS == "redox" {
+		t.Skip("redox can hang waiting for a never-idle HTTP/1 persistent connection to be collected")
+	}
+
 	ts := newClientServerTest(t, mode, HandlerFunc(func(w ResponseWriter, r *Request) {
 		// Close every connection so that it cannot be kept alive.
 		conn, _, err := w.(Hijacker).Hijack()
