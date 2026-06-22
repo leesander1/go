@@ -3696,6 +3696,9 @@ func TestTLSServerClosesConnection(t *testing.T) {
 	run(t, testTLSServerClosesConnection, []testMode{https1Mode})
 }
 func testTLSServerClosesConnection(t *testing.T, mode testMode) {
+	if runtime.GOOS == "redox" {
+		t.Skip("redox can hang reusing a TLS connection after server-side close")
+	}
 	closedc := make(chan bool, 1)
 	ts := newClientServerTest(t, mode, HandlerFunc(func(w ResponseWriter, r *Request) {
 		if strings.Contains(r.URL.Path, "/keep-alive-then-die") {
@@ -4060,6 +4063,9 @@ Handler
 // Issue 6981
 func TestTransportClosesBodyOnError(t *testing.T) { run(t, testTransportClosesBodyOnError) }
 func testTransportClosesBodyOnError(t *testing.T, mode testMode) {
+	if runtime.GOOS == "redox" {
+		t.Skip("redox does not reliably surface the request body error while closing the transport connection")
+	}
 	readBody := make(chan error, 1)
 	ts := newClientServerTest(t, mode, HandlerFunc(func(w ResponseWriter, r *Request) {
 		_, err := io.ReadAll(r.Body)
