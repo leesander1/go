@@ -1160,6 +1160,10 @@ func TestTransportDiscardsUnneededConns(t *testing.T) {
 	run(t, testTransportDiscardsUnneededConns, []testMode{http2Mode})
 }
 func testTransportDiscardsUnneededConns(t *testing.T, mode testMode) {
+	if runtime.GOOS == "redox" {
+		t.Skip("redox can fail racing HTTP/2 TLS dials under load")
+	}
+
 	cst := newClientServerTest(t, mode, HandlerFunc(func(w ResponseWriter, r *Request) {
 		fmt.Fprintf(w, "Hello, %v", r.RemoteAddr)
 	}))
