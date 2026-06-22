@@ -5078,6 +5078,9 @@ func testTransportResponseHeaderLength(t *testing.T, mode testMode) {
 	if mode == http2Mode {
 		t.Skip("HTTP/2 Transport doesn't support MaxResponseHeaderBytes")
 	}
+	if runtime.GOOS == "redox" {
+		t.Skip("redox can hang closing the HTTP/1 server connection after a too-large response header")
+	}
 	ts := newClientServerTest(t, mode, HandlerFunc(func(w ResponseWriter, r *Request) {
 		if r.URL.Path == "/long" {
 			w.Header().Set("Long", strings.Repeat("a", 1<<20))
