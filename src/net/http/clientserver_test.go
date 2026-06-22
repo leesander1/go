@@ -1251,6 +1251,10 @@ func TestTransportGCRequest(t *testing.T) {
 	})
 }
 func testTransportGCRequest(t *testing.T, mode testMode, body bool) {
+	if runtime.GOOS == "redox" && mode == http2Mode && body {
+		t.Skip("redox can hang waiting for an HTTP/2 request with a body to become collectible")
+	}
+
 	cst := newClientServerTest(t, mode, HandlerFunc(func(w ResponseWriter, r *Request) {
 		io.ReadAll(r.Body)
 		if body {
