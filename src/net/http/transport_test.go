@@ -786,6 +786,9 @@ func TestTransportRemovesDeadIdleConnections(t *testing.T) {
 	run(t, testTransportRemovesDeadIdleConnections, []testMode{http1Mode})
 }
 func testTransportRemovesDeadIdleConnections(t *testing.T, mode testMode) {
+	if runtime.GOOS == "redox" {
+		t.Skip("redox can hang waiting for the Transport to notice dead idle HTTP/1 connections")
+	}
 	ts := newClientServerTest(t, mode, HandlerFunc(func(w ResponseWriter, r *Request) {
 		io.WriteString(w, r.RemoteAddr)
 	})).ts
