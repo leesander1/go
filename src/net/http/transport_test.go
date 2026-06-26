@@ -1906,6 +1906,9 @@ func TestTransportProxyDialDoesNotMutateProxyConnectHeader(t *testing.T) {
 	run(t, testTransportProxyDialDoesNotMutateProxyConnectHeader)
 }
 func testTransportProxyDialDoesNotMutateProxyConnectHeader(t *testing.T, mode testMode) {
+	if runtime.GOOS == "redox" && mode == http1Mode {
+		t.Skip("redox can hang proxy dialing an HTTP/1 CONNECT request")
+	}
 	if runtime.GOOS == "redox" && mode == http2Mode {
 		t.Skip("redox can hang proxy dialing an HTTP/2 CONNECT request")
 	}
