@@ -639,7 +639,7 @@ func TestTransportMaxConnsPerHost(t *testing.T) {
 	run(t, testTransportMaxConnsPerHost, []testMode{http1Mode, https1Mode, http2Mode})
 }
 func testTransportMaxConnsPerHost(t *testing.T, mode testMode) {
-	if runtime.GOOS == "redox" && mode == http1Mode {
+	if runtime.GOOS == "redox" && (mode == http1Mode || mode == https1Mode) {
 		t.Skip("redox can hang while serializing concurrent HTTP/1 requests through MaxConnsPerHost=1")
 	}
 	CondSkipHTTP2(t)
