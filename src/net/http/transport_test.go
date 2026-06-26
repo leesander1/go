@@ -478,6 +478,10 @@ func TestTransportMaxPerHostIdleConns(t *testing.T) {
 	run(t, testTransportMaxPerHostIdleConns, []testMode{http1Mode})
 }
 func testTransportMaxPerHostIdleConns(t *testing.T, mode testMode) {
+	if runtime.GOOS == "redox" && mode == http1Mode {
+		t.Skip("redox can hang while filling the HTTP/1 idle connection pool")
+	}
+
 	stop := make(chan struct{}) // stop marks the exit of main Test goroutine
 	defer close(stop)
 
