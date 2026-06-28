@@ -1990,6 +1990,10 @@ func testTransportGzipRecursive(t *testing.T, mode testMode) {
 // a short gzip body
 func TestTransportGzipShort(t *testing.T) { run(t, testTransportGzipShort) }
 func testTransportGzipShort(t *testing.T, mode testMode) {
+	if runtime.GOOS == "redox" && mode == http1Mode {
+		t.Skip("redox can hang reading a short gzip HTTP/1 response body")
+	}
+
 	ts := newClientServerTest(t, mode, HandlerFunc(func(w ResponseWriter, r *Request) {
 		w.Header().Set("Content-Encoding", "gzip")
 		w.Write([]byte{0x1f, 0x8b})
