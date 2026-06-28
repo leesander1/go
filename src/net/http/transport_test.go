@@ -345,6 +345,10 @@ func TestTransportRespectRequestWantsClose(t *testing.T) {
 	run(t, testTransportRespectRequestWantsClose, []testMode{http1Mode})
 }
 func testTransportRespectRequestWantsClose(t *testing.T, mode testMode) {
+	if runtime.GOOS == "redox" {
+		t.Skip("redox can hang while verifying HTTP/1 Connection: close handling")
+	}
+
 	tests := []struct {
 		disableKeepAlives bool
 		close             bool
