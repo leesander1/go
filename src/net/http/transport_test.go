@@ -256,6 +256,9 @@ func testTransportConnectionCloseOnResponse(t *testing.T, mode testMode) {
 // describes the source connection it got (remote port number +
 // address of its net.Conn).
 func TestTransportConnectionCloseOnRequest(t *testing.T) {
+	if runtime.GOOS == "redox" {
+		t.Skip("redox can hang while verifying HTTP/1 Request.Close connection reuse")
+	}
 	run(t, testTransportConnectionCloseOnRequest, []testMode{http1Mode})
 }
 func testTransportConnectionCloseOnRequest(t *testing.T, mode testMode) {
