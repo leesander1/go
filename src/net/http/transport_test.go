@@ -578,6 +578,10 @@ func TestTransportMaxConnsPerHostIncludeDialInProgress(t *testing.T) {
 	run(t, testTransportMaxConnsPerHostIncludeDialInProgress)
 }
 func testTransportMaxConnsPerHostIncludeDialInProgress(t *testing.T, mode testMode) {
+	if runtime.GOOS == "redox" && mode == http1Mode {
+		t.Skip("redox can hang while including in-progress HTTP/1 dials in MaxConnsPerHost")
+	}
+
 	ts := newClientServerTest(t, mode, HandlerFunc(func(w ResponseWriter, r *Request) {
 		_, err := w.Write([]byte("foo"))
 		if err != nil {
