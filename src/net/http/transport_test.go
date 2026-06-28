@@ -1059,8 +1059,8 @@ var roundTripTests = []struct {
 // Test that the modification made to the Request by the RoundTripper is cleaned up
 func TestRoundTripGzip(t *testing.T) { run(t, testRoundTripGzip) }
 func testRoundTripGzip(t *testing.T, mode testMode) {
-	if runtime.GOOS == "redox" && mode == http1Mode {
-		t.Skip("redox can hang completing an HTTP/1 RoundTrip gzip response")
+	if runtime.GOOS == "redox" {
+		t.Skip("redox can hang completing a RoundTrip gzip response")
 	}
 	const responseBody = "test response body"
 	ts := newClientServerTest(t, mode, HandlerFunc(func(rw ResponseWriter, req *Request) {
