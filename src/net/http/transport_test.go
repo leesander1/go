@@ -327,6 +327,10 @@ func TestTransportConnectionCloseOnRequestDisableKeepAlive(t *testing.T) {
 	run(t, testTransportConnectionCloseOnRequestDisableKeepAlive, []testMode{http1Mode})
 }
 func testTransportConnectionCloseOnRequestDisableKeepAlive(t *testing.T, mode testMode) {
+	if runtime.GOOS == "redox" {
+		t.Skip("redox can hang closing an HTTP/1 request with disabled keep-alives")
+	}
+
 	ts := newClientServerTest(t, mode, hostPortHandler).ts
 
 	c := ts.Client()
