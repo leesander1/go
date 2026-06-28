@@ -966,6 +966,10 @@ func testStressSurpriseServerCloses(t *testing.T, mode testMode) {
 // with no bodies properly
 func TestTransportHeadResponses(t *testing.T) { run(t, testTransportHeadResponses) }
 func testTransportHeadResponses(t *testing.T, mode testMode) {
+	if runtime.GOOS == "redox" && mode == http1Mode {
+		t.Skip("redox can hang reading repeated HTTP/1 HEAD responses")
+	}
+
 	ts := newClientServerTest(t, mode, HandlerFunc(func(w ResponseWriter, r *Request) {
 		if r.Method != "HEAD" {
 			panic("expected HEAD; got " + r.Method)
