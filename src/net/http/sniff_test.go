@@ -10,6 +10,7 @@ import (
 	"io"
 	"log"
 	. "net/http"
+	"runtime"
 	"slices"
 	"strconv"
 	"strings"
@@ -256,6 +257,10 @@ func testContentTypeWithVariousSources(t *testing.T, mode testMode) {
 
 func TestSniffWriteSize(t *testing.T) { run(t, testSniffWriteSize) }
 func testSniffWriteSize(t *testing.T, mode testMode) {
+	if runtime.GOOS == "redox" {
+		t.Skip("redox can corrupt or hang while draining large sniffed responses")
+	}
+
 	cst := newClientServerTest(t, mode, HandlerFunc(func(w ResponseWriter, r *Request) {
 		size, _ := strconv.Atoi(r.FormValue("size"))
 		written, err := io.WriteString(w, strings.Repeat("a", size))
