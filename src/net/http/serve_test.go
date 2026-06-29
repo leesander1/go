@@ -5364,6 +5364,9 @@ func TestServerContext_ServerContextKey(t *testing.T) {
 	run(t, testServerContext_ServerContextKey)
 }
 func testServerContext_ServerContextKey(t *testing.T, mode testMode) {
+	if runtime.GOOS == "redox" && mode == http2Mode {
+		t.Skip("redox can hang opening the HTTP/2 request for the server context key check")
+	}
 	cst := newClientServerTest(t, mode, HandlerFunc(func(w ResponseWriter, r *Request) {
 		ctx := r.Context()
 		got := ctx.Value(ServerContextKey)
