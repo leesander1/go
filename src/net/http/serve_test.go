@@ -7527,6 +7527,10 @@ func testHeadBody(t *testing.T, mode testMode, chunked bool, method string) {
 // or disabled when the header is set to nil.
 func TestDisableContentLength(t *testing.T) { run(t, testDisableContentLength) }
 func testDisableContentLength(t *testing.T, mode testMode) {
+	if runtime.GOOS == "redox" && mode == http2Mode {
+		t.Skip("redox can hang completing an HTTP/2 response after Content-Length is disabled")
+	}
+
 	noCL := newClientServerTest(t, mode, HandlerFunc(func(w ResponseWriter, r *Request) {
 		w.Header()["Content-Length"] = nil // disable the default Content-Length response
 		fmt.Fprintf(w, "OK")
