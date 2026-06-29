@@ -7195,6 +7195,9 @@ func TestQuerySemicolon(t *testing.T) {
 	}
 
 	run(t, func(t *testing.T, mode testMode) {
+		if runtime.GOOS == "redox" && mode == http2Mode {
+			t.Skip("redox can hang completing HTTP/2 requests with query semicolons")
+		}
 		for _, tt := range tests {
 			t.Run(tt.query+"/allow=false", func(t *testing.T) {
 				allowSemicolons := false
