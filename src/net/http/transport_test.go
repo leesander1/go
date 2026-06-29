@@ -440,6 +440,10 @@ func testTransportIdleCacheKeys(t *testing.T, mode testMode) {
 // reads to the end of a response Body without closing it.
 func TestTransportReadToEndReusesConn(t *testing.T) { run(t, testTransportReadToEndReusesConn) }
 func testTransportReadToEndReusesConn(t *testing.T, mode testMode) {
+	if runtime.GOOS == "redox" && mode == http1Mode {
+		t.Skip("redox can hang reusing an HTTP/1 connection after reading the response body to EOF")
+	}
+
 	const msg = "foobar"
 
 	var addrSeen map[string]int
