@@ -137,8 +137,8 @@ func testServerContentTypeSniff(t *testing.T, mode testMode) {
 // even if it's the empty string.
 func TestServerIssue5953(t *testing.T) { run(t, testServerIssue5953) }
 func testServerIssue5953(t *testing.T, mode testMode) {
-	if runtime.GOOS == "redox" && mode == http1Mode {
-		t.Skip("redox can hang completing an HTTP/1 response with an empty Content-Type header")
+	if runtime.GOOS == "redox" {
+		t.Skip("redox can hang completing a response with an empty Content-Type header")
 	}
 
 	cst := newClientServerTest(t, mode, HandlerFunc(func(w ResponseWriter, r *Request) {
