@@ -170,6 +170,10 @@ func testReuseRequest(t *testing.T, mode testMode) {
 // The response from the server is our own IP:port
 func TestTransportKeepAlives(t *testing.T) { run(t, testTransportKeepAlives, []testMode{http1Mode}) }
 func testTransportKeepAlives(t *testing.T, mode testMode) {
+	if runtime.GOOS == "redox" && mode == http1Mode {
+		t.Skip("redox can hang while verifying HTTP/1 keep-alive connection reuse")
+	}
+
 	ts := newClientServerTest(t, mode, hostPortHandler).ts
 
 	c := ts.Client()
