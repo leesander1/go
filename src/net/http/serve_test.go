@@ -7472,7 +7472,12 @@ func TestGetBody(t *testing.T) {
 			}
 			testHeadBody(t, mode, identityMode, "GET")
 		})
-		t.Run("chunked", func(t *testing.T) { testHeadBody(t, mode, chunkedMode, "GET") })
+		t.Run("chunked", func(t *testing.T) {
+			if runtime.GOOS == "redox" && mode == http1Mode {
+				t.Skip("redox can hang completing an HTTP/1 GET response with a chunked empty body")
+			}
+			testHeadBody(t, mode, chunkedMode, "GET")
+		})
 	})
 }
 
