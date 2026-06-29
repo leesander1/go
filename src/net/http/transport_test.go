@@ -2356,6 +2356,10 @@ func testTransportPersistConnContextLeakMaxConnsPerHost(t *testing.T, mode testM
 // This used to crash; https://golang.org/issue/3266
 func TestTransportIdleConnCrash(t *testing.T) { run(t, testTransportIdleConnCrash) }
 func testTransportIdleConnCrash(t *testing.T, mode testMode) {
+	if runtime.GOOS == "redox" && mode == http1Mode {
+		t.Skip("redox can hang closing idle HTTP/1 connections during a request")
+	}
+
 	var tr *Transport
 
 	unblockCh := make(chan bool, 1)
