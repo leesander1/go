@@ -6698,6 +6698,10 @@ func TestStripPortFromHost(t *testing.T) {
 
 func TestServerContexts(t *testing.T) { run(t, testServerContexts) }
 func testServerContexts(t *testing.T, mode testMode) {
+	if runtime.GOOS == "redox" && mode == http1Mode {
+		t.Skip("redox can hang completing HTTP/1 server context requests")
+	}
+
 	type baseKey struct{}
 	type connKey struct{}
 	ch := make(chan context.Context, 1)
