@@ -7397,6 +7397,9 @@ func testParseFormCleanup(t *testing.T, mode testMode) {
 	if mode == http2Mode {
 		t.Skip("https://go.dev/issue/20253")
 	}
+	if runtime.GOOS == "redox" && mode == http1Mode {
+		t.Skip("redox can hang cleaning up multipart form temporary files after an HTTP/1 request")
+	}
 
 	const maxMemory = 1024
 	const key = "file"
