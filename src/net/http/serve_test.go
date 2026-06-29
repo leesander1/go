@@ -7750,6 +7750,9 @@ func testServerTLSNextProtos(t *testing.T, mode testMode) {
 	if runtime.GOOS == "redox" && mode == https1Mode {
 		t.Skip("redox can hang completing the HTTPS/1 NextProtos server request")
 	}
+	if runtime.GOOS == "redox" && mode == http2Mode {
+		t.Skip("redox can hang completing the HTTP/2 NextProtos server request")
+	}
 	CondSkipHTTP2(t)
 
 	cert, err := tls.X509KeyPair(testcert.LocalhostCert, testcert.LocalhostKey)
