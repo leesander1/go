@@ -6261,6 +6261,9 @@ func testServerKeepAlivesEnabled(t *testing.T, mode testMode) {
 // waiting for the connection to maybe close.
 func TestServerCancelsReadTimeoutWhenIdle(t *testing.T) { run(t, testServerCancelsReadTimeoutWhenIdle) }
 func testServerCancelsReadTimeoutWhenIdle(t *testing.T, mode testMode) {
+	if runtime.GOOS == "redox" && mode == http1Mode {
+		t.Skip("redox can hang waiting for an idle HTTP/1 server read timeout")
+	}
 	if runtime.GOOS == "redox" && mode == http2Mode {
 		t.Skip("redox can hang waiting for an idle HTTP/2 server read timeout")
 	}
