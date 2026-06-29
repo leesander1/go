@@ -6085,6 +6085,9 @@ func testServerShutdown(t *testing.T, mode testMode) {
 	if runtime.GOOS == "redox" && mode == http1Mode {
 		t.Skip("redox can hang waiting for HTTP/1 server shutdown to finish")
 	}
+	if runtime.GOOS == "redox" && mode == http2Mode {
+		t.Skip("redox can hang waiting for HTTP/2 server shutdown to finish")
+	}
 	var cst *clientServerTest
 
 	var once sync.Once
