@@ -6810,6 +6810,10 @@ func testUnsupportedTransferEncodingsReturn501(t *testing.T, mode testMode) {
 // Issue 31753: don't sniff when Content-Encoding is set
 func TestContentEncodingNoSniffing(t *testing.T) { run(t, testContentEncodingNoSniffing) }
 func testContentEncodingNoSniffing(t *testing.T, mode testMode) {
+	if runtime.GOOS == "redox" {
+		t.Skip("redox can hang serving responses with content encoding")
+	}
+
 	type setting struct {
 		name string
 		body []byte
