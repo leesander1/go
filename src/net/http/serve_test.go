@@ -7466,7 +7466,12 @@ func TestGetBody(t *testing.T) {
 	const identityMode = false
 	const chunkedMode = true
 	run(t, func(t *testing.T, mode testMode) {
-		t.Run("identity", func(t *testing.T) { testHeadBody(t, mode, identityMode, "GET") })
+		t.Run("identity", func(t *testing.T) {
+			if runtime.GOOS == "redox" && mode == http1Mode {
+				t.Skip("redox can hang completing an HTTP/1 GET response with an identity-encoded empty body")
+			}
+			testHeadBody(t, mode, identityMode, "GET")
+		})
 		t.Run("chunked", func(t *testing.T) { testHeadBody(t, mode, chunkedMode, "GET") })
 	})
 }
