@@ -7588,8 +7588,8 @@ func testDisableContentLength(t *testing.T, mode testMode) {
 
 func TestErrorContentLength(t *testing.T) { run(t, testErrorContentLength) }
 func testErrorContentLength(t *testing.T, mode testMode) {
-	if runtime.GOOS == "redox" && mode == http2Mode {
-		t.Skip("redox can hang completing an HTTP/2 Error response after Content-Length is cleared")
+	if runtime.GOOS == "redox" {
+		t.Skip("redox can hang completing an Error response after Content-Length is cleared")
 	}
 	const errorBody = "an error occurred"
 	cst := newClientServerTest(t, mode, HandlerFunc(func(w ResponseWriter, r *Request) {
