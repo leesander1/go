@@ -7103,6 +7103,9 @@ func TestWriteHeaderSwitchingProtocols(t *testing.T) {
 	run(t, testWriteHeaderSwitchingProtocols, []testMode{http1Mode})
 }
 func testWriteHeaderSwitchingProtocols(t *testing.T, mode testMode) {
+	if runtime.GOOS == "redox" {
+		t.Skip("redox can hang completing an HTTP/1 switching protocols response")
+	}
 	const wantBody = "want"
 	const wantUpgrade = "someProto"
 	ts := newClientServerTest(t, mode, HandlerFunc(func(w ResponseWriter, r *Request) {
