@@ -7541,6 +7541,9 @@ func testHeadBody(t *testing.T, mode testMode, chunked bool, method string) {
 // or disabled when the header is set to nil.
 func TestDisableContentLength(t *testing.T) { run(t, testDisableContentLength) }
 func testDisableContentLength(t *testing.T, mode testMode) {
+	if runtime.GOOS == "redox" && mode == http1Mode {
+		t.Skip("redox can hang completing an HTTP/1 response after Content-Length is disabled")
+	}
 	if runtime.GOOS == "redox" && mode == http2Mode {
 		t.Skip("redox can hang completing an HTTP/2 response after Content-Length is disabled")
 	}
