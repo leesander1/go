@@ -2441,6 +2441,10 @@ func testIssue3595(t *testing.T, mode testMode) {
 // "client fails to handle requests with no body and chunked encoding"
 func TestChunkedNoContent(t *testing.T) { run(t, testChunkedNoContent) }
 func testChunkedNoContent(t *testing.T, mode testMode) {
+	if runtime.GOOS == "redox" && mode == http1Mode {
+		t.Skip("redox can hang on HTTP/1 chunked no-content responses")
+	}
+
 	ts := newClientServerTest(t, mode, HandlerFunc(func(w ResponseWriter, r *Request) {
 		w.WriteHeader(StatusNoContent)
 	})).ts
