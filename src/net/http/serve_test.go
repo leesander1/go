@@ -7481,6 +7481,9 @@ func TestGetBody(t *testing.T) {
 			if runtime.GOOS == "redox" && mode == http1Mode {
 				t.Skip("redox can hang completing an HTTP/1 GET response with a chunked empty body")
 			}
+			if runtime.GOOS == "redox" && mode == http2Mode {
+				t.Skip("redox can hang completing an HTTP/2 GET response with a chunked empty body")
+			}
 			testHeadBody(t, mode, chunkedMode, "GET")
 		})
 	})
