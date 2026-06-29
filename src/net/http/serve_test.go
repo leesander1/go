@@ -6252,6 +6252,9 @@ func testServerKeepAlivesEnabled(t *testing.T, mode testMode) {
 // waiting for the connection to maybe close.
 func TestServerCancelsReadTimeoutWhenIdle(t *testing.T) { run(t, testServerCancelsReadTimeoutWhenIdle) }
 func testServerCancelsReadTimeoutWhenIdle(t *testing.T, mode testMode) {
+	if runtime.GOOS == "redox" && mode == http2Mode {
+		t.Skip("redox can hang waiting for an idle HTTP/2 server read timeout")
+	}
 	runTimeSensitiveTest(t, []time.Duration{
 		10 * time.Millisecond,
 		50 * time.Millisecond,
@@ -6377,6 +6380,9 @@ func testServerDuplicateBackgroundRead(t *testing.T, mode testMode) {
 	if runtime.GOOS == "netbsd" && runtime.GOARCH == "arm" {
 		testenv.SkipFlaky(t, 24826)
 	}
+	if runtime.GOOS == "redox" && mode == http1Mode {
+		t.Skip("redox can fail repeated HTTP/1 background reads on a reused connection")
+	}
 
 	goroutines := 5
 	requests := 2000
@@ -6487,6 +6493,9 @@ func TestServerHijackGetsFullBody(t *testing.T) {
 func testServerHijackGetsFullBody(t *testing.T, mode testMode) {
 	if runtime.GOOS == "plan9" {
 		t.Skip("skipping test; see https://golang.org/issue/18657")
+	}
+	if runtime.GOOS == "redox" && mode == http1Mode {
+		t.Skip("redox can EOF before delivering the full hijacked HTTP/1 request body")
 	}
 	done := make(chan struct{})
 	needle := strings.Repeat("x", 100*1024) // assume: larger than net/http bufio size
