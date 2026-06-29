@@ -6032,6 +6032,9 @@ func TestServerSetKeepAlivesEnabledClosesConns(t *testing.T) {
 	run(t, testServerSetKeepAlivesEnabledClosesConns, []testMode{http1Mode})
 }
 func testServerSetKeepAlivesEnabledClosesConns(t *testing.T, mode testMode) {
+	if runtime.GOOS == "redox" && mode == http1Mode {
+		t.Skip("redox can hang waiting for HTTP/1 idle connections to close after disabling keep-alives")
+	}
 	ts := newClientServerTest(t, mode, HandlerFunc(func(w ResponseWriter, r *Request) {
 		io.WriteString(w, r.RemoteAddr)
 	})).ts
