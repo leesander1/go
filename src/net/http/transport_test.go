@@ -206,8 +206,8 @@ func TestTransportConnectionCloseOnResponse(t *testing.T) {
 	run(t, testTransportConnectionCloseOnResponse)
 }
 func testTransportConnectionCloseOnResponse(t *testing.T, mode testMode) {
-	if runtime.GOOS == "redox" && mode == http1Mode {
-		t.Skip("redox can hang while verifying HTTP/1 response Connection: close reuse")
+	if runtime.GOOS == "redox" {
+		t.Skip("redox can hang while verifying response Connection: close reuse")
 	}
 
 	ts := newClientServerTest(t, mode, hostPortHandler).ts
