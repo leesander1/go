@@ -169,6 +169,10 @@ func (b *byteAtATimeReader) Read(p []byte) (n int, err error) {
 
 func TestContentTypeWithVariousSources(t *testing.T) { run(t, testContentTypeWithVariousSources) }
 func testContentTypeWithVariousSources(t *testing.T, mode testMode) {
+	if runtime.GOOS == "redox" && mode == http2Mode {
+		t.Skip("redox can hang while sniffing small HTTP/2 responses from varied write paths")
+	}
+
 	const (
 		input    = "\n<html>\n\t<head>\n"
 		expected = "text/html; charset=utf-8"
