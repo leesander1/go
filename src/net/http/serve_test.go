@@ -6770,6 +6770,10 @@ func TestUnsupportedTransferEncodingsReturn501(t *testing.T) {
 	run(t, testUnsupportedTransferEncodingsReturn501, []testMode{http1Mode})
 }
 func testUnsupportedTransferEncodingsReturn501(t *testing.T, mode testMode) {
+	if runtime.GOOS == "redox" {
+		t.Skip("redox can hang waiting for HTTP/1 unsupported transfer encoding responses")
+	}
+
 	cst := newClientServerTest(t, mode, HandlerFunc(func(w ResponseWriter, r *Request) {
 		w.Write([]byte("Hello, World!"))
 	})).ts
