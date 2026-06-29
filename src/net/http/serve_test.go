@@ -7463,7 +7463,12 @@ func TestHeadBody(t *testing.T) {
 	const identityMode = false
 	const chunkedMode = true
 	run(t, func(t *testing.T, mode testMode) {
-		t.Run("identity", func(t *testing.T) { testHeadBody(t, mode, identityMode, "HEAD") })
+		t.Run("identity", func(t *testing.T) {
+			if runtime.GOOS == "redox" && mode == http2Mode {
+				t.Skip("redox can hang completing an HTTP/2 HEAD response with an identity-encoded request body")
+			}
+			testHeadBody(t, mode, identityMode, "HEAD")
+		})
 		t.Run("chunked", func(t *testing.T) {
 			if runtime.GOOS == "redox" && mode == http1Mode {
 				t.Skip("redox can hang completing an HTTP/1 HEAD response with a chunked request body")
