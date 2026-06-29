@@ -6318,6 +6318,9 @@ func TestServerCancelsReadHeaderTimeoutWhenIdle(t *testing.T) {
 	run(t, testServerCancelsReadHeaderTimeoutWhenIdle, []testMode{http1Mode})
 }
 func testServerCancelsReadHeaderTimeoutWhenIdle(t *testing.T, mode testMode) {
+	if runtime.GOOS == "redox" && mode == http1Mode {
+		t.Skip("redox can hang reusing an idle HTTP/1 connection after ReadHeaderTimeout")
+	}
 	runTimeSensitiveTest(t, []time.Duration{
 		10 * time.Millisecond,
 		50 * time.Millisecond,
