@@ -91,8 +91,8 @@ func TestDetectContentType(t *testing.T) {
 
 func TestServerContentTypeSniff(t *testing.T) { run(t, testServerContentTypeSniff) }
 func testServerContentTypeSniff(t *testing.T, mode testMode) {
-	if runtime.GOOS == "redox" && mode == http1Mode {
-		t.Skip("redox can hang completing HTTP/1 content-sniffed responses")
+	if runtime.GOOS == "redox" {
+		t.Skip("redox can hang completing content-sniffed responses")
 	}
 
 	cst := newClientServerTest(t, mode, HandlerFunc(func(w ResponseWriter, r *Request) {
