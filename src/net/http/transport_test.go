@@ -2061,6 +2061,9 @@ func waitNumGoroutine(nmax int) int {
 
 // tests that persistent goroutine connections shut down when no longer desired.
 func TestTransportPersistConnLeak(t *testing.T) {
+	if runtime.GOOS == "redox" {
+		t.Skip("redox can fail many simultaneous persistent connection requests with disconnected transport endpoints")
+	}
 	run(t, testTransportPersistConnLeak, testNotParallel)
 }
 func testTransportPersistConnLeak(t *testing.T, mode testMode) {
