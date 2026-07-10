@@ -6770,6 +6770,9 @@ func testConnContextNotModifyingAllContexts(t *testing.T, mode testMode) {
 	if runtime.GOOS == "redox" && mode == http1Mode {
 		t.Skip("redox can hang completing repeated HTTP/1 ConnContext requests")
 	}
+	if runtime.GOOS == "redox" && mode == http2Mode {
+		t.Skip("redox can hang completing repeated HTTP/2 ConnContext requests")
+	}
 
 	type connKey struct{}
 	ts := newClientServerTest(t, mode, HandlerFunc(func(rw ResponseWriter, r *Request) {
