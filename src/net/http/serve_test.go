@@ -6235,6 +6235,9 @@ func TestServerCloseDeadlock(t *testing.T) {
 // both HTTP/1 and HTTP/2.
 func TestServerKeepAlivesEnabled(t *testing.T) { run(t, testServerKeepAlivesEnabled, testNotParallel) }
 func testServerKeepAlivesEnabled(t *testing.T, mode testMode) {
+	if runtime.GOOS == "redox" {
+		t.Skip("redox can leave HTTP server connections active during keep-alive cleanup")
+	}
 	if mode == http2Mode {
 		restore := ExportSetH2GoawayTimeout(10 * time.Millisecond)
 		defer restore()

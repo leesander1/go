@@ -6773,6 +6773,9 @@ func TestTransportIgnores408(t *testing.T) {
 	run(t, testTransportIgnores408, []testMode{http1Mode}, testNotParallel)
 }
 func testTransportIgnores408(t *testing.T, mode testMode) {
+	if runtime.GOOS == "redox" {
+		t.Skip("redox can leave HTTP/1 idle transport connections visible after a 408 response")
+	}
 	// Not parallel. Relies on mutating the log package's global Output.
 	defer log.SetOutput(log.Writer())
 
