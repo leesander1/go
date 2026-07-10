@@ -5397,6 +5397,12 @@ func TestServerContext_LocalAddrContextKey(t *testing.T) {
 	run(t, testServerContext_LocalAddrContextKey)
 }
 func testServerContext_LocalAddrContextKey(t *testing.T, mode testMode) {
+	if runtime.GOOS == "redox" && mode == http1Mode {
+		t.Skip("redox can hang closing the HTTP/1 server after the local address context key check")
+	}
+	if runtime.GOOS == "redox" && mode == http2Mode {
+		t.Skip("redox can hang closing the HTTP/2 server after the local address context key check")
+	}
 	ch := make(chan any, 1)
 	cst := newClientServerTest(t, mode, HandlerFunc(func(w ResponseWriter, r *Request) {
 		ch <- r.Context().Value(LocalAddrContextKey)
