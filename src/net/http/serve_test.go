@@ -5317,6 +5317,9 @@ func TestServerRequestContextCancel_ServeHTTPDone(t *testing.T) {
 	run(t, testServerRequestContextCancel_ServeHTTPDone)
 }
 func testServerRequestContextCancel_ServeHTTPDone(t *testing.T, mode testMode) {
+	if runtime.GOOS == "redox" && mode == http1Mode {
+		t.Skip("redox can hang closing the HTTP/1 server after ServeHTTP request context cancellation")
+	}
 	ctxc := make(chan context.Context, 1)
 	cst := newClientServerTest(t, mode, HandlerFunc(func(w ResponseWriter, r *Request) {
 		ctx := r.Context()
