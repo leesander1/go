@@ -520,6 +520,9 @@ func testClientRedirectNoLocation(t *testing.T, mode testMode) {
 	for _, code := range []int{301, 308} {
 		t.Run(fmt.Sprint(code), func(t *testing.T) {
 			setParallel(t)
+			if runtime.GOOS == "redox" && mode == http2Mode && code == 308 {
+				t.Skip("redox can hang completing an HTTP/2 308 response without a Location header")
+			}
 			cst := newClientServerTest(t, mode, HandlerFunc(func(w ResponseWriter, r *Request) {
 				w.Header().Set("Foo", "Bar")
 				w.WriteHeader(code)
