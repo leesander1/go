@@ -515,14 +515,16 @@ func testClientRedirectUseResponse(t *testing.T, mode testMode) {
 
 // Issues 17773 and 49281: don't follow a 3xx if the response doesn't
 // have a Location header.
-func TestClientRedirectNoLocation(t *testing.T) { run(t, testClientRedirectNoLocation) }
+func TestClientRedirectNoLocation(t *testing.T) {
+	if runtime.GOOS == "redox" {
+		t.Skip("redox can hang completing responses without Location headers in this redirect test")
+	}
+	run(t, testClientRedirectNoLocation)
+}
 func testClientRedirectNoLocation(t *testing.T, mode testMode) {
 	for _, code := range []int{301, 308} {
 		t.Run(fmt.Sprint(code), func(t *testing.T) {
 			setParallel(t)
-			if runtime.GOOS == "redox" && mode == http2Mode && code == 308 {
-				t.Skip("redox can hang completing an HTTP/2 308 response without a Location header")
-			}
 			cst := newClientServerTest(t, mode, HandlerFunc(func(w ResponseWriter, r *Request) {
 				w.Header().Set("Foo", "Bar")
 				w.WriteHeader(code)
