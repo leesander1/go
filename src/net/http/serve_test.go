@@ -5342,6 +5342,9 @@ func TestServerRequestContextCancel_ConnClose(t *testing.T) {
 	run(t, testServerRequestContextCancel_ConnClose, []testMode{http1Mode})
 }
 func testServerRequestContextCancel_ConnClose(t *testing.T, mode testMode) {
+	if runtime.GOOS == "redox" {
+		t.Skip("redox can hang waiting for HTTP/1 request context cancellation after peer close")
+	}
 	inHandler := make(chan struct{})
 	handlerDone := make(chan struct{})
 	ts := newClientServerTest(t, mode, HandlerFunc(func(w ResponseWriter, r *Request) {
