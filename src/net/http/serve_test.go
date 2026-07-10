@@ -4951,6 +4951,9 @@ func TestNoContentLengthIfTransferEncoding(t *testing.T) {
 	run(t, testNoContentLengthIfTransferEncoding, []testMode{http1Mode})
 }
 func testNoContentLengthIfTransferEncoding(t *testing.T, mode testMode) {
+	if runtime.GOOS == "redox" {
+		t.Skip("redox can hang reading an HTTP/1 response after a custom transfer encoding")
+	}
 	ts := newClientServerTest(t, mode, HandlerFunc(func(w ResponseWriter, r *Request) {
 		w.Header().Set("Transfer-Encoding", "foo")
 		io.WriteString(w, "<html>")
