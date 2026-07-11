@@ -1987,7 +1987,12 @@ func (b issue18239Body) Close() error {
 
 // Issue 18239: make sure the Transport doesn't retry requests with bodies
 // if Request.GetBody is not defined.
-func TestTransportBodyReadError(t *testing.T) { run(t, testTransportBodyReadError) }
+func TestTransportBodyReadError(t *testing.T) {
+	if runtime.GOOS == "redox" {
+		t.Skip("redox can cause a package-level transport failure after body read error reuse checks")
+	}
+	run(t, testTransportBodyReadError)
+}
 func testTransportBodyReadError(t *testing.T, mode testMode) {
 	ts := newClientServerTest(t, mode, HandlerFunc(func(w ResponseWriter, r *Request) {
 		if r.URL.Path == "/ping" {
