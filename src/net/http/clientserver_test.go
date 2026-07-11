@@ -1025,7 +1025,12 @@ func testConnectRequest(t *testing.T, mode testMode) {
 	}
 }
 
-func TestTransportUserAgent(t *testing.T) { run(t, testTransportUserAgent) }
+func TestTransportUserAgent(t *testing.T) {
+	if runtime.GOOS == "redox" {
+		t.Skip("redox can hang checking user-agent handling after an HTTP/1 protocol switch response")
+	}
+	run(t, testTransportUserAgent)
+}
 func testTransportUserAgent(t *testing.T, mode testMode) {
 	cst := newClientServerTest(t, mode, HandlerFunc(func(w ResponseWriter, r *Request) {
 		fmt.Fprintf(w, "%q", r.Header["User-Agent"])
