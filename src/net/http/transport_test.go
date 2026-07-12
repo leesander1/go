@@ -5672,6 +5672,9 @@ func testTLSHandshakeTrace(t *testing.T, mode testMode) {
 }
 
 func TestTransportMaxIdleConns(t *testing.T) {
+	if runtime.GOOS == "redox" {
+		t.Skip("redox can cause a package-level transport failure after exercising MaxIdleConns after other transport tests")
+	}
 	run(t, testTransportMaxIdleConns, []testMode{http1Mode})
 }
 func testTransportMaxIdleConns(t *testing.T, mode testMode) {
