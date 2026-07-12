@@ -4855,7 +4855,12 @@ func TestTransportFlushesBodyChunks(t *testing.T) {
 }
 
 // Issue 22088: flush Transport request headers if we're not sure the body won't block on read.
-func TestTransportFlushesRequestHeader(t *testing.T) { run(t, testTransportFlushesRequestHeader) }
+func TestTransportFlushesRequestHeader(t *testing.T) {
+	if runtime.GOOS == "redox" {
+		t.Skip("redox can cause a package-level transport failure after flushing request headers")
+	}
+	run(t, testTransportFlushesRequestHeader)
+}
 func testTransportFlushesRequestHeader(t *testing.T, mode testMode) {
 	gotReq := make(chan struct{})
 	cst := newClientServerTest(t, mode, HandlerFunc(func(w ResponseWriter, r *Request) {
