@@ -3462,7 +3462,12 @@ func testTransportIgnore1xxResponses(t *testing.T, mode testMode) {
 	}
 }
 
-func TestTransportLimits1xxResponses(t *testing.T) { run(t, testTransportLimits1xxResponses) }
+func TestTransportLimits1xxResponses(t *testing.T) {
+	if runtime.GOOS == "redox" {
+		t.Skip("redox can cause a package-level transport failure after repeated 1xx response handling")
+	}
+	run(t, testTransportLimits1xxResponses)
+}
 func testTransportLimits1xxResponses(t *testing.T, mode testMode) {
 	cst := newClientServerTest(t, mode, HandlerFunc(func(w ResponseWriter, r *Request) {
 		w.Header().Add("X-Header", strings.Repeat("a", 100))
