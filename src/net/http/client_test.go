@@ -954,6 +954,9 @@ func testClientWithIncorrectTLSServerName(t *testing.T, mode testMode) {
 //
 // The httptest.Server has a cert with "example.com" as its name.
 func TestTransportUsesTLSConfigServerName(t *testing.T) {
+	if runtime.GOOS == "redox" {
+		t.Skip("redox aborts runtime netpoll during HTTP/2 TLS ServerName transport reuse")
+	}
 	run(t, testTransportUsesTLSConfigServerName, []testMode{https1Mode, http2Mode})
 }
 func testTransportUsesTLSConfigServerName(t *testing.T, mode testMode) {
