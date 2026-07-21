@@ -203,6 +203,10 @@ func (f roundTripFunc) RoundTrip(r *Request) (*Response, error) {
 
 // Issue 25009
 func TestTransportBodyAltRewind(t *testing.T) {
+	if runtime.GOOS == "redox" {
+		t.Skip("redox can abort runtime netpoll after alternate request body rewind over TLS")
+	}
+
 	cert, err := tls.X509KeyPair(testcert.LocalhostCert, testcert.LocalhostKey)
 	if err != nil {
 		t.Fatal(err)

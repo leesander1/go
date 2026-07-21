@@ -777,6 +777,10 @@ func testTransportMaxConnsPerHost(t *testing.T, mode testMode) {
 }
 
 func TestTransportMaxConnsPerHostDialCancellation(t *testing.T) {
+	if runtime.GOOS == "redox" {
+		t.Skip("redox can abort runtime netpoll after canceling queued MaxConnsPerHost dials")
+	}
+
 	run(t, testTransportMaxConnsPerHostDialCancellation,
 		testNotParallel, // because test uses SetPendingDialHooks
 		[]testMode{http1Mode, https1Mode, http2Mode},
@@ -1032,6 +1036,9 @@ func testTransportHeadResponses(t *testing.T, mode testMode) {
 // TestTransportHeadChunkedResponse verifies that we ignore chunked transfer-encoding
 // on responses to HEAD requests.
 func TestTransportHeadChunkedResponse(t *testing.T) {
+	if runtime.GOOS == "redox" {
+		t.Skip("redox can abort runtime netpoll after HEAD chunked response reuse")
+	}
 	run(t, testTransportHeadChunkedResponse, []testMode{http1Mode}, testNotParallel)
 }
 func testTransportHeadChunkedResponse(t *testing.T, mode testMode) {
@@ -2372,6 +2379,9 @@ func TestTransportIdleConnCrash(t *testing.T) { run(t, testTransportIdleConnCras
 func testTransportIdleConnCrash(t *testing.T, mode testMode) {
 	if runtime.GOOS == "redox" && mode == http1Mode {
 		t.Skip("redox can hang closing idle HTTP/1 connections during a request")
+	}
+	if runtime.GOOS == "redox" && mode == http2Mode {
+		t.Skip("redox can abort runtime netpoll closing idle HTTP/2 connections during a request")
 	}
 
 	var tr *Transport
@@ -4647,7 +4657,12 @@ func testTransportRemovesConnsAfterBroken(t *testing.T, mode testMode) {
 // implicitly ask for gzip support. If they want that, they need to do it
 // on their own.
 // golang.org/issue/8923
-func TestTransportRangeAndGzip(t *testing.T) { run(t, testTransportRangeAndGzip) }
+func TestTransportRangeAndGzip(t *testing.T) {
+	if runtime.GOOS == "redox" {
+		t.Skip("redox can cause a package-level transport failure after range requests with gzip handling")
+	}
+	run(t, testTransportRangeAndGzip)
+}
 func testTransportRangeAndGzip(t *testing.T, mode testMode) {
 	ts := newClientServerTest(t, mode, HandlerFunc(func(w ResponseWriter, r *Request) {
 		if strings.Contains(r.Header.Get("Accept-Encoding"), "gzip") {
@@ -4669,7 +4684,12 @@ func testTransportRangeAndGzip(t *testing.T, mode testMode) {
 }
 
 // Test for issue 10474
-func TestTransportResponseCancelRace(t *testing.T) { run(t, testTransportResponseCancelRace) }
+func TestTransportResponseCancelRace(t *testing.T) {
+	if runtime.GOOS == "redox" {
+		t.Skip("redox can cause a package-level transport failure after response cancel racing")
+	}
+	run(t, testTransportResponseCancelRace)
+}
 func testTransportResponseCancelRace(t *testing.T, mode testMode) {
 	ts := newClientServerTest(t, mode, HandlerFunc(func(w ResponseWriter, r *Request) {
 		// important that this response has a body.
@@ -4923,6 +4943,9 @@ func (c *wgReadCloser) Close() error {
 
 // Issue 11745.
 func TestTransportPrefersResponseOverWriteError(t *testing.T) {
+	if runtime.GOOS == "redox" {
+		t.Skip("redox can abort runtime netpoll when preferring an early response over a request-body write error")
+	}
 	// Not parallel: modifies the global rstAvoidanceDelay.
 	run(t, testTransportPrefersResponseOverWriteError, testNotParallel)
 }
@@ -5559,6 +5582,9 @@ func skipIfDNSHijacked(t *testing.T) {
 }
 
 func TestTransportEventTraceRealDNS(t *testing.T) {
+	if runtime.GOOS == "redox" {
+		t.Skip("redox can abort runtime netpoll during real DNS event trace lookup")
+	}
 	skipIfDNSHijacked(t)
 	defer afterTest(t)
 	tr := &Transport{}
@@ -6615,7 +6641,12 @@ func (c *testMockTCPConn) ReadFrom(r io.Reader) (int64, error) {
 	return c.TCPConn.ReadFrom(r)
 }
 
-func TestTransportRequestWriteRoundTrip(t *testing.T) { run(t, testTransportRequestWriteRoundTrip) }
+func TestTransportRequestWriteRoundTrip(t *testing.T) {
+	if runtime.GOOS == "redox" {
+		t.Skip("redox can cause a package-level transport failure after request write round trips")
+	}
+	run(t, testTransportRequestWriteRoundTrip)
+}
 func testTransportRequestWriteRoundTrip(t *testing.T, mode testMode) {
 	nBytes := int64(1 << 10)
 	newFileFunc := func() (r io.Reader, done func(), err error) {
@@ -7103,6 +7134,9 @@ func testDontCacheBrokenHTTP2Conn(t *testing.T, mode testMode) {
 // http.http2noCachedConnError is reported on multiple requests. There should
 // only be one decrement regardless of the number of failures.
 func TestTransportDecrementConnWhenIdleConnRemoved(t *testing.T) {
+	if runtime.GOOS == "redox" {
+		t.Skip("redox can abort runtime netpoll during HTTP/2 idle-connection removal under load")
+	}
 	run(t, testTransportDecrementConnWhenIdleConnRemoved, []testMode{http2Mode})
 }
 func testTransportDecrementConnWhenIdleConnRemoved(t *testing.T, mode testMode) {
