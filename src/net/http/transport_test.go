@@ -6467,6 +6467,9 @@ func testClientTimeoutKillsConn_AfterHeaders(t *testing.T, mode testMode) {
 }
 
 func TestTransportResponseBodyWritableOnProtocolSwitch(t *testing.T) {
+	if runtime.GOOS == "redox" {
+		t.Skip("redox can abort runtime netpoll while testing writable response bodies after protocol switch")
+	}
 	run(t, testTransportResponseBodyWritableOnProtocolSwitch, []testMode{http1Mode})
 }
 func testTransportResponseBodyWritableOnProtocolSwitch(t *testing.T, mode testMode) {
