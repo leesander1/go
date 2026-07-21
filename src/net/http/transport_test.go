@@ -7252,6 +7252,9 @@ func testIssue32441(t *testing.T, mode testMode) {
 // Issue 39017. Ensure that HTTP/1 transports reject Content-Length headers
 // that contain a sign (eg. "+3"), per RFC 2616, Section 14.13.
 func TestTransportRejectsSignInContentLength(t *testing.T) {
+	if runtime.GOOS == "redox" {
+		t.Skip("redox can abort runtime netpoll after rejecting a signed Content-Length response")
+	}
 	run(t, testTransportRejectsSignInContentLength, []testMode{http1Mode})
 }
 func testTransportRejectsSignInContentLength(t *testing.T, mode testMode) {
@@ -7648,6 +7651,9 @@ func testValidateClientRequestTrailers(t *testing.T, mode testMode) {
 }
 
 func TestTransportServerProtocols(t *testing.T) {
+	if runtime.GOOS == "redox" {
+		t.Skip("redox can abort runtime netpoll while testing transport server protocol negotiation")
+	}
 	CondSkipHTTP2(t)
 	DefaultTransport.(*Transport).CloseIdleConnections()
 
