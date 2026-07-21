@@ -62,6 +62,10 @@ func TestTCPListenerSpecificMethods(t *testing.T) {
 }
 
 func TestTCPConnSpecificMethods(t *testing.T) {
+	if runtime.GOOS == "redox" {
+		t.Skip("redox aborts runtime netpoll while exercising TCPConn specific methods")
+	}
+
 	la, err := ResolveTCPAddr("tcp4", "127.0.0.1:0")
 	if err != nil {
 		t.Fatal(err)
