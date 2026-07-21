@@ -1527,6 +1527,9 @@ func testSOCKS5Proxy(t *testing.T, mode testMode) {
 }
 
 func TestTransportProxy(t *testing.T) {
+	if runtime.GOOS == "redox" {
+		t.Skip("redox can abort runtime netpoll during proxied transport requests")
+	}
 	defer afterTest(t)
 	testCases := []struct{ siteMode, proxyMode testMode }{
 		{http1Mode, http1Mode},
