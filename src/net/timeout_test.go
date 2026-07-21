@@ -167,6 +167,9 @@ func TestDialTimeoutMaxDuration(t *testing.T) {
 }
 
 func TestAcceptTimeout(t *testing.T) {
+	if runtime.GOOS == "redox" {
+		t.Skip("redox aborts runtime netpoll when a listener accept deadline expires")
+	}
 	t.Parallel()
 
 	switch runtime.GOOS {
