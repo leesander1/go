@@ -3258,7 +3258,12 @@ func TestTransportEmptyMethod(t *testing.T) {
 	}
 }
 
-func TestTransportSocketLateBinding(t *testing.T) { run(t, testTransportSocketLateBinding) }
+func TestTransportSocketLateBinding(t *testing.T) {
+	if runtime.GOOS == "redox" {
+		t.Skip("redox can abort runtime netpoll while testing late socket binding over TLS")
+	}
+	run(t, testTransportSocketLateBinding)
+}
 func testTransportSocketLateBinding(t *testing.T, mode testMode) {
 	mux := NewServeMux()
 	fooGate := make(chan bool, 1)
@@ -5101,6 +5106,9 @@ func testTransportAutoHTTP(t *testing.T, tr *Transport, wantH2 bool) {
 // Plus it's nice to be consistent and not have timing-dependent
 // behavior.
 func TestTransportReuseConnEmptyResponseBody(t *testing.T) {
+	if runtime.GOOS == "redox" {
+		t.Skip("redox can abort runtime netpoll while reusing connections with empty response bodies")
+	}
 	run(t, testTransportReuseConnEmptyResponseBody)
 }
 func testTransportReuseConnEmptyResponseBody(t *testing.T, mode testMode) {
@@ -5212,12 +5220,18 @@ func TestNoCrashReturningTransportAltConn(t *testing.T) {
 }
 
 func TestTransportReuseConnection_Gzip_Chunked(t *testing.T) {
+	if runtime.GOOS == "redox" {
+		t.Skip("redox can abort runtime netpoll while reusing gzip chunked response connections")
+	}
 	run(t, func(t *testing.T, mode testMode) {
 		testTransportReuseConnection_Gzip(t, mode, true)
 	})
 }
 
 func TestTransportReuseConnection_Gzip_ContentLength(t *testing.T) {
+	if runtime.GOOS == "redox" {
+		t.Skip("redox can abort runtime netpoll while reusing gzip content-length response connections")
+	}
 	run(t, func(t *testing.T, mode testMode) {
 		testTransportReuseConnection_Gzip(t, mode, false)
 	})
