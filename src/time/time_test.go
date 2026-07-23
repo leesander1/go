@@ -1081,6 +1081,10 @@ func TestParseDurationRoundTrip(t *testing.T) {
 
 // golang.org/issue/4622
 func TestLocationRace(t *testing.T) {
+	if runtime.GOOS == "redox" {
+		t.Skip("Redox location race sleep can abort runtime netpoll")
+	}
+
 	ResetLocalOnceForTest() // reset the Once to trigger the race
 
 	c := make(chan string, 1)
