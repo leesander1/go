@@ -551,6 +551,10 @@ var goLookupIPWithResolverConfigTests = []struct {
 }
 
 func TestGoLookupIPWithResolverConfig(t *testing.T) {
+	if runtime.GOOS == "redox" {
+		t.Skip("redox aborts runtime netpoll while exercising fake DNS resolver config lookup")
+	}
+
 	defer dnsWaitGroup.Wait()
 	fake := fakeDNSServer{rh: func(n, s string, q dnsmessage.Message, _ time.Time) (dnsmessage.Message, error) {
 		switch s {

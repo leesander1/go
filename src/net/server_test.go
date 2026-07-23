@@ -255,6 +255,10 @@ var udpServerTests = []struct {
 }
 
 func TestUDPServer(t *testing.T) {
+	if runtime.GOOS == "redox" {
+		t.Skip("redox aborts runtime netpoll while exercising localhost UDP packet server traffic")
+	}
+
 	for i, tt := range udpServerTests {
 		t.Run(fmt.Sprint(i), func(t *testing.T) {
 			if !testableListenArgs(tt.snet, tt.saddr, tt.taddr) {
