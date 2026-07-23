@@ -196,6 +196,10 @@ func TestMutexMisuse(t *testing.T) {
 }
 
 func TestMutexFairness(t *testing.T) {
+	if runtime.GOOS == "redox" {
+		t.Skip("Redox mutex fairness timing can abort runtime netpoll")
+	}
+
 	var mu Mutex
 	stop := make(chan bool)
 	defer close(stop)
