@@ -425,6 +425,10 @@ func TestIPv6LinkLocalUnicastTCP(t *testing.T) {
 }
 
 func TestTCPConcurrentAccept(t *testing.T) {
+	if runtime.GOOS == "redox" {
+		t.Skip("redox aborts runtime netpoll while exercising concurrent TCP accepts")
+	}
+
 	defer runtime.GOMAXPROCS(runtime.GOMAXPROCS(4))
 	ln, err := Listen("tcp", "127.0.0.1:0")
 	if err != nil {
@@ -468,6 +472,8 @@ func TestTCPConcurrentAccept(t *testing.T) {
 
 func TestTCPReadWriteAllocs(t *testing.T) {
 	switch runtime.GOOS {
+	case "redox":
+		t.Skip("redox aborts runtime netpoll while exercising TCP read/write allocation checks")
 	case "plan9":
 		// The implementation of asynchronous cancelable
 		// I/O on Plan 9 allocates memory.
@@ -539,6 +545,10 @@ func TestTCPReadWriteAllocs(t *testing.T) {
 }
 
 func TestTCPStress(t *testing.T) {
+	if runtime.GOOS == "redox" {
+		t.Skip("redox aborts runtime netpoll while exercising TCP stress traffic")
+	}
+
 	const conns = 2
 	const msgLen = 512
 	msgs := int(1e4)
