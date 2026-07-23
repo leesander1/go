@@ -1763,6 +1763,10 @@ func TestTXTRecordTwoStrings(t *testing.T) {
 // Issue 29644: support single-request resolv.conf option in pure Go resolver.
 // The A and AAAA queries will be sent sequentially, not in parallel.
 func TestSingleRequestLookup(t *testing.T) {
+	if runtime.GOOS == "redox" {
+		t.Skip("redox aborts runtime netpoll while exercising single-request DNS lookup sequencing")
+	}
+
 	defer dnsWaitGroup.Wait()
 	var (
 		firstcalled int32
