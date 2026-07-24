@@ -54,7 +54,15 @@ func adjustDelay(t *testing.T, delay Duration) Duration {
 	}
 }
 
+func skipRedoxTimerWakeupTests(t *testing.T) {
+	if runtime.GOOS == "redox" {
+		t.Skip("Redox timer wakeups can abort runtime netpoll")
+	}
+}
+
 func TestSleep(t *testing.T) {
+	skipRedoxTimerWakeupTests(t)
+
 	const delay = 100 * Millisecond
 	go func() {
 		Sleep(delay / 2)
@@ -318,6 +326,8 @@ func BenchmarkSleep1000(b *testing.B) {
 }
 
 func TestAfter(t *testing.T) {
+	skipRedoxTimerWakeupTests(t)
+
 	const delay = 100 * Millisecond
 	start := Now()
 	end := <-After(delay)
@@ -331,6 +341,8 @@ func TestAfter(t *testing.T) {
 }
 
 func TestAfterTick(t *testing.T) {
+	skipRedoxTimerWakeupTests(t)
+
 	t.Parallel()
 	const Count = 10
 	Delta := 100 * Millisecond
@@ -353,6 +365,8 @@ func TestAfterTick(t *testing.T) {
 }
 
 func TestAfterStop(t *testing.T) {
+	skipRedoxTimerWakeupTests(t)
+
 	t.Run("impl=chan", func(t *testing.T) {
 		testAfterStop(t, NewTimer)
 	})
@@ -418,6 +432,8 @@ func testAfterStop(t *testing.T, newTimer func(Duration) *Timer) {
 }
 
 func TestAfterQueuing(t *testing.T) {
+	skipRedoxTimerWakeupTests(t)
+
 	t.Run("impl=chan", func(t *testing.T) {
 		testAfterQueuing(t, After)
 	})
@@ -503,6 +519,10 @@ func TestTimerStopStress(t *testing.T) {
 }
 
 func TestSleepZeroDeadlock(t *testing.T) {
+	if runtime.GOOS == "redox" {
+		t.Skip("Redox zero sleep with GC can hang timer wakeups")
+	}
+
 	// Sleep(0) used to hang, the sequence of events was as follows.
 	// Sleep(0) sets G's status to Gwaiting, but then immediately returns leaving the status.
 	// Then the goroutine calls e.g. new and falls down into the scheduler due to pending GC.
@@ -550,6 +570,8 @@ func testReset(d Duration) error {
 }
 
 func TestReset(t *testing.T) {
+	skipRedoxTimerWakeupTests(t)
+
 	// We try to run this test with increasingly larger multiples
 	// until one works so slow, loaded hardware isn't as flaky,
 	// but without slowing down fast machines unnecessarily.
@@ -576,6 +598,8 @@ func TestReset(t *testing.T) {
 // with execution of other timers. If it does, timers in this or subsequent
 // tests may not fire.
 func TestOverflowSleep(t *testing.T) {
+	skipRedoxTimerWakeupTests(t)
+
 	const big = Duration(int64(1<<63 - 1))
 
 	go func() {
@@ -623,6 +647,8 @@ func TestIssue5745(t *testing.T) {
 }
 
 func TestOverflowPeriodRuntimeTimer(t *testing.T) {
+	skipRedoxTimerWakeupTests(t)
+
 	// This may hang forever if timers are broken. See comment near
 	// the end of CheckRuntimeTimerOverflow in internal_test.go.
 	CheckRuntimeTimerPeriodOverflow()

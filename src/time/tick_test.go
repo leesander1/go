@@ -13,6 +13,10 @@ import (
 )
 
 func TestTicker(t *testing.T) {
+	if runtime.GOOS == "redox" {
+		t.Skip("Redox ticker wakeups can abort runtime netpoll")
+	}
+
 	t.Parallel()
 
 	// We want to test that a ticker takes as much time as expected.
@@ -108,6 +112,10 @@ func TestTickerStopWithDirectInitialization(t *testing.T) {
 
 // Test that a bug tearing down a ticker has been fixed. This routine should not deadlock.
 func TestTeardown(t *testing.T) {
+	if runtime.GOOS == "redox" {
+		t.Skip("Redox ticker wakeups can abort runtime netpoll")
+	}
+
 	t.Parallel()
 
 	Delta := 100 * Millisecond
@@ -318,6 +326,10 @@ func TestTimerGC(t *testing.T) {
 }
 
 func TestChan(t *testing.T) {
+	if runtime.GOOS == "redox" {
+		t.Skip("Redox timer channels can abort runtime netpoll")
+	}
+
 	for _, name := range []string{"0", "1", "2"} {
 		t.Run("asynctimerchan="+name, func(t *testing.T) {
 			t.Setenv("GODEBUG", "asynctimerchan="+name)
