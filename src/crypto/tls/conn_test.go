@@ -8,6 +8,7 @@ import (
 	"bytes"
 	"io"
 	"net"
+	"runtime"
 	"testing"
 )
 
@@ -230,6 +231,10 @@ func runDynamicRecordSizingTest(t *testing.T, config *Config) {
 }
 
 func TestDynamicRecordSizingWithStreamCipher(t *testing.T) {
+	if runtime.GOOS == "redox" {
+		t.Skip("Redox TLS localPipe record sizing can abort runtime netpoll")
+	}
+
 	skipFIPS(t) // No RC4 in FIPS mode.
 
 	config := testConfig.Clone()
@@ -239,6 +244,10 @@ func TestDynamicRecordSizingWithStreamCipher(t *testing.T) {
 }
 
 func TestDynamicRecordSizingWithCBC(t *testing.T) {
+	if runtime.GOOS == "redox" {
+		t.Skip("Redox TLS localPipe record sizing can abort runtime netpoll")
+	}
+
 	skipFIPS(t) // No CBC cipher suites in defaultCipherSuitesFIPS.
 
 	config := testConfig.Clone()
@@ -248,6 +257,10 @@ func TestDynamicRecordSizingWithCBC(t *testing.T) {
 }
 
 func TestDynamicRecordSizingWithAEAD(t *testing.T) {
+	if runtime.GOOS == "redox" {
+		t.Skip("Redox TLS localPipe record sizing can abort runtime netpoll")
+	}
+
 	config := testConfig.Clone()
 	config.MaxVersion = VersionTLS12
 	config.CipherSuites = []uint16{TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256}
@@ -255,6 +268,10 @@ func TestDynamicRecordSizingWithAEAD(t *testing.T) {
 }
 
 func TestDynamicRecordSizingWithTLSv13(t *testing.T) {
+	if runtime.GOOS == "redox" {
+		t.Skip("Redox TLS localPipe record sizing can abort runtime netpoll")
+	}
+
 	config := testConfig.Clone()
 	runDynamicRecordSizingTest(t, config)
 }
@@ -291,6 +308,10 @@ func TestHairpinInClose(t *testing.T) {
 }
 
 func TestRecordBadVersionTLS13(t *testing.T) {
+	if runtime.GOOS == "redox" {
+		t.Skip("Redox TLS localPipe bad-version read can abort runtime netpoll")
+	}
+
 	client, server := localPipe(t)
 	defer server.Close()
 	defer client.Close()

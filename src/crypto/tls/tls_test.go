@@ -29,6 +29,7 @@ import (
 	"net"
 	"os"
 	"reflect"
+	"runtime"
 	"slices"
 	"strings"
 	"testing"
@@ -1197,6 +1198,10 @@ func TestConnectionStateMarshal(t *testing.T) {
 }
 
 func TestConnectionState(t *testing.T) {
+	if runtime.GOOS == "redox" {
+		t.Skip("Redox TLS connection state handshakes can abort runtime netpoll")
+	}
+
 	issuer, err := x509.ParseCertificate(testRSA2048CertificateIssuer)
 	if err != nil {
 		panic(err)
