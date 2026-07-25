@@ -1479,6 +1479,9 @@ var hostnameInSNITests = []struct {
 }
 
 func TestHostnameInSNI(t *testing.T) {
+	if runtime.GOOS == "redox" {
+		t.Skip("redox: localPipe handshake aborts runtime netpoll")
+	}
 	for _, tt := range hostnameInSNITests {
 		c, s := localPipe(t)
 
@@ -1515,6 +1518,9 @@ func TestHostnameInSNI(t *testing.T) {
 }
 
 func TestServerSelectingUnconfiguredCipherSuite(t *testing.T) {
+	if runtime.GOOS == "redox" {
+		t.Skip("redox: localPipe handshake aborts runtime netpoll")
+	}
 	// This checks that the server can't select a cipher suite that the
 	// client didn't offer. See #13174.
 
@@ -1565,6 +1571,9 @@ func TestServerSelectingUnconfiguredCipherSuite(t *testing.T) {
 }
 
 func TestVerifyConnection(t *testing.T) {
+	if runtime.GOOS == "redox" {
+		t.Skip("redox: localPipe handshake aborts runtime netpoll")
+	}
 	t.Run("TLSv12", func(t *testing.T) { testVerifyConnection(t, VersionTLS12) })
 	t.Run("TLSv13", func(t *testing.T) { testVerifyConnection(t, VersionTLS13) })
 }
@@ -1792,6 +1801,9 @@ func testVerifyConnection(t *testing.T, version uint16) {
 }
 
 func TestVerifyPeerCertificate(t *testing.T) {
+	if runtime.GOOS == "redox" {
+		t.Skip("redox: localPipe handshake aborts runtime netpoll")
+	}
 	t.Run("TLSv12", func(t *testing.T) { testVerifyPeerCertificate(t, VersionTLS12) })
 	t.Run("TLSv13", func(t *testing.T) { testVerifyPeerCertificate(t, VersionTLS13) })
 }
@@ -2106,6 +2118,9 @@ func (b *brokenConn) Write(data []byte) (int, error) {
 }
 
 func TestFailedWrite(t *testing.T) {
+	if runtime.GOOS == "redox" {
+		t.Skip("redox: localPipe handshake aborts runtime netpoll")
+	}
 	// Test that a write error during the handshake is returned.
 	for _, breakAfter := range []int{0, 1} {
 		c, s := localPipe(t)

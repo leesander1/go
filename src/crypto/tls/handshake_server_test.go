@@ -1755,6 +1755,9 @@ func expectError(t *testing.T, err error, sub string) {
 }
 
 func TestKeyTooSmallForRSAPSS(t *testing.T) {
+	if runtime.GOOS == "redox" {
+		t.Skip("redox: localPipe handshake aborts runtime netpoll")
+	}
 	cert, err := X509KeyPair([]byte(`-----BEGIN CERTIFICATE-----
 MIIBcTCCARugAwIBAgIQGjQnkCFlUqaFlt6ixyz/tDANBgkqhkiG9w0BAQsFADAS
 MRAwDgYDVQQKEwdBY21lIENvMB4XDTE5MDExODIzMjMyOFoXDTIwMDExODIzMjMy
