@@ -1798,6 +1798,9 @@ T+E0J8wlH24pgwQHzy7Ko2qLwn1b5PW8ecrlvP1g
 }
 
 func TestMultipleCertificates(t *testing.T) {
+	if runtime.GOOS == "redox" {
+		t.Skip("redox: localPipe handshake aborts runtime netpoll")
+	}
 	clientConfig := testConfig.Clone()
 	clientConfig.CipherSuites = []uint16{TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256}
 	clientConfig.MaxVersion = VersionTLS12
@@ -2294,6 +2297,9 @@ func testHandshakeChainExpiryResumption(t *testing.T, version uint16) {
 }
 
 func TestHandshakeGetConfigForClientDifferentClientCAs(t *testing.T) {
+	if runtime.GOOS == "redox" {
+		t.Skip("redox: localPipe resumption aborts runtime netpoll")
+	}
 	t.Run("TLS1.2", func(t *testing.T) {
 		testHandshakeGetConfigForClientDifferentClientCAs(t, VersionTLS12)
 	})
@@ -2412,6 +2418,9 @@ func testHandshakeGetConfigForClientDifferentClientCAs(t *testing.T, version uin
 }
 
 func TestHandshakeChangeRootCAsResumption(t *testing.T) {
+	if runtime.GOOS == "redox" {
+		t.Skip("redox: localPipe resumption aborts runtime netpoll")
+	}
 	t.Run("TLS1.2", func(t *testing.T) {
 		testHandshakeChangeRootCAsResumption(t, VersionTLS12)
 	})
