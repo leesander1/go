@@ -2537,6 +2537,9 @@ func testDowngradeCanary(t *testing.T, clientVersion, serverVersion uint16) erro
 }
 
 func TestDowngradeCanary(t *testing.T) {
+	if runtime.GOOS == "redox" {
+		t.Skip("redox: localPipe handshake aborts runtime netpoll")
+	}
 	if err := testDowngradeCanary(t, VersionTLS13, VersionTLS12); err == nil {
 		t.Errorf("downgrade from TLS 1.3 to TLS 1.2 was not detected")
 	}
@@ -2574,6 +2577,9 @@ func TestDowngradeCanary(t *testing.T) {
 }
 
 func TestResumptionKeepsOCSPAndSCT(t *testing.T) {
+	if runtime.GOOS == "redox" {
+		t.Skip("redox: localPipe handshake aborts runtime netpoll")
+	}
 	t.Run("TLSv12", func(t *testing.T) { testResumptionKeepsOCSPAndSCT(t, VersionTLS12) })
 	t.Run("TLSv13", func(t *testing.T) { testResumptionKeepsOCSPAndSCT(t, VersionTLS13) })
 }
@@ -2691,6 +2697,9 @@ func TestClientHandshakeContextCancellation(t *testing.T) {
 // TestTLS13OnlyClientHelloCipherSuite tests that when a client states that
 // it only supports TLS 1.3, it correctly advertises only TLS 1.3 ciphers.
 func TestTLS13OnlyClientHelloCipherSuite(t *testing.T) {
+	if runtime.GOOS == "redox" {
+		t.Skip("redox: localPipe handshake aborts runtime netpoll")
+	}
 	tls13Tests := []struct {
 		name    string
 		ciphers []uint16
@@ -2833,6 +2842,9 @@ func TestHandshakeRSATooBig(t *testing.T) {
 }
 
 func TestTLS13ECHRejectionCallbacks(t *testing.T) {
+	if runtime.GOOS == "redox" {
+		t.Skip("redox: localPipe handshake aborts runtime netpoll")
+	}
 	k, err := ecdsa.GenerateKey(elliptic.P256(), rand.Reader)
 	if err != nil {
 		t.Fatal(err)
@@ -2938,6 +2950,9 @@ func TestTLS13ECHRejectionCallbacks(t *testing.T) {
 }
 
 func TestECHTLS12Server(t *testing.T) {
+	if runtime.GOOS == "redox" {
+		t.Skip("redox: localPipe handshake aborts runtime netpoll")
+	}
 	clientConfig, serverConfig := testConfig.Clone(), testConfig.Clone()
 
 	serverConfig.MaxVersion = VersionTLS12
