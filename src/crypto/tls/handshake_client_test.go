@@ -2157,6 +2157,9 @@ func (wcc *writeCountingConn) Write(data []byte) (int, error) {
 }
 
 func TestBuffering(t *testing.T) {
+	if runtime.GOOS == "redox" {
+		t.Skip("redox: localPipe handshake aborts runtime netpoll")
+	}
 	t.Run("TLSv12", func(t *testing.T) { testBuffering(t, VersionTLS12) })
 	t.Run("TLSv13", func(t *testing.T) { testBuffering(t, VersionTLS13) })
 }
@@ -2202,6 +2205,9 @@ func testBuffering(t *testing.T, version uint16) {
 }
 
 func TestAlertFlushing(t *testing.T) {
+	if runtime.GOOS == "redox" {
+		t.Skip("redox: localPipe handshake aborts runtime netpoll")
+	}
 	c, s := localPipe(t)
 	done := make(chan bool)
 
@@ -2381,6 +2387,9 @@ var getClientCertificateTests = []struct {
 }
 
 func TestGetClientCertificate(t *testing.T) {
+	if runtime.GOOS == "redox" {
+		t.Skip("redox: localPipe handshake aborts runtime netpoll")
+	}
 	t.Run("TLSv12", func(t *testing.T) { testGetClientCertificate(t, VersionTLS12) })
 	t.Run("TLSv13", func(t *testing.T) { testGetClientCertificate(t, VersionTLS13) })
 }
