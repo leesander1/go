@@ -574,6 +574,10 @@ func testSCTHandshake(t *testing.T, version uint16) {
 }
 
 func TestCrossVersionResume(t *testing.T) {
+	if runtime.GOOS == "redox" {
+		t.Skip("redox: server localPipe resumption handshakes abort runtime netpoll")
+	}
+
 	t.Run("TLSv12", func(t *testing.T) { testCrossVersionResume(t, VersionTLS12) })
 	t.Run("TLSv13", func(t *testing.T) { testCrossVersionResume(t, VersionTLS13) })
 }
@@ -1230,6 +1234,10 @@ func TestHandshakeServerGetCertificateExtensions(t *testing.T) {
 // TestHandshakeServerSNIGetCertificateError tests to make sure that errors in
 // GetCertificate result in a tls alert.
 func TestHandshakeServerSNIGetCertificateError(t *testing.T) {
+	if runtime.GOOS == "redox" {
+		t.Skip("redox: server certificate localPipe failure handshakes abort runtime netpoll")
+	}
+
 	const errMsg = "TestHandshakeServerSNIGetCertificateError error"
 
 	serverConfig := testConfig.Clone()
@@ -1250,6 +1258,10 @@ func TestHandshakeServerSNIGetCertificateError(t *testing.T) {
 // TestHandshakeServerEmptyCertificates tests that GetCertificates is called in
 // the case that Certificates is empty, even without SNI.
 func TestHandshakeServerEmptyCertificates(t *testing.T) {
+	if runtime.GOOS == "redox" {
+		t.Skip("redox: server certificate localPipe failure handshakes abort runtime netpoll")
+	}
+
 	const errMsg = "TestHandshakeServerEmptyCertificates error"
 
 	serverConfig := testConfig.Clone()
