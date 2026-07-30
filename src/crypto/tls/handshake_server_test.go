@@ -1605,6 +1605,10 @@ func TestClientAuth(t *testing.T) {
 }
 
 func TestSNIGivenOnFailure(t *testing.T) {
+	if runtime.GOOS == "redox" {
+		t.Skip("redox: SNI failure localPipe handshake aborts runtime netpoll")
+	}
+
 	const expectedServerName = "test.testing"
 
 	clientHello := &clientHelloMsg{
@@ -1738,6 +1742,10 @@ var getConfigForClientTests = []struct {
 }
 
 func TestGetConfigForClient(t *testing.T) {
+	if runtime.GOOS == "redox" {
+		t.Skip("redox: GetConfigForClient localPipe handshakes abort runtime netpoll")
+	}
+
 	serverConfig := testConfig.Clone()
 	clientConfig := testConfig.Clone()
 	clientConfig.MinVersion = VersionTLS12
