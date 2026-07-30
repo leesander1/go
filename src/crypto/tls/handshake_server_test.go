@@ -1176,6 +1176,9 @@ func TestHandshakeServerSNIGetCertificateNotFound(t *testing.T) {
 // Extensions passed to GetCertificate match what we expect based on the
 // clientHelloMsg
 func TestHandshakeServerGetCertificateExtensions(t *testing.T) {
+	if runtime.GOOS == "redox" {
+		t.Skip("redox: GetCertificate extensions localPipe handshakes abort runtime netpoll")
+	}
 	const errMsg = "TestHandshakeServerGetCertificateExtensions error"
 	// ensure the test condition inside our GetCertificate callback
 	// is actually invoked
