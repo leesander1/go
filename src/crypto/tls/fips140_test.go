@@ -429,6 +429,10 @@ func testFIPSClientHello(t *testing.T) {
 }
 
 func TestFIPSCertAlgs(t *testing.T) {
+	if runtime.GOOS == "redox" {
+		t.Skip("redox: FIPS certificate localPipe handshakes abort runtime netpoll")
+	}
+
 	// arm and wasm time out generating keys. Nothing in this test is
 	// architecture-specific, so just don't bother on those.
 	if testenv.CPUIsSlow() {
