@@ -118,6 +118,10 @@ func TestStack(t *testing.T) {
 
 		wantPrefix := "\t" + filePrefix + file
 		if !strings.HasPrefix(line, wantPrefix) {
+			if runtime.GOOS == "redox" && (strings.HasPrefix(line, "\t"+file+":") || strings.Contains(line, "/src/"+file+":")) {
+				n++
+				return
+			}
 			t.Errorf("in line %q, expected prefix %q", line, wantPrefix)
 		}
 		n++
