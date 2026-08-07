@@ -52,6 +52,8 @@ func testableNetwork(network string) bool {
 		switch runtime.GOOS {
 		case "ios", "android":
 			return false
+		case "redox":
+			return false
 		}
 	}
 	return true
