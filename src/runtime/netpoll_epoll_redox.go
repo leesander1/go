@@ -41,6 +41,7 @@ const (
 	AT_FDCWD = -0x64
 
 	ENOENT = 0x2
+	EBADF  = 0x9
 	ENOSYS = 0x26
 
 	EPOLLIN       = 0x1
@@ -226,6 +227,14 @@ retry:
 	n, errno := epoll_wait(epfd, &events[0], int32(len(events)), waitms)
 	if errno != 0 {
 		if errno != _EINTR {
+			if errno == EBADF {
+				if _, fderr := fcntl(epfd, 1, 0); fderr == 0 {
+					if waitms > 0 {
+						usleep(uint32(waitms) * 1000)
+					}
+					return gList{}, 0
+				}
+			}
 			println("runtime: epollwait on fd", epfd, "failed with", errno)
 			throw("runtime: netpoll failed")
 		}
