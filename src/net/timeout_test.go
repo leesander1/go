@@ -463,10 +463,6 @@ var readFromTimeoutTests = []struct {
 }
 
 func TestReadFromTimeout(t *testing.T) {
-	if runtime.GOOS == "redox" {
-		t.Skip("redox netstack aborts on truncated UDP ReadFrom")
-	}
-
 	ch := make(chan Addr)
 	defer close(ch)
 	handler := func(ls *localPacketServer, c PacketConn) {
