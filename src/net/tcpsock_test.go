@@ -425,10 +425,6 @@ func TestIPv6LinkLocalUnicastTCP(t *testing.T) {
 }
 
 func TestTCPConcurrentAccept(t *testing.T) {
-	if runtime.GOOS == "redox" {
-		t.Skip("redox aborts runtime netpoll while exercising concurrent TCP accepts")
-	}
-
 	defer runtime.GOMAXPROCS(runtime.GOMAXPROCS(4))
 	ln, err := Listen("tcp", "127.0.0.1:0")
 	if err != nil {
