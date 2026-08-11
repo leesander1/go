@@ -463,9 +463,8 @@ var readFromTimeoutTests = []struct {
 }
 
 func TestReadFromTimeout(t *testing.T) {
-	switch runtime.GOOS {
-	case "redox":
-		t.Skipf("not supported on %s", runtime.GOOS)
+	if runtime.GOOS == "redox" {
+		t.Skip("redox netstack aborts on truncated UDP ReadFrom")
 	}
 
 	ch := make(chan Addr)
