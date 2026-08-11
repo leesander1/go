@@ -34,7 +34,9 @@ func asmcgocallLibc(fn, arg unsafe.Pointer) {
 func syscall_cgocaller6(fn unsafe.Pointer, a1, a2, a3, a4, a5, a6 uintptr) (r0 uintptr, err int32) {
 	args := [6]uintptr{a1, a2, a3, a4, a5, a6}
 	as := argset{args: unsafe.Pointer(&args[0])}
-	cgocallLibc(fn, unsafe.Pointer(&as))
+	entersyscallblock()
+	asmcgocallLibc(fn, unsafe.Pointer(&as))
+	exitsyscall()
 	r0 = as.retval
 	err = as.errno
 	return
