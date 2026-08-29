@@ -539,10 +539,6 @@ func TestTCPReadWriteAllocs(t *testing.T) {
 }
 
 func TestTCPStress(t *testing.T) {
-	if runtime.GOOS == "redox" {
-		t.Skip("redox aborts runtime netpoll while exercising TCP stress traffic")
-	}
-
 	const conns = 2
 	const msgLen = 512
 	msgs := int(1e4)
