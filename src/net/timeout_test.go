@@ -167,9 +167,6 @@ func TestDialTimeoutMaxDuration(t *testing.T) {
 }
 
 func TestAcceptTimeout(t *testing.T) {
-	if runtime.GOOS == "redox" {
-		t.Skip("redox aborts runtime netpoll when a listener accept deadline expires")
-	}
 	t.Parallel()
 
 	switch runtime.GOOS {
@@ -255,8 +252,6 @@ func TestAcceptTimeoutMustReturn(t *testing.T) {
 	t.Parallel()
 
 	switch runtime.GOOS {
-	case "redox":
-		t.Skip("redox aborts runtime netpoll when a listener accept deadline expires")
 	case "plan9":
 		t.Skipf("not supported on %s", runtime.GOOS)
 	}
@@ -287,8 +282,6 @@ func TestAcceptTimeoutMustNotReturn(t *testing.T) {
 	t.Parallel()
 
 	switch runtime.GOOS {
-	case "redox":
-		t.Skip("redox aborts runtime netpoll while clearing a listener accept deadline")
 	case "plan9":
 		t.Skipf("not supported on %s", runtime.GOOS)
 	}

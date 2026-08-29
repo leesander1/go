@@ -659,9 +659,6 @@ third:
 }
 
 func TestAcceptError(t *testing.T) {
-	if runtime.GOOS == "redox" {
-		t.Skip("redox aborts runtime netpoll while exercising listener accept error deadlines")
-	}
 	handler := func(ls *localServer, ln Listener) {
 		for {
 			ln.(*TCPListener).SetDeadline(time.Now().Add(5 * time.Millisecond))
