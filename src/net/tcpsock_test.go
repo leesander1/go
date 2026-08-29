@@ -467,10 +467,6 @@ func TestTCPConcurrentAccept(t *testing.T) {
 }
 
 func TestTCPReadWriteAllocs(t *testing.T) {
-	if runtime.GOOS == "redox" {
-		t.Skip("redox returns EMFILE while listening in TCP allocation check")
-	}
-
 	switch runtime.GOOS {
 	case "plan9":
 		// The implementation of asynchronous cancelable
