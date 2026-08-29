@@ -331,10 +331,6 @@ var readTimeoutTests = []struct {
 
 // There is a very similar copy of this in os/timeout_test.go.
 func TestReadTimeout(t *testing.T) {
-	if runtime.GOOS == "redox" {
-		t.Skip("redox aborts runtime netpoll when a TCP read deadline expires")
-	}
-
 	handler := func(ls *localServer, ln Listener) {
 		c, err := ln.Accept()
 		if err != nil {
@@ -390,8 +386,6 @@ func TestReadTimeoutMustNotReturn(t *testing.T) {
 	t.Parallel()
 
 	switch runtime.GOOS {
-	case "redox":
-		t.Skip("redox aborts runtime netpoll while clearing a TCP read deadline")
 	case "plan9":
 		t.Skipf("not supported on %s", runtime.GOOS)
 	}
@@ -571,8 +565,6 @@ func TestWriteTimeoutMustNotReturn(t *testing.T) {
 	t.Parallel()
 
 	switch runtime.GOOS {
-	case "redox":
-		t.Skip("redox aborts runtime netpoll while clearing a TCP write deadline")
 	case "plan9":
 		t.Skipf("not supported on %s", runtime.GOOS)
 	}
@@ -631,10 +623,6 @@ func TestWriteTimeoutMustNotReturn(t *testing.T) {
 
 func TestWriteToTimeout(t *testing.T) {
 	t.Parallel()
-
-	if runtime.GOOS == "redox" {
-		t.Skip("redox aborts runtime netpoll when a UDP write deadline expires")
-	}
 
 	c1 := newLocalPacketListener(t, "udp")
 	defer c1.Close()
