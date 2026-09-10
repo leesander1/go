@@ -902,10 +902,6 @@ func testServerNoReadTimeout(t *testing.T, mode testMode) {
 
 func TestServerWriteTimeout(t *testing.T) { run(t, testServerWriteTimeout) }
 func testServerWriteTimeout(t *testing.T, mode testMode) {
-	if runtime.GOOS == "redox" {
-		t.Skip("redox can hang while enforcing server write timeouts")
-	}
-
 	for timeout := 5 * time.Millisecond; ; timeout *= 2 {
 		errc := make(chan error, 2)
 		cst := newClientServerTest(t, mode, HandlerFunc(func(res ResponseWriter, req *Request) {
@@ -971,10 +967,9 @@ func testServerWriteTimeout(t *testing.T, mode testMode) {
 
 func TestServerNoWriteTimeout(t *testing.T) { run(t, testServerNoWriteTimeout) }
 func testServerNoWriteTimeout(t *testing.T, mode testMode) {
-	if runtime.GOOS == "redox" {
-		t.Skip("redox can corrupt or hang streaming responses with no write timeout")
+	if runtime.GOOS == "redox" && mode == http1Mode {
+		t.Skip("redox hangs shutting down an HTTP/1 handler blocked in an unlimited write")
 	}
-
 	for _, timeout := range []time.Duration{0, -1} {
 		cst := newClientServerTest(t, mode, HandlerFunc(func(res ResponseWriter, req *Request) {
 			_, err := io.Copy(res, neverEnding('a'))
@@ -1156,10 +1151,6 @@ func testNoWriteDeadline(t *testing.T, mode testMode, timeout time.Duration) err
 // request) that will never happen.
 func TestOnlyWriteTimeout(t *testing.T) { run(t, testOnlyWriteTimeout, []testMode{http1Mode}) }
 func testOnlyWriteTimeout(t *testing.T, mode testMode) {
-	if runtime.GOOS == "redox" {
-		t.Skip("redox can hang after forcing an expired HTTP/1 write deadline")
-	}
-
 	var (
 		mu   sync.RWMutex
 		conn net.Conn
