@@ -510,10 +510,6 @@ func testSCTHandshake(t *testing.T, version uint16) {
 }
 
 func TestCrossVersionResume(t *testing.T) {
-	if runtime.GOOS == "redox" {
-		t.Skip("redox: server localPipe resumption handshakes abort runtime netpoll")
-	}
-
 	t.Run("TLSv12", func(t *testing.T) { testCrossVersionResume(t, VersionTLS12) })
 	t.Run("TLSv13", func(t *testing.T) { testCrossVersionResume(t, VersionTLS13) })
 }
