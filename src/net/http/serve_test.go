@@ -967,9 +967,6 @@ func testServerWriteTimeout(t *testing.T, mode testMode) {
 
 func TestServerNoWriteTimeout(t *testing.T) { run(t, testServerNoWriteTimeout) }
 func testServerNoWriteTimeout(t *testing.T, mode testMode) {
-	if runtime.GOOS == "redox" && mode == http1Mode {
-		t.Skip("redox hangs shutting down an HTTP/1 handler blocked in an unlimited write")
-	}
 	for _, timeout := range []time.Duration{0, -1} {
 		cst := newClientServerTest(t, mode, HandlerFunc(func(res ResponseWriter, req *Request) {
 			_, err := io.Copy(res, neverEnding('a'))
@@ -4271,9 +4268,6 @@ func TestContentTypeOkayOn204(t *testing.T) {
 // and the http client), and both think they can close it on failure.
 // Therefore, all incoming server requests Bodies need to be thread-safe.
 func TestTransportAndServerSharedBodyRace(t *testing.T) {
-	if runtime.GOOS == "redox" {
-		t.Skip("redox hangs waiting for backend cancellation after an HTTP/1 shared-body race")
-	}
 	run(t, testTransportAndServerSharedBodyRace, testNotParallel)
 }
 func testTransportAndServerSharedBodyRace(t *testing.T, mode testMode) {
