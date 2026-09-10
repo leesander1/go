@@ -4734,9 +4734,6 @@ func testServerConnState(t *testing.T, mode testMode) {
 }
 
 func TestServerKeepAlivesEnabledResultClose(t *testing.T) {
-	if runtime.GOOS == "redox" {
-		t.Skip("redox can hang waiting for HTTP/1 keep-alive disabled response close")
-	}
 	run(t, testServerKeepAlivesEnabledResultClose, []testMode{http1Mode})
 }
 func testServerKeepAlivesEnabledResultClose(t *testing.T, mode testMode) {
@@ -6044,9 +6041,6 @@ func TestServerSetKeepAlivesEnabledClosesConns(t *testing.T) {
 	run(t, testServerSetKeepAlivesEnabledClosesConns, []testMode{http1Mode})
 }
 func testServerSetKeepAlivesEnabledClosesConns(t *testing.T, mode testMode) {
-	if runtime.GOOS == "redox" && mode == http1Mode {
-		t.Skip("redox can hang waiting for HTTP/1 idle connections to close after disabling keep-alives")
-	}
 	ts := newClientServerTest(t, mode, HandlerFunc(func(w ResponseWriter, r *Request) {
 		io.WriteString(w, r.RemoteAddr)
 	})).ts
@@ -6223,9 +6217,6 @@ func TestServerCloseDeadlock(t *testing.T) {
 // both HTTP/1 and HTTP/2.
 func TestServerKeepAlivesEnabled(t *testing.T) { run(t, testServerKeepAlivesEnabled, testNotParallel) }
 func testServerKeepAlivesEnabled(t *testing.T, mode testMode) {
-	if runtime.GOOS == "redox" {
-		t.Skip("redox can leave HTTP server connections active during keep-alive cleanup")
-	}
 	if mode == http2Mode {
 		restore := ExportSetH2GoawayTimeout(10 * time.Millisecond)
 		defer restore()
