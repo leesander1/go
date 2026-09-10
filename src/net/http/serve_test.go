@@ -1238,10 +1238,6 @@ func testIdentityResponse(t *testing.T, mode testMode) {
 	if mode == http2Mode {
 		t.Skip("https://go.dev/issue/56019")
 	}
-	if runtime.GOOS == "redox" && mode == http1Mode {
-		t.Skip("redox can hang cleaning up after an HTTP/1 identity response")
-	}
-
 	handler := HandlerFunc(func(rw ResponseWriter, req *Request) {
 		rw.Header().Set("Content-Length", "3")
 		rw.Header().Set("Transfer-Encoding", req.FormValue("te"))
@@ -1428,10 +1424,6 @@ func TestHTTP10KeepAlive304Response(t *testing.T) {
 // Issue 15703
 func TestKeepAliveFinalChunkWithEOF(t *testing.T) { run(t, testKeepAliveFinalChunkWithEOF) }
 func testKeepAliveFinalChunkWithEOF(t *testing.T, mode testMode) {
-	if runtime.GOOS == "redox" && mode == http1Mode {
-		t.Skip("redox can hang reusing an HTTP/1 connection after a final chunk")
-	}
-
 	cst := newClientServerTest(t, mode, HandlerFunc(func(w ResponseWriter, r *Request) {
 		w.(Flusher).Flush() // force chunked encoding
 		w.Write([]byte("{\"Addr\": \"" + r.RemoteAddr + "\"}"))
@@ -1578,10 +1570,6 @@ func testServerAllowsBlockingRemoteAddr(t *testing.T, mode testMode) {
 // counting of GET requests also happens on HEAD requests.
 func TestHeadResponses(t *testing.T) { run(t, testHeadResponses) }
 func testHeadResponses(t *testing.T, mode testMode) {
-	if runtime.GOOS == "redox" && mode == http2Mode {
-		t.Skip("redox can hang reading an HTTP/2 HEAD response after the ReaderFrom path")
-	}
-
 	cst := newClientServerTest(t, mode, HandlerFunc(func(w ResponseWriter, r *Request) {
 		_, err := w.Write([]byte("<html>"))
 		if err != nil {
@@ -1620,10 +1608,6 @@ func testHeadResponses(t *testing.T, mode testMode) {
 // https://go.dev/issue/68609
 func TestHeadReaderFrom(t *testing.T) { run(t, testHeadReaderFrom, []testMode{http1Mode}) }
 func testHeadReaderFrom(t *testing.T, mode testMode) {
-	if runtime.GOOS == "redox" && mode == http1Mode {
-		t.Skip("redox can hang reusing an HTTP/1 connection after a HEAD ReaderFrom response")
-	}
-
 	// Body is large enough to exceed the content-sniffing length.
 	wantBody := strings.Repeat("a", 4096)
 	cst := newClientServerTest(t, mode, HandlerFunc(func(w ResponseWriter, r *Request) {
