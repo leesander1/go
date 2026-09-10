@@ -11,9 +11,6 @@ import (
 )
 
 func TestWeakCertCache(t *testing.T) {
-	if runtime.GOOS == "redox" {
-		t.Skip("redox: weak cert cache finalizer wait aborts runtime netpoll")
-	}
 	wcc := weakCertCache{}
 	p, _ := pem.Decode([]byte(rsaCertPEM))
 	if p == nil {
