@@ -23,7 +23,6 @@ import (
 	"os"
 	"reflect"
 	"regexp"
-	"runtime"
 	"slices"
 	"strings"
 	"testing"
@@ -297,9 +296,6 @@ func TestMaxInt64ForMultipartFormMaxMemoryOverflow(t *testing.T) {
 	run(t, testMaxInt64ForMultipartFormMaxMemoryOverflow)
 }
 func testMaxInt64ForMultipartFormMaxMemoryOverflow(t *testing.T, mode testMode) {
-	if runtime.GOOS == "redox" && mode == http1Mode {
-		t.Skip("redox can hang posting multipart overflow requests over HTTP/1")
-	}
 	payloadSize := 1 << 10
 	cst := newClientServerTest(t, mode, HandlerFunc(func(rw ResponseWriter, req *Request) {
 		// The combination of:
@@ -339,12 +335,6 @@ func testMaxInt64ForMultipartFormMaxMemoryOverflow(t *testing.T, mode testMode) 
 
 func TestRequestRedirect(t *testing.T) { run(t, testRequestRedirect) }
 func testRequestRedirect(t *testing.T, mode testMode) {
-	if runtime.GOOS == "redox" && mode == http1Mode {
-		t.Skip("redox can hang following HTTP/1 redirects")
-	}
-	if runtime.GOOS == "redox" && mode == http2Mode {
-		t.Skip("redox can hang following HTTP/2 redirects")
-	}
 	cst := newClientServerTest(t, mode, HandlerFunc(func(w ResponseWriter, r *Request) {
 		switch r.URL.Path {
 		case "/":
@@ -1095,9 +1085,6 @@ func TestRequestClonePathValue(t *testing.T) {
 // Issue 34878: verify we don't panic when including basic auth (Go 1.13 regression)
 func TestNoPanicOnRoundTripWithBasicAuth(t *testing.T) { run(t, testNoPanicWithBasicAuth) }
 func testNoPanicWithBasicAuth(t *testing.T, mode testMode) {
-	if runtime.GOOS == "redox" {
-		t.Skip("redox can hang establishing the request with basic auth")
-	}
 	cst := newClientServerTest(t, mode, HandlerFunc(func(w ResponseWriter, r *Request) {}))
 
 	u, err := url.Parse(cst.ts.URL)
