@@ -3458,9 +3458,6 @@ func testTransportDoesNotLimitDelivered1xxResponses(t *testing.T, mode testMode)
 // Issue 26161: the HTTP client must treat 101 responses
 // as the final response.
 func TestTransportTreat101Terminal(t *testing.T) {
-	if runtime.GOOS == "redox" {
-		t.Skip("redox can hang subsequent transport tests after an HTTP/1 protocol switch response")
-	}
 	run(t, testTransportTreat101Terminal, []testMode{http1Mode})
 }
 func testTransportTreat101Terminal(t *testing.T, mode testMode) {
@@ -6371,9 +6368,6 @@ func testClientTimeoutKillsConn_AfterHeaders(t *testing.T, mode testMode) {
 }
 
 func TestTransportResponseBodyWritableOnProtocolSwitch(t *testing.T) {
-	if runtime.GOOS == "redox" {
-		t.Skip("redox can abort runtime netpoll while testing writable response bodies after protocol switch")
-	}
 	run(t, testTransportResponseBodyWritableOnProtocolSwitch, []testMode{http1Mode})
 }
 func testTransportResponseBodyWritableOnProtocolSwitch(t *testing.T, mode testMode) {
@@ -6425,9 +6419,6 @@ func testTransportResponseBodyWritableOnProtocolSwitch(t *testing.T, mode testMo
 }
 
 func TestTransportCONNECTBidi(t *testing.T) {
-	if runtime.GOOS == "redox" {
-		t.Skip("redox can abort runtime netpoll during bidirectional CONNECT request-body forwarding")
-	}
 	run(t, testTransportCONNECTBidi, []testMode{http1Mode})
 }
 func testTransportCONNECTBidi(t *testing.T, mode testMode) {
