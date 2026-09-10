@@ -1987,9 +1987,6 @@ func waitNumGoroutine(nmax int) int {
 
 // tests that persistent goroutine connections shut down when no longer desired.
 func TestTransportPersistConnLeak(t *testing.T) {
-	if runtime.GOOS == "redox" {
-		t.Skip("redox can fail many simultaneous persistent connection requests with disconnected transport endpoints")
-	}
 	run(t, testTransportPersistConnLeak, testNotParallel)
 }
 func testTransportPersistConnLeak(t *testing.T, mode testMode) {
@@ -2150,10 +2147,6 @@ func TestTransportPersistConnLeakNeverIdle(t *testing.T) {
 	run(t, testTransportPersistConnLeakNeverIdle, []testMode{http1Mode})
 }
 func testTransportPersistConnLeakNeverIdle(t *testing.T, mode testMode) {
-	if runtime.GOOS == "redox" {
-		t.Skip("redox can hang waiting for a never-idle HTTP/1 persistent connection to be collected")
-	}
-
 	ts := newClientServerTest(t, mode, HandlerFunc(func(w ResponseWriter, r *Request) {
 		// Close every connection so that it cannot be kept alive.
 		conn, _, err := w.(Hijacker).Hijack()
@@ -2229,10 +2222,6 @@ func testTransportPersistConnContextLeakMaxConnsPerHost(t *testing.T, mode testM
 	if mode == http2Mode {
 		t.Skip("https://go.dev/issue/56021")
 	}
-	if runtime.GOOS == "redox" && mode == http1Mode {
-		t.Skip("redox can hang under MaxConnsPerHost=1 while many HTTP/1 requests wait on the persistent connection")
-	}
-
 	ts := newClientServerTest(t, mode, HandlerFunc(func(w ResponseWriter, r *Request) {
 		runtime.Gosched()
 		w.WriteHeader(StatusOK)
@@ -2288,13 +2277,6 @@ func testTransportPersistConnContextLeakMaxConnsPerHost(t *testing.T, mode testM
 // This used to crash; https://golang.org/issue/3266
 func TestTransportIdleConnCrash(t *testing.T) { run(t, testTransportIdleConnCrash) }
 func testTransportIdleConnCrash(t *testing.T, mode testMode) {
-	if runtime.GOOS == "redox" && mode == http1Mode {
-		t.Skip("redox can hang closing idle HTTP/1 connections during a request")
-	}
-	if runtime.GOOS == "redox" && mode == http2Mode {
-		t.Skip("redox can abort runtime netpoll closing idle HTTP/2 connections during a request")
-	}
-
 	var tr *Transport
 
 	unblockCh := make(chan bool, 1)
