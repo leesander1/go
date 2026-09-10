@@ -1156,9 +1156,6 @@ func TestLRUClientSessionCache(t *testing.T) {
 }
 
 func TestKeyLogTLS12(t *testing.T) {
-	if runtime.GOOS == "redox" {
-		t.Skip("redox: localPipe key-log handshake aborts runtime netpoll")
-	}
 	var serverBuf, clientBuf bytes.Buffer
 
 	clientConfig := testConfig.Clone()
@@ -1212,9 +1209,6 @@ func TestKeyLogTLS12(t *testing.T) {
 }
 
 func TestKeyLogTLS13(t *testing.T) {
-	if runtime.GOOS == "redox" {
-		t.Skip("redox: localPipe key-log handshake aborts runtime netpoll")
-	}
 	var serverBuf, clientBuf bytes.Buffer
 
 	clientConfig := testConfig.Clone()
@@ -1278,9 +1272,6 @@ func TestHandshakeClientALPNMatch(t *testing.T) {
 }
 
 func TestServerSelectingUnconfiguredApplicationProtocol(t *testing.T) {
-	if runtime.GOOS == "redox" {
-		t.Skip("redox: localPipe ALPN rejection aborts runtime netpoll")
-	}
 	// This checks that the server can't select an application protocol that the
 	// client didn't offer.
 
@@ -1488,9 +1479,6 @@ var hostnameInSNITests = []struct {
 }
 
 func TestHostnameInSNI(t *testing.T) {
-	if runtime.GOOS == "redox" {
-		t.Skip("redox: localPipe handshake aborts runtime netpoll")
-	}
 	for _, tt := range hostnameInSNITests {
 		c, s := localPipe(t)
 
@@ -1527,9 +1515,6 @@ func TestHostnameInSNI(t *testing.T) {
 }
 
 func TestServerSelectingUnconfiguredCipherSuite(t *testing.T) {
-	if runtime.GOOS == "redox" {
-		t.Skip("redox: localPipe handshake aborts runtime netpoll")
-	}
 	// This checks that the server can't select a cipher suite that the
 	// client didn't offer. See #13174.
 
