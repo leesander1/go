@@ -551,10 +551,6 @@ var goLookupIPWithResolverConfigTests = []struct {
 }
 
 func TestGoLookupIPWithResolverConfig(t *testing.T) {
-	if runtime.GOOS == "redox" {
-		t.Skip("redox aborts runtime netpoll while exercising fake DNS resolver config lookup")
-	}
-
 	defer dnsWaitGroup.Wait()
 	fake := fakeDNSServer{rh: func(n, s string, q dnsmessage.Message, _ time.Time) (dnsmessage.Message, error) {
 		switch s {
@@ -1763,10 +1759,6 @@ func TestTXTRecordTwoStrings(t *testing.T) {
 // Issue 29644: support single-request resolv.conf option in pure Go resolver.
 // The A and AAAA queries will be sent sequentially, not in parallel.
 func TestSingleRequestLookup(t *testing.T) {
-	if runtime.GOOS == "redox" {
-		t.Skip("redox aborts runtime netpoll while exercising single-request DNS lookup sequencing")
-	}
-
 	defer dnsWaitGroup.Wait()
 	var (
 		firstcalled int32
