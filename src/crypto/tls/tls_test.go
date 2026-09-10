@@ -1198,10 +1198,6 @@ func TestConnectionStateMarshal(t *testing.T) {
 }
 
 func TestConnectionState(t *testing.T) {
-	if runtime.GOOS == "redox" {
-		t.Skip("Redox TLS connection state handshakes can abort runtime netpoll")
-	}
-
 	issuer, err := x509.ParseCertificate(testRSA2048CertificateIssuer)
 	if err != nil {
 		panic(err)
@@ -1843,10 +1839,6 @@ func (s brokenSigner) Sign(rand io.Reader, digest []byte, opts crypto.SignerOpts
 // TestPKCS1OnlyCert uses a client certificate with a broken crypto.Signer that
 // always makes PKCS #1 v1.5 signatures, so can't be used with RSA-PSS.
 func TestPKCS1OnlyCert(t *testing.T) {
-	if runtime.GOOS == "redox" {
-		t.Skip("Redox TLS localPipe client certificate handshake can abort runtime netpoll")
-	}
-
 	clientConfig := testConfig.Clone()
 	clientConfig.Certificates = []Certificate{{
 		Certificate: [][]byte{testRSACertificate},
@@ -1872,10 +1864,6 @@ func TestPKCS1OnlyCert(t *testing.T) {
 }
 
 func TestVerifyCertificates(t *testing.T) {
-	if runtime.GOOS == "redox" {
-		t.Skip("Redox TLS localPipe certificate verification handshakes can abort runtime netpoll")
-	}
-
 	skipFIPS(t) // Test certificates not FIPS compatible.
 
 	// See https://go.dev/issue/31641.
@@ -2021,10 +2009,6 @@ func testVerifyCertificates(t *testing.T, version uint16) {
 }
 
 func TestHandshakeMLKEM(t *testing.T) {
-	if runtime.GOOS == "redox" {
-		t.Skip("Redox TLS localPipe ML-KEM handshakes can abort runtime netpoll")
-	}
-
 	if boring.Enabled && fips140tls.Required() {
 		t.Skip("ML-KEM not supported in BoringCrypto FIPS mode")
 	}
