@@ -3224,21 +3224,12 @@ func testServerWriteHijackZeroBytes(t *testing.T, mode testMode) {
 
 func TestServerNoDate(t *testing.T) {
 	run(t, func(t *testing.T, mode testMode) {
-		if runtime.GOOS == "redox" {
-			t.Skip("redox can hang connecting to responses with suppressed Date")
-		}
 		testServerNoHeader(t, mode, "Date")
 	})
 }
 
 func TestServerContentType(t *testing.T) {
 	run(t, func(t *testing.T, mode testMode) {
-		if runtime.GOOS == "redox" && mode == http1Mode {
-			t.Skip("redox can hang finishing HTTP/1 responses with suppressed Content-Type")
-		}
-		if runtime.GOOS == "redox" && mode == http2Mode {
-			t.Skip("redox can hang finishing HTTP/2 responses with suppressed Content-Type")
-		}
 		testServerNoHeader(t, mode, "Content-Type")
 	})
 }
@@ -7518,13 +7509,6 @@ func testHeadBody(t *testing.T, mode testMode, chunked bool, method string) {
 // or disabled when the header is set to nil.
 func TestDisableContentLength(t *testing.T) { run(t, testDisableContentLength) }
 func testDisableContentLength(t *testing.T, mode testMode) {
-	if runtime.GOOS == "redox" && mode == http1Mode {
-		t.Skip("redox can hang completing an HTTP/1 response after Content-Length is disabled")
-	}
-	if runtime.GOOS == "redox" && mode == http2Mode {
-		t.Skip("redox can hang completing an HTTP/2 response after Content-Length is disabled")
-	}
-
 	noCL := newClientServerTest(t, mode, HandlerFunc(func(w ResponseWriter, r *Request) {
 		w.Header()["Content-Length"] = nil // disable the default Content-Length response
 		fmt.Fprintf(w, "OK")
@@ -7559,9 +7543,6 @@ func testDisableContentLength(t *testing.T, mode testMode) {
 
 func TestErrorContentLength(t *testing.T) { run(t, testErrorContentLength) }
 func testErrorContentLength(t *testing.T, mode testMode) {
-	if runtime.GOOS == "redox" {
-		t.Skip("redox can hang completing an Error response after Content-Length is cleared")
-	}
 	const errorBody = "an error occurred"
 	cst := newClientServerTest(t, mode, HandlerFunc(func(w ResponseWriter, r *Request) {
 		w.Header().Set("Content-Length", "1000")
