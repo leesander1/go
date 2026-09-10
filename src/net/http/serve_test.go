@@ -1387,9 +1387,6 @@ func TestServeHTTP10Close(t *testing.T) {
 
 // TestClientCanClose verifies that clients can also force a connection to close.
 func TestClientCanClose(t *testing.T) {
-	if runtime.GOOS == "redox" {
-		t.Skip("redox can hang waiting for EOF after a client requests Connection: close")
-	}
 	testTCPConnectionCloses(t, "GET / HTTP/1.1\r\nHost: foo\r\nConnection: close\r\n\r\n", HandlerFunc(func(w ResponseWriter, r *Request) {
 		// Nothing.
 	}))
@@ -1398,27 +1395,18 @@ func TestClientCanClose(t *testing.T) {
 // TestHandlersCanSetConnectionClose verifies that handlers can force a connection to close,
 // even for HTTP/1.1 requests.
 func TestHandlersCanSetConnectionClose11(t *testing.T) {
-	if runtime.GOOS == "redox" {
-		t.Skip("redox can hang waiting for EOF after an HTTP/1.1 handler sets Connection: close")
-	}
 	testTCPConnectionCloses(t, "GET / HTTP/1.1\r\nHost: foo\r\n\r\n\r\n", HandlerFunc(func(w ResponseWriter, r *Request) {
 		w.Header().Set("Connection", "close")
 	}))
 }
 
 func TestHandlersCanSetConnectionClose10(t *testing.T) {
-	if runtime.GOOS == "redox" {
-		t.Skip("redox can hang waiting for EOF after an HTTP/1.0 handler sets Connection: close")
-	}
 	testTCPConnectionCloses(t, "GET / HTTP/1.0\r\nConnection: keep-alive\r\n\r\n", HandlerFunc(func(w ResponseWriter, r *Request) {
 		w.Header().Set("Connection", "close")
 	}))
 }
 
 func TestHTTP2UpgradeClosesConnection(t *testing.T) {
-	if runtime.GOOS == "redox" {
-		t.Skip("redox can hang waiting for EOF after an HTTP/2 upgrade request closes the connection")
-	}
 	testTCPConnectionCloses(t, "PRI * HTTP/2.0\r\n\r\nSM\r\n\r\n", HandlerFunc(func(w ResponseWriter, r *Request) {
 		// Nothing. (if not hijacked, the server should close the connection
 		// afterwards)
