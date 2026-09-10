@@ -254,9 +254,6 @@ var vtests = []struct {
 
 func TestHostHandlers(t *testing.T) { run(t, testHostHandlers, []testMode{http1Mode}) }
 func testHostHandlers(t *testing.T, mode testMode) {
-	if runtime.GOOS == "redox" {
-		t.Skip("redox can hang reading an HTTP/1 host handler response")
-	}
 	mux := NewServeMux()
 	for _, h := range handlers {
 		mux.Handle(h.pattern, stringHandler(h.msg))
@@ -3584,9 +3581,6 @@ func testServerGracefulClose(t *testing.T, mode testMode) {
 
 func TestCaseSensitiveMethod(t *testing.T) { run(t, testCaseSensitiveMethod) }
 func testCaseSensitiveMethod(t *testing.T, mode testMode) {
-	if runtime.GOOS == "redox" {
-		t.Skip("redox can hang completing case-sensitive method requests")
-	}
 	cst := newClientServerTest(t, mode, HandlerFunc(func(w ResponseWriter, r *Request) {
 		if r.Method != "get" {
 			t.Errorf(`Got method %q; want "get"`, r.Method)
@@ -6659,10 +6653,6 @@ func TestStripPortFromHost(t *testing.T) {
 
 func TestServerContexts(t *testing.T) { run(t, testServerContexts) }
 func testServerContexts(t *testing.T, mode testMode) {
-	if runtime.GOOS == "redox" && mode == http1Mode {
-		t.Skip("redox can hang completing HTTP/1 server context requests")
-	}
-
 	type baseKey struct{}
 	type connKey struct{}
 	ch := make(chan context.Context, 1)
@@ -6701,13 +6691,6 @@ func TestConnContextNotModifyingAllContexts(t *testing.T) {
 	run(t, testConnContextNotModifyingAllContexts)
 }
 func testConnContextNotModifyingAllContexts(t *testing.T, mode testMode) {
-	if runtime.GOOS == "redox" && mode == http1Mode {
-		t.Skip("redox can hang completing repeated HTTP/1 ConnContext requests")
-	}
-	if runtime.GOOS == "redox" && mode == http2Mode {
-		t.Skip("redox can hang completing repeated HTTP/2 ConnContext requests")
-	}
-
 	type connKey struct{}
 	ts := newClientServerTest(t, mode, HandlerFunc(func(rw ResponseWriter, r *Request) {
 		rw.Header().Set("Connection", "close")
