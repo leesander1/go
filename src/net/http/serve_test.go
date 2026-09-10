@@ -1377,9 +1377,6 @@ func testTCPConnectionStaysOpen(t *testing.T, req string, handler Handler) {
 
 // TestServeHTTP10Close verifies that HTTP/1.0 requests won't be kept alive.
 func TestServeHTTP10Close(t *testing.T) {
-	if runtime.GOOS == "redox" {
-		t.Skip("redox can hang waiting for EOF after an HTTP/1.0 response closes the connection")
-	}
 	testTCPConnectionCloses(t, "GET / HTTP/1.0\r\n\r\n", HandlerFunc(func(w ResponseWriter, r *Request) {
 		ServeFile(w, r, "testdata/file")
 	}))
@@ -3870,9 +3867,6 @@ func testHijackBeforeRequestBodyRead(t *testing.T, mode testMode) {
 }
 
 func TestOptions(t *testing.T) {
-	if runtime.GOOS == "redox" {
-		t.Skip("redox can hang closing the raw OPTIONS star request connection")
-	}
 	run(t, testOptions, []testMode{http1Mode})
 }
 func testOptions(t *testing.T, mode testMode) {
@@ -3927,9 +3921,6 @@ func testOptions(t *testing.T, mode testMode) {
 }
 
 func TestOptionsHandler(t *testing.T) {
-	if runtime.GOOS == "redox" {
-		t.Skip("redox can hang closing the raw OPTIONS connection")
-	}
 	run(t, testOptionsHandler, []testMode{http1Mode})
 }
 func testOptionsHandler(t *testing.T, mode testMode) {
@@ -5179,10 +5170,6 @@ func TestServerHandlersCanHandleH2PRI(t *testing.T) {
 	run(t, testServerHandlersCanHandleH2PRI, []testMode{http1Mode})
 }
 func testServerHandlersCanHandleH2PRI(t *testing.T, mode testMode) {
-	if runtime.GOOS == "redox" {
-		t.Skip("redox can hang handling HTTP/2 PRI requests on an HTTP/1 server")
-	}
-
 	const upgradeResponse = "upgrade here"
 	ts := newClientServerTest(t, mode, HandlerFunc(func(w ResponseWriter, r *Request) {
 		conn, br, err := w.(Hijacker).Hijack()
@@ -7116,9 +7103,6 @@ func TestWriteHeaderSwitchingProtocols(t *testing.T) {
 	run(t, testWriteHeaderSwitchingProtocols, []testMode{http1Mode})
 }
 func testWriteHeaderSwitchingProtocols(t *testing.T, mode testMode) {
-	if runtime.GOOS == "redox" {
-		t.Skip("redox can hang completing an HTTP/1 switching protocols response")
-	}
 	const wantBody = "want"
 	const wantUpgrade = "someProto"
 	ts := newClientServerTest(t, mode, HandlerFunc(func(w ResponseWriter, r *Request) {
