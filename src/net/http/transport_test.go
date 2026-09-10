@@ -946,10 +946,6 @@ func testStressSurpriseServerCloses(t *testing.T, mode testMode) {
 // with no bodies properly
 func TestTransportHeadResponses(t *testing.T) { run(t, testTransportHeadResponses) }
 func testTransportHeadResponses(t *testing.T, mode testMode) {
-	if runtime.GOOS == "redox" {
-		t.Skip("redox can hang reading repeated HEAD responses")
-	}
-
 	ts := newClientServerTest(t, mode, HandlerFunc(func(w ResponseWriter, r *Request) {
 		if r.Method != "HEAD" {
 			panic("expected HEAD; got " + r.Method)
@@ -982,9 +978,6 @@ func testTransportHeadResponses(t *testing.T, mode testMode) {
 // TestTransportHeadChunkedResponse verifies that we ignore chunked transfer-encoding
 // on responses to HEAD requests.
 func TestTransportHeadChunkedResponse(t *testing.T) {
-	if runtime.GOOS == "redox" {
-		t.Skip("redox can abort runtime netpoll after HEAD chunked response reuse")
-	}
 	run(t, testTransportHeadChunkedResponse, []testMode{http1Mode}, testNotParallel)
 }
 func testTransportHeadChunkedResponse(t *testing.T, mode testMode) {
