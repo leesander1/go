@@ -4276,7 +4276,7 @@ func TestContentTypeOkayOn204(t *testing.T) {
 // Therefore, all incoming server requests Bodies need to be thread-safe.
 func TestTransportAndServerSharedBodyRace(t *testing.T) {
 	if runtime.GOOS == "redox" {
-		t.Skip("redox can report early disconnect/copy errors during shared request body races")
+		t.Skip("redox hangs waiting for backend cancellation after an HTTP/1 shared-body race")
 	}
 	run(t, testTransportAndServerSharedBodyRace, testNotParallel)
 }
