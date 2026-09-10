@@ -3059,9 +3059,6 @@ func testTransportCancelRequestBeforeResponseHeaders(t *testing.T, test cancelTe
 // Now it actually closes the TCP connection.
 func TestTransportCloseResponseBody(t *testing.T) { run(t, testTransportCloseResponseBody) }
 func testTransportCloseResponseBody(t *testing.T, mode testMode) {
-	if runtime.GOOS == "redox" {
-		t.Skip("redox can hang waiting for server write failure after closing the response body")
-	}
 	writeErr := make(chan error, 1)
 	msg := []byte("young\n")
 	ts := newClientServerTest(t, mode, HandlerFunc(func(w ResponseWriter, r *Request) {
