@@ -2381,10 +2381,6 @@ func testIssue3595(t *testing.T, mode testMode) {
 // "client fails to handle requests with no body and chunked encoding"
 func TestChunkedNoContent(t *testing.T) { run(t, testChunkedNoContent) }
 func testChunkedNoContent(t *testing.T, mode testMode) {
-	if runtime.GOOS == "redox" && mode == http1Mode {
-		t.Skip("redox can hang on HTTP/1 chunked no-content responses")
-	}
-
 	ts := newClientServerTest(t, mode, HandlerFunc(func(w ResponseWriter, r *Request) {
 		w.WriteHeader(StatusNoContent)
 	})).ts
@@ -2406,10 +2402,6 @@ func testChunkedNoContent(t *testing.T, mode testMode) {
 }
 
 func TestTransportConcurrency(t *testing.T) {
-	if runtime.GOOS == "redox" {
-		t.Skip("redox does not reliably complete high-concurrency localhost transport requests")
-	}
-
 	run(t, testTransportConcurrency, testNotParallel, []testMode{http1Mode})
 }
 func testTransportConcurrency(t *testing.T, mode testMode) {
@@ -2512,9 +2504,6 @@ func TestIssue4191_InfiniteGetToPutTimeout(t *testing.T) {
 	run(t, testIssue4191_InfiniteGetToPutTimeout, []testMode{http1Mode})
 }
 func testIssue4191_InfiniteGetToPutTimeout(t *testing.T, mode testMode) {
-	if runtime.GOOS == "redox" {
-		t.Skip("redox can hang closing active HTTP/1 connections after a GET-to-PUT timeout")
-	}
 	const debug = false
 	mux := NewServeMux()
 	mux.HandleFunc("/get", func(w ResponseWriter, r *Request) {
