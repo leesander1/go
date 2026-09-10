@@ -325,10 +325,6 @@ func TestFileServerCleans(t *testing.T) {
 }
 
 func TestFileServerEscapesNames(t *testing.T) {
-	if runtime.GOOS == "redox" {
-		t.Skip("redox can hang completing FileServer escaped-name directory listings")
-	}
-
 	run(t, testFileServerEscapesNames)
 }
 func testFileServerEscapesNames(t *testing.T, mode testMode) {
@@ -429,12 +425,6 @@ func mustRemoveAll(dir string) {
 
 func TestFileServerImplicitLeadingSlash(t *testing.T) { run(t, testFileServerImplicitLeadingSlash) }
 func testFileServerImplicitLeadingSlash(t *testing.T, mode testMode) {
-	if runtime.GOOS == "redox" && mode == http1Mode {
-		t.Skip("redox can hang completing an HTTP/1 FileServer request with an implicit leading slash")
-	}
-	if runtime.GOOS == "redox" && mode == http2Mode {
-		t.Skip("redox can hang completing an HTTP/2 FileServer request with an implicit leading slash")
-	}
 	tempDir := t.TempDir()
 	if err := os.WriteFile(filepath.Join(tempDir, "foo.txt"), []byte("Hello world"), 0644); err != nil {
 		t.Fatalf("WriteFile: %v", err)
@@ -1415,15 +1405,9 @@ func TestLinuxSendfileChild(*testing.T) {
 func TestFileServerNotDirError(t *testing.T) {
 	run(t, func(t *testing.T, mode testMode) {
 		t.Run("Dir", func(t *testing.T) {
-			if runtime.GOOS == "redox" && mode == http1Mode {
-				t.Skip("redox can hang closing an HTTP/1 FileServer not-directory response")
-			}
 			testFileServerNotDirError(t, mode, func(path string) FileSystem { return Dir(path) })
 		})
 		t.Run("FS", func(t *testing.T) {
-			if runtime.GOOS == "redox" {
-				t.Skip("redox can hang completing a FileServerFS not-directory response")
-			}
 			testFileServerNotDirError(t, mode, func(path string) FileSystem { return FS(os.DirFS(path)) })
 		})
 	})
@@ -1755,22 +1739,10 @@ func testFileServerDirWithRootFile(t *testing.T, mode testMode) {
 	}
 
 	t.Run("FileServer", func(t *testing.T) {
-		if runtime.GOOS == "redox" && mode == http1Mode {
-			t.Skip("redox can hang closing an HTTP/1 FileServer response rooted at a file")
-		}
-		if runtime.GOOS == "redox" && mode == http2Mode {
-			t.Skip("redox can hang closing an HTTP/2 FileServer response rooted at a file")
-		}
 		testDirFile(t, FileServer(Dir("testdata/index.html")))
 	})
 
 	t.Run("FileServerFS", func(t *testing.T) {
-		if runtime.GOOS == "redox" && mode == http1Mode {
-			t.Skip("redox can hang closing an HTTP/1 FileServerFS response rooted at a file")
-		}
-		if runtime.GOOS == "redox" && mode == http2Mode {
-			t.Skip("redox can hang closing an HTTP/2 FileServerFS response rooted at a file")
-		}
 		testDirFile(t, FileServerFS(os.DirFS("testdata/index.html")))
 	})
 }
