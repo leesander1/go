@@ -3479,7 +3479,7 @@ func testClientWriteShutdown(t *testing.T, mode testMode) {
 		t.Skip("skipping test; see https://golang.org/issue/17906")
 	}
 	if runtime.GOOS == "redox" {
-		t.Skip("redox can hang completing the client write shutdown")
+		t.Skip("redox returns ENOTCONN when reading after a client write shutdown")
 	}
 	ts := newClientServerTest(t, mode, HandlerFunc(func(w ResponseWriter, r *Request) {})).ts
 	conn, err := net.Dial("tcp", ts.Listener.Addr().String())
@@ -6064,12 +6064,6 @@ func testServerSetKeepAlivesEnabledClosesConns(t *testing.T, mode testMode) {
 
 func TestServerShutdown(t *testing.T) { run(t, testServerShutdown) }
 func testServerShutdown(t *testing.T, mode testMode) {
-	if runtime.GOOS == "redox" && mode == http1Mode {
-		t.Skip("redox can hang waiting for HTTP/1 server shutdown to finish")
-	}
-	if runtime.GOOS == "redox" && mode == http2Mode {
-		t.Skip("redox can hang waiting for HTTP/2 server shutdown to finish")
-	}
 	var cst *clientServerTest
 
 	var once sync.Once
