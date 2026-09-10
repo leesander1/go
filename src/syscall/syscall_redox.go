@@ -491,6 +491,12 @@ func Accept(fd int) (nfd int, sa Sockaddr, err error) {
 }
 
 func recvmsgRaw(fd int, p, oob []byte, flags int, rsa *RawSockaddrAny) (n, oobn int, recvflags int, err error) {
+	if len(oob) == 0 && flags == 0 {
+		fromlen := _Socklen(SizeofSockaddrAny)
+		n, err = recvfrom(fd, p, flags, rsa, &fromlen)
+		return n, 0, 0, err
+	}
+
 	var msg Msghdr
 	msg.Name = (*byte)(unsafe.Pointer(rsa))
 	msg.Namelen = SizeofSockaddrAny
@@ -521,6 +527,13 @@ func recvmsgRaw(fd int, p, oob []byte, flags int, rsa *RawSockaddrAny) (n, oobn 
 //sys	sendmsg(s int, msg *Msghdr, flags int) (n int, err error) = libc.sendmsg
 
 func sendmsgN(fd int, p, oob []byte, ptr unsafe.Pointer, salen _Socklen, flags int) (n int, err error) {
+	if len(oob) == 0 && flags == 0 {
+		if err := sendto(fd, p, flags, ptr, salen); err != nil {
+			return 0, err
+		}
+		return len(p), nil
+	}
+
 	var msg Msghdr
 	msg.Name = (*byte)(unsafe.Pointer(ptr))
 	msg.Namelen = uint64(salen)

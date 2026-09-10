@@ -758,7 +758,7 @@ func TestIPv4WriteMsgUDPAddrPortTargetAddrIPVersion(t *testing.T) {
 // This is a regression test for https://golang.org/issue/77875.
 func TestReadWriteMsgUDPAddrPortEmptyCmsg(t *testing.T) {
 	switch runtime.GOOS {
-	case "plan9", "redox":
+	case "plan9":
 		t.Skipf("not supported on %s", runtime.GOOS)
 	}
 
