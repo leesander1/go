@@ -518,11 +518,6 @@ var writeTimeoutTests = []struct {
 func TestWriteTimeout(t *testing.T) {
 	t.Parallel()
 
-	switch runtime.GOOS {
-	case "redox":
-		t.Skipf("not supported on %s", runtime.GOOS)
-	}
-
 	ln := newLocalListener(t, "tcp")
 	defer ln.Close()
 
@@ -934,11 +929,6 @@ func TestWriteTimeoutFluctuation(t *testing.T) {
 // There is a very similar copy of this in os/timeout_test.go.
 func TestVariousDeadlines(t *testing.T) {
 	t.Parallel()
-
-	switch runtime.GOOS {
-	case "redox":
-		t.Skipf("not supported on %s", runtime.GOOS)
-	}
 
 	testVariousDeadlines(t)
 }
