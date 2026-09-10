@@ -6945,9 +6945,6 @@ func testDontCacheBrokenHTTP2Conn(t *testing.T, mode testMode) {
 // http.http2noCachedConnError is reported on multiple requests. There should
 // only be one decrement regardless of the number of failures.
 func TestTransportDecrementConnWhenIdleConnRemoved(t *testing.T) {
-	if runtime.GOOS == "redox" {
-		t.Skip("redox can abort runtime netpoll during HTTP/2 idle-connection removal under load")
-	}
 	run(t, testTransportDecrementConnWhenIdleConnRemoved, []testMode{http2Mode})
 }
 func testTransportDecrementConnWhenIdleConnRemoved(t *testing.T, mode testMode) {
