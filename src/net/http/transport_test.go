@@ -5104,9 +5104,6 @@ func testTransportResponseHeaderLength(t *testing.T, mode testMode) {
 	if mode == http2Mode {
 		t.Skip("HTTP/2 Transport doesn't support MaxResponseHeaderBytes")
 	}
-	if runtime.GOOS == "redox" {
-		t.Skip("redox can hang closing the HTTP/1 server connection after a too-large response header")
-	}
 	ts := newClientServerTest(t, mode, HandlerFunc(func(w ResponseWriter, r *Request) {
 		if r.URL.Path == "/long" {
 			w.Header().Set("Long", strings.Repeat("a", 1<<20))
@@ -6152,9 +6149,6 @@ func TestTransportCheckContextDoneEarly(t *testing.T) {
 // This is the test variant that times out before the server replies with
 // any response headers.
 func TestClientTimeoutKillsConn_BeforeHeaders(t *testing.T) {
-	if runtime.GOOS == "redox" {
-		t.Skip("redox can leave the server waiting on an active TCP connection after client timeout")
-	}
 	run(t, testClientTimeoutKillsConn_BeforeHeaders, []testMode{http1Mode})
 }
 func testClientTimeoutKillsConn_BeforeHeaders(t *testing.T, mode testMode) {
@@ -6687,9 +6681,6 @@ func TestTransportIgnores408(t *testing.T) {
 	run(t, testTransportIgnores408, []testMode{http1Mode}, testNotParallel)
 }
 func testTransportIgnores408(t *testing.T, mode testMode) {
-	if runtime.GOOS == "redox" {
-		t.Skip("redox can leave HTTP/1 idle transport connections visible after a 408 response")
-	}
 	// Not parallel. Relies on mutating the log package's global Output.
 	defer log.SetOutput(log.Writer())
 
@@ -7421,10 +7412,6 @@ func TestValidateClientRequestTrailers(t *testing.T) {
 }
 
 func testValidateClientRequestTrailers(t *testing.T, mode testMode) {
-	if runtime.GOOS == "redox" && mode == http2Mode {
-		t.Skip("redox can hang validating HTTP/2 client request trailers")
-	}
-
 	cst := newClientServerTest(t, mode, HandlerFunc(func(rw ResponseWriter, req *Request) {
 		rw.Write([]byte("Hello"))
 	})).ts
