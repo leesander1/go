@@ -3231,12 +3231,6 @@ func testServerNoHeader(t *testing.T, mode testMode, header string) {
 
 func TestStripPrefix(t *testing.T) { run(t, testStripPrefix) }
 func testStripPrefix(t *testing.T, mode testMode) {
-	if runtime.GOOS == "redox" && mode == http1Mode {
-		t.Skip("redox can hang finishing HTTP/1 StripPrefix requests")
-	}
-	if runtime.GOOS == "redox" && mode == http2Mode {
-		t.Skip("redox can hang finishing HTTP/2 StripPrefix requests")
-	}
 	h := HandlerFunc(func(w ResponseWriter, r *Request) {
 		w.Header().Set("X-Path", r.URL.Path)
 		w.Header().Set("X-RawPath", r.URL.RawPath)
@@ -7109,9 +7103,6 @@ func TestQuerySemicolon(t *testing.T) {
 	}
 
 	run(t, func(t *testing.T, mode testMode) {
-		if runtime.GOOS == "redox" {
-			t.Skip("redox can hang completing requests with query semicolons")
-		}
 		for _, tt := range tests {
 			t.Run(tt.query+"/allow=false", func(t *testing.T) {
 				allowSemicolons := false
