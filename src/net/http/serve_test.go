@@ -6204,7 +6204,7 @@ func testServerDuplicateBackgroundRead(t *testing.T, mode testMode) {
 		testenv.SkipFlaky(t, 24826)
 	}
 	if runtime.GOOS == "redox" && mode == http1Mode {
-		t.Skip("redox can return ENOTCONN while writing repeated HTTP/1 requests")
+		t.Skip("redox can report a concurrently refused connection as successfully dialed")
 	}
 
 	goroutines := 5
