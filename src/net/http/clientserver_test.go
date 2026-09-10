@@ -1341,9 +1341,6 @@ func testTransportRejectsInvalidHeaders(t *testing.T, mode testMode) {
 }
 
 func TestInterruptWithPanic(t *testing.T) {
-	if runtime.GOOS == "redox" {
-		t.Skip("redox does not reliably return an error after a handler panic closes the response")
-	}
 	run(t, func(t *testing.T, mode testMode) {
 		t.Run("boom", func(t *testing.T) { testInterruptWithPanic(t, mode, "boom") })
 		t.Run("nil", func(t *testing.T) { t.Setenv("GODEBUG", "panicnil=1"); testInterruptWithPanic(t, mode, nil) })
@@ -1557,10 +1554,6 @@ func TestBadResponseAfterReadingBody(t *testing.T) {
 	run(t, testBadResponseAfterReadingBody, []testMode{http1Mode})
 }
 func testBadResponseAfterReadingBody(t *testing.T, mode testMode) {
-	if runtime.GOOS == "redox" && mode == http1Mode {
-		t.Skip("redox can hang after reading a request body and receiving a bad HTTP/1 response")
-	}
-
 	cst := newClientServerTest(t, mode, HandlerFunc(func(w ResponseWriter, r *Request) {
 		_, err := io.Copy(io.Discard, r.Body)
 		if err != nil {
@@ -1587,10 +1580,6 @@ func testBadResponseAfterReadingBody(t *testing.T, mode testMode) {
 
 func TestWriteHeader0(t *testing.T) { run(t, testWriteHeader0) }
 func testWriteHeader0(t *testing.T, mode testMode) {
-	if runtime.GOOS == "redox" {
-		t.Skip("redox can hang after an invalid WriteHeader panic")
-	}
-
 	gotpanic := make(chan bool, 1)
 	cst := newClientServerTest(t, mode, HandlerFunc(func(w ResponseWriter, r *Request) {
 		defer close(gotpanic)
@@ -1627,9 +1616,6 @@ func testWriteHeader0(t *testing.T, mode testMode) {
 // it's not even valid to call WriteHeader then anyway.
 func TestWriteHeaderNoCodeCheck(t *testing.T) {
 	run(t, func(t *testing.T, mode testMode) {
-		if runtime.GOOS == "redox" {
-			t.Skip("redox can hang after a WriteHeader call following output")
-		}
 		testWriteHeaderAfterWrite(t, mode, false)
 	})
 }
