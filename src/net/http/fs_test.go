@@ -856,13 +856,6 @@ func (fsys fakeFS) Open(name string) (File, error) {
 
 func TestDirectoryIfNotModified(t *testing.T) { run(t, testDirectoryIfNotModified) }
 func testDirectoryIfNotModified(t *testing.T, mode testMode) {
-	if runtime.GOOS == "redox" && mode == http1Mode {
-		t.Skip("redox can hang completing an HTTP/1 directory If-Modified-Since request")
-	}
-	if runtime.GOOS == "redox" && mode == http2Mode {
-		t.Skip("redox can hang completing an HTTP/2 directory If-Modified-Since request")
-	}
-
 	const indexContents = "I am a fake index.html file"
 	fileMod := time.Unix(1000000000, 0).UTC()
 	fileModStr := fileMod.Format(TimeFormat)
@@ -1554,10 +1547,6 @@ func TestServeFileRejectsInvalidSuffixLengths(t *testing.T) {
 	run(t, testServeFileRejectsInvalidSuffixLengths, []testMode{http1Mode, https1Mode, http2Mode})
 }
 func testServeFileRejectsInvalidSuffixLengths(t *testing.T, mode testMode) {
-	if runtime.GOOS == "redox" && (mode == http1Mode || mode == https1Mode || mode == http2Mode) {
-		t.Skip("redox can hang completing a ServeFile invalid suffix range response")
-	}
-
 	cst := newClientServerTest(t, mode, FileServer(Dir("testdata"))).ts
 
 	tests := []struct {
@@ -1605,13 +1594,6 @@ func TestFileServerMethods(t *testing.T) {
 	run(t, testFileServerMethods)
 }
 func testFileServerMethods(t *testing.T, mode testMode) {
-	if runtime.GOOS == "redox" && mode == http1Mode {
-		t.Skip("redox can hang completing repeated HTTP/1 FileServer method requests")
-	}
-	if runtime.GOOS == "redox" && mode == http2Mode {
-		t.Skip("redox can hang completing repeated HTTP/2 FileServer method requests")
-	}
-
 	ts := newClientServerTest(t, mode, FileServer(Dir("testdata"))).ts
 
 	file, err := os.ReadFile(testFile)
