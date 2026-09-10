@@ -131,8 +131,6 @@ var fileListenerTests = []struct {
 
 func TestFileListener(t *testing.T) {
 	switch runtime.GOOS {
-	case "redox":
-		t.Skip("redox aborts runtime netpoll while accepting from a FileListener")
 	case "plan9", "js", "wasip1":
 		t.Skipf("not supported on %s", runtime.GOOS)
 	}

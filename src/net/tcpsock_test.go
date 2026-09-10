@@ -793,10 +793,6 @@ func TestDialTCPDefaultKeepAlive(t *testing.T) {
 }
 
 func TestTCPListenAfterClose(t *testing.T) {
-	if runtime.GOOS == "redox" {
-		t.Skip("redox aborts runtime netpoll while accepting after listener close")
-	}
-
 	// Regression test for https://go.dev/issue/50216:
 	// after calling Close on a Listener, the fake net implementation would
 	// erroneously Accept a connection dialed before the call to Close.
