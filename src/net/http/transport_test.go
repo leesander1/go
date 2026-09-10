@@ -733,10 +733,6 @@ func testTransportMaxConnsPerHost(t *testing.T, mode testMode) {
 }
 
 func TestTransportMaxConnsPerHostDialCancellation(t *testing.T) {
-	if runtime.GOOS == "redox" {
-		t.Skip("redox can abort runtime netpoll after canceling queued MaxConnsPerHost dials")
-	}
-
 	run(t, testTransportMaxConnsPerHostDialCancellation,
 		testNotParallel, // because test uses SetPendingDialHooks
 		[]testMode{http1Mode, https1Mode, http2Mode},
