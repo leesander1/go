@@ -654,10 +654,6 @@ MC4CAQAwBQYDK2VwBCIEINifzf07d9qx3d44e0FSbV4mC/xQxT644RRbpgNpin7I
 -----END TESTING KEY-----`)
 
 func TestServerHelloTrailingMessage(t *testing.T) {
-	if runtime.GOOS == "redox" {
-		t.Skip("Redox TLS localPipe trailing server hello can abort runtime netpoll")
-	}
-
 	// In TLS 1.3 the change cipher spec message is optional. If a CCS message
 	// is not sent, after reading the ServerHello, the read traffic secret is
 	// set, and all following messages must be encrypted. If the server sends
@@ -706,10 +702,6 @@ func TestServerHelloTrailingMessage(t *testing.T) {
 }
 
 func TestClientHelloTrailingMessage(t *testing.T) {
-	if runtime.GOOS == "redox" {
-		t.Skip("Redox TLS localPipe trailing client hello can abort runtime netpoll")
-	}
-
 	// Same as TestServerHelloTrailingMessage but for the client side.
 
 	c, s := localPipe(t)
@@ -742,10 +734,6 @@ func TestClientHelloTrailingMessage(t *testing.T) {
 }
 
 func TestDoubleClientHelloHRR(t *testing.T) {
-	if runtime.GOOS == "redox" {
-		t.Skip("Redox TLS localPipe HelloRetryRequest path can abort runtime netpoll")
-	}
-
 	// If a client sends two ClientHello messages in a single record, and the
 	// server sends a HRR after reading the first ClientHello, the server must
 	// either fail or ignore the trailing ClientHello.
@@ -805,10 +793,6 @@ func concatHandshakeMessages(msgs ...handshakeMessage) ([]byte, error) {
 }
 
 func TestMultipleKeyUpdate(t *testing.T) {
-	if runtime.GOOS == "redox" {
-		t.Skip("Redox TLS localPipe key update path can abort runtime netpoll")
-	}
-
 	for _, requestUpdate := range []bool{true, false} {
 		t.Run(fmt.Sprintf("requestUpdate=%t", requestUpdate), func(t *testing.T) {
 
