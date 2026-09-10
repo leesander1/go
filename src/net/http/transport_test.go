@@ -3135,9 +3135,6 @@ func TestTransportEmptyMethod(t *testing.T) {
 }
 
 func TestTransportSocketLateBinding(t *testing.T) {
-	if runtime.GOOS == "redox" {
-		t.Skip("redox can abort runtime netpoll while testing late socket binding over TLS")
-	}
 	run(t, testTransportSocketLateBinding)
 }
 func testTransportSocketLateBinding(t *testing.T, mode testMode) {
@@ -7447,9 +7444,6 @@ func testValidateClientRequestTrailers(t *testing.T, mode testMode) {
 }
 
 func TestTransportServerProtocols(t *testing.T) {
-	if runtime.GOOS == "redox" {
-		t.Skip("redox can abort runtime netpoll while testing transport server protocol negotiation")
-	}
 	CondSkipHTTP2(t)
 	DefaultTransport.(*Transport).CloseIdleConnections()
 
