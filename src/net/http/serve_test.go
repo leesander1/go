@@ -7378,21 +7378,9 @@ func TestHeadBody(t *testing.T) {
 	const chunkedMode = true
 	run(t, func(t *testing.T, mode testMode) {
 		t.Run("identity", func(t *testing.T) {
-			if runtime.GOOS == "redox" && mode == http1Mode {
-				t.Skip("redox can hang completing an HTTP/1 HEAD response with an identity-encoded request body")
-			}
-			if runtime.GOOS == "redox" && mode == http2Mode {
-				t.Skip("redox can hang completing an HTTP/2 HEAD response with an identity-encoded request body")
-			}
 			testHeadBody(t, mode, identityMode, "HEAD")
 		})
 		t.Run("chunked", func(t *testing.T) {
-			if runtime.GOOS == "redox" && mode == http1Mode {
-				t.Skip("redox can hang completing an HTTP/1 HEAD response with a chunked request body")
-			}
-			if runtime.GOOS == "redox" && mode == http2Mode {
-				t.Skip("redox can hang completing an HTTP/2 HEAD response with a chunked request body")
-			}
 			testHeadBody(t, mode, chunkedMode, "HEAD")
 		})
 	})
@@ -7403,21 +7391,9 @@ func TestGetBody(t *testing.T) {
 	const chunkedMode = true
 	run(t, func(t *testing.T, mode testMode) {
 		t.Run("identity", func(t *testing.T) {
-			if runtime.GOOS == "redox" && mode == http1Mode {
-				t.Skip("redox can hang completing an HTTP/1 GET response with an identity-encoded empty body")
-			}
-			if runtime.GOOS == "redox" && mode == http2Mode {
-				t.Skip("redox can hang completing an HTTP/2 GET response with an identity-encoded empty body")
-			}
 			testHeadBody(t, mode, identityMode, "GET")
 		})
 		t.Run("chunked", func(t *testing.T) {
-			if runtime.GOOS == "redox" && mode == http1Mode {
-				t.Skip("redox can hang completing an HTTP/1 GET response with a chunked empty body")
-			}
-			if runtime.GOOS == "redox" && mode == http2Mode {
-				t.Skip("redox can hang completing an HTTP/2 GET response with a chunked empty body")
-			}
 			testHeadBody(t, mode, chunkedMode, "GET")
 		})
 	})
