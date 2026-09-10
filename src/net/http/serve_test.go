@@ -6274,7 +6274,7 @@ func testServerDuplicateBackgroundRead(t *testing.T, mode testMode) {
 		testenv.SkipFlaky(t, 24826)
 	}
 	if runtime.GOOS == "redox" && mode == http1Mode {
-		t.Skip("redox can fail repeated HTTP/1 background reads on a reused connection")
+		t.Skip("redox can return ENOTCONN while writing repeated HTTP/1 requests")
 	}
 
 	goroutines := 5
@@ -6386,9 +6386,6 @@ func TestServerHijackGetsFullBody(t *testing.T) {
 func testServerHijackGetsFullBody(t *testing.T, mode testMode) {
 	if runtime.GOOS == "plan9" {
 		t.Skip("skipping test; see https://golang.org/issue/18657")
-	}
-	if runtime.GOOS == "redox" && mode == http1Mode {
-		t.Skip("redox can EOF before delivering the full hijacked HTTP/1 request body")
 	}
 	done := make(chan struct{})
 	needle := strings.Repeat("x", 100*1024) // assume: larger than net/http bufio size
