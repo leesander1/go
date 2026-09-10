@@ -4751,9 +4751,6 @@ func (c *wgReadCloser) Close() error {
 
 // Issue 11745.
 func TestTransportPrefersResponseOverWriteError(t *testing.T) {
-	if runtime.GOOS == "redox" {
-		t.Skip("redox can abort runtime netpoll when preferring an early response over a request-body write error")
-	}
 	// Not parallel: modifies the global rstAvoidanceDelay.
 	run(t, testTransportPrefersResponseOverWriteError, testNotParallel)
 }
