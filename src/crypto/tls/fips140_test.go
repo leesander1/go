@@ -75,9 +75,6 @@ func rerunWithFIPS140Enforced(t *testing.T) {
 var testConfigFIPS140 *Config
 
 func TestFIPSServerProtocolVersion(t *testing.T) {
-	if runtime.GOOS == "redox" {
-		t.Skip("redox: FIPS localPipe handshakes abort runtime netpoll")
-	}
 	test := func(t *testing.T, name string, v uint16, msg string) {
 		t.Run(name, func(t *testing.T) {
 			serverConfig := testConfigFIPS140.Clone()
@@ -205,9 +202,6 @@ func isFIPSSignatureScheme(alg SignatureScheme) bool {
 }
 
 func TestFIPSServerCipherSuites(t *testing.T) {
-	if runtime.GOOS == "redox" {
-		t.Skip("redox: FIPS localPipe handshakes abort runtime netpoll")
-	}
 	serverConfig := testConfigFIPS140.Clone()
 	serverConfig.Certificates = make([]Certificate, 1)
 
@@ -256,9 +250,6 @@ func TestFIPSServerCipherSuites(t *testing.T) {
 }
 
 func TestFIPSServerCurves(t *testing.T) {
-	if runtime.GOOS == "redox" {
-		t.Skip("redox: FIPS localPipe handshakes abort runtime netpoll")
-	}
 	serverConfig := testConfigFIPS140.Clone()
 	serverConfig.CurvePreferences = nil
 	serverConfig.BuildNameToCertificate()
@@ -307,9 +298,6 @@ func fipsHandshake(t *testing.T, clientConfig, serverConfig *Config) (clientErr,
 }
 
 func TestFIPSServerSignatureAndHash(t *testing.T) {
-	if runtime.GOOS == "redox" {
-		t.Skip("redox: FIPS localPipe handshakes abort runtime netpoll")
-	}
 	defer func() {
 		testingOnlySupportedSignatureAlgorithms = nil
 	}()
