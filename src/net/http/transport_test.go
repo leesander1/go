@@ -4572,9 +4572,6 @@ func testTransportResponseCancelRace(t *testing.T, mode testMode) {
 
 // Test for issue 19248: Content-Encoding's value is case insensitive.
 func TestTransportContentEncodingCaseInsensitive(t *testing.T) {
-	if runtime.GOOS == "redox" {
-		t.Skip("redox can hang while testing case-insensitive transport content encoding")
-	}
 	run(t, testTransportContentEncodingCaseInsensitive)
 }
 func testTransportContentEncodingCaseInsensitive(t *testing.T, mode testMode) {
@@ -5543,9 +5540,6 @@ func testTLSHandshakeTrace(t *testing.T, mode testMode) {
 }
 
 func TestTransportMaxIdleConns(t *testing.T) {
-	if runtime.GOOS == "redox" {
-		t.Skip("redox can cause a package-level transport failure after exercising MaxIdleConns after other transport tests")
-	}
 	run(t, testTransportMaxIdleConns, []testMode{http1Mode})
 }
 func testTransportMaxIdleConns(t *testing.T, mode testMode) {
@@ -5787,9 +5781,6 @@ func TestTransportReturnsPeekError(t *testing.T) {
 
 // Issue 13835: international domain names should work
 func TestTransportIDNA(t *testing.T) {
-	if runtime.GOOS == "redox" {
-		t.Skip("redox can cause a package-level transport failure after IDNA handling")
-	}
 	run(t, testTransportIDNA)
 }
 func testTransportIDNA(t *testing.T, mode testMode) {
@@ -6486,9 +6477,6 @@ func (c *testMockTCPConn) ReadFrom(r io.Reader) (int64, error) {
 }
 
 func TestTransportRequestWriteRoundTrip(t *testing.T) {
-	if runtime.GOOS == "redox" {
-		t.Skip("redox can cause a package-level transport failure after request write round trips")
-	}
 	run(t, testTransportRequestWriteRoundTrip)
 }
 func testTransportRequestWriteRoundTrip(t *testing.T, mode testMode) {
