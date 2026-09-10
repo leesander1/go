@@ -113,7 +113,7 @@ func TestResolveUDPAddr(t *testing.T) {
 
 func TestWriteToUDP(t *testing.T) {
 	switch runtime.GOOS {
-	case "plan9", "redox":
+	case "plan9":
 		t.Skipf("not supported on %s", runtime.GOOS)
 	}
 
