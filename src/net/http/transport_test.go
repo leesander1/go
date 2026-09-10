@@ -478,10 +478,6 @@ func TestTransportMaxPerHostIdleConns(t *testing.T) {
 	run(t, testTransportMaxPerHostIdleConns, []testMode{http1Mode})
 }
 func testTransportMaxPerHostIdleConns(t *testing.T, mode testMode) {
-	if runtime.GOOS == "redox" && mode == http1Mode {
-		t.Skip("redox can hang while filling the HTTP/1 idle connection pool")
-	}
-
 	stop := make(chan struct{}) // stop marks the exit of main Test goroutine
 	defer close(stop)
 
@@ -568,19 +564,9 @@ func testTransportMaxPerHostIdleConns(t *testing.T, mode testMode) {
 }
 
 func TestTransportMaxConnsPerHostIncludeDialInProgress(t *testing.T) {
-	if runtime.GOOS == "redox" {
-		t.Skip("redox can cause a package-level transport failure after tracking in-progress MaxConnsPerHost dials")
-	}
 	run(t, testTransportMaxConnsPerHostIncludeDialInProgress)
 }
 func testTransportMaxConnsPerHostIncludeDialInProgress(t *testing.T, mode testMode) {
-	if runtime.GOOS == "redox" && mode == http1Mode {
-		t.Skip("redox can hang while including in-progress HTTP/1 dials in MaxConnsPerHost")
-	}
-	if runtime.GOOS == "redox" && mode == http2Mode {
-		t.Skip("redox can hang while including in-progress HTTP/2 dials in MaxConnsPerHost")
-	}
-
 	ts := newClientServerTest(t, mode, HandlerFunc(func(w ResponseWriter, r *Request) {
 		_, err := w.Write([]byte("foo"))
 		if err != nil {
@@ -649,9 +635,6 @@ func TestTransportMaxConnsPerHost(t *testing.T) {
 	run(t, testTransportMaxConnsPerHost, []testMode{http1Mode, https1Mode, http2Mode})
 }
 func testTransportMaxConnsPerHost(t *testing.T, mode testMode) {
-	if runtime.GOOS == "redox" {
-		t.Skip("redox can hang while serializing concurrent requests through MaxConnsPerHost=1")
-	}
 	CondSkipHTTP2(t)
 
 	h := HandlerFunc(func(w ResponseWriter, r *Request) {

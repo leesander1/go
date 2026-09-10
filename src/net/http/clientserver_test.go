@@ -1147,9 +1147,6 @@ func testStarRequest(t *testing.T, method string, mode testMode) {
 
 // Issue 13957
 func TestTransportDiscardsUnneededConns(t *testing.T) {
-	if runtime.GOOS == "redox" {
-		t.Skip("redox can fail racing HTTP/2 TLS dials under load")
-	}
 	run(t, testTransportDiscardsUnneededConns, []testMode{http2Mode})
 }
 func testTransportDiscardsUnneededConns(t *testing.T, mode testMode) {
