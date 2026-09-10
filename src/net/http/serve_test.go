@@ -3593,9 +3593,6 @@ func testCaseSensitiveMethod(t *testing.T, mode testMode) {
 // response, the net/http package adds a "Content-Length: 0" response
 // header.
 func TestContentLengthZero(t *testing.T) {
-	if runtime.GOOS == "redox" {
-		t.Skip("redox can hang finishing empty keep-alive responses")
-	}
 	run(t, testContentLengthZero, []testMode{http1Mode})
 }
 func testContentLengthZero(t *testing.T, mode testMode) {
@@ -4889,9 +4886,6 @@ func TestNoContentLengthIfTransferEncoding(t *testing.T) {
 	run(t, testNoContentLengthIfTransferEncoding, []testMode{http1Mode})
 }
 func testNoContentLengthIfTransferEncoding(t *testing.T, mode testMode) {
-	if runtime.GOOS == "redox" {
-		t.Skip("redox can hang reading an HTTP/1 response after a custom transfer encoding")
-	}
 	ts := newClientServerTest(t, mode, HandlerFunc(func(w ResponseWriter, r *Request) {
 		w.Header().Set("Transfer-Encoding", "foo")
 		io.WriteString(w, "<html>")
@@ -6716,10 +6710,6 @@ func TestUnsupportedTransferEncodingsReturn501(t *testing.T) {
 	run(t, testUnsupportedTransferEncodingsReturn501, []testMode{http1Mode})
 }
 func testUnsupportedTransferEncodingsReturn501(t *testing.T, mode testMode) {
-	if runtime.GOOS == "redox" {
-		t.Skip("redox can hang waiting for HTTP/1 unsupported transfer encoding responses")
-	}
-
 	cst := newClientServerTest(t, mode, HandlerFunc(func(w ResponseWriter, r *Request) {
 		w.Write([]byte("Hello, World!"))
 	})).ts
@@ -6760,10 +6750,6 @@ func testUnsupportedTransferEncodingsReturn501(t *testing.T, mode testMode) {
 // Issue 31753: don't sniff when Content-Encoding is set
 func TestContentEncodingNoSniffing(t *testing.T) { run(t, testContentEncodingNoSniffing) }
 func testContentEncodingNoSniffing(t *testing.T, mode testMode) {
-	if runtime.GOOS == "redox" {
-		t.Skip("redox can hang serving responses with content encoding")
-	}
-
 	type setting struct {
 		name string
 		body []byte
