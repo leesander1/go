@@ -1565,9 +1565,6 @@ func TestServerSelectingUnconfiguredCipherSuite(t *testing.T) {
 }
 
 func TestVerifyConnection(t *testing.T) {
-	if runtime.GOOS == "redox" {
-		t.Skip("redox: localPipe handshake aborts runtime netpoll")
-	}
 	t.Run("TLSv12", func(t *testing.T) { testVerifyConnection(t, VersionTLS12) })
 	t.Run("TLSv13", func(t *testing.T) { testVerifyConnection(t, VersionTLS13) })
 }
@@ -1795,9 +1792,6 @@ func testVerifyConnection(t *testing.T, version uint16) {
 }
 
 func TestVerifyPeerCertificate(t *testing.T) {
-	if runtime.GOOS == "redox" {
-		t.Skip("redox: localPipe handshake aborts runtime netpoll")
-	}
 	t.Run("TLSv12", func(t *testing.T) { testVerifyPeerCertificate(t, VersionTLS12) })
 	t.Run("TLSv13", func(t *testing.T) { testVerifyPeerCertificate(t, VersionTLS13) })
 }
@@ -2112,9 +2106,6 @@ func (b *brokenConn) Write(data []byte) (int, error) {
 }
 
 func TestFailedWrite(t *testing.T) {
-	if runtime.GOOS == "redox" {
-		t.Skip("redox: localPipe handshake aborts runtime netpoll")
-	}
 	// Test that a write error during the handshake is returned.
 	for _, breakAfter := range []int{0, 1} {
 		c, s := localPipe(t)
@@ -2151,9 +2142,6 @@ func (wcc *writeCountingConn) Write(data []byte) (int, error) {
 }
 
 func TestBuffering(t *testing.T) {
-	if runtime.GOOS == "redox" {
-		t.Skip("redox: localPipe handshake aborts runtime netpoll")
-	}
 	t.Run("TLSv12", func(t *testing.T) { testBuffering(t, VersionTLS12) })
 	t.Run("TLSv13", func(t *testing.T) { testBuffering(t, VersionTLS13) })
 }
@@ -2199,9 +2187,6 @@ func testBuffering(t *testing.T, version uint16) {
 }
 
 func TestAlertFlushing(t *testing.T) {
-	if runtime.GOOS == "redox" {
-		t.Skip("redox: localPipe handshake aborts runtime netpoll")
-	}
 	c, s := localPipe(t)
 	done := make(chan bool)
 
@@ -2381,9 +2366,6 @@ var getClientCertificateTests = []struct {
 }
 
 func TestGetClientCertificate(t *testing.T) {
-	if runtime.GOOS == "redox" {
-		t.Skip("redox: localPipe handshake aborts runtime netpoll")
-	}
 	t.Run("TLSv12", func(t *testing.T) { testGetClientCertificate(t, VersionTLS12) })
 	t.Run("TLSv13", func(t *testing.T) { testGetClientCertificate(t, VersionTLS13) })
 }
