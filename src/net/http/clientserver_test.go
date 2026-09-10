@@ -495,9 +495,6 @@ func TestH12_200NoBody(t *testing.T) {
 }
 
 func TestH2_204NoBody(t *testing.T) {
-	if runtime.GOOS == "redox" {
-		t.Skip("redox can hang completing an HTTP/2 204 no-body response")
-	}
 	testH12_noBody(t, 204)
 }
 func TestH2_304NoBody(t *testing.T) { testH12_noBody(t, 304) }
@@ -523,9 +520,6 @@ func TestH12_ExplicitContentLength(t *testing.T) {
 }
 
 func TestH12_FlushBeforeBody(t *testing.T) {
-	if runtime.GOOS == "redox" {
-		t.Skip("redox can hang finishing a response flushed before the body")
-	}
 	h12Compare{Handler: func(w ResponseWriter, r *Request) {
 		w.(Flusher).Flush()
 		io.WriteString(w, "foo")
@@ -533,9 +527,6 @@ func TestH12_FlushBeforeBody(t *testing.T) {
 }
 
 func TestH12_FlushMidBody(t *testing.T) {
-	if runtime.GOOS == "redox" {
-		t.Skip("redox can hang finishing a flushed response body")
-	}
 	h12Compare{Handler: func(w ResponseWriter, r *Request) {
 		io.WriteString(w, "foo")
 		w.(Flusher).Flush()
@@ -568,9 +559,6 @@ func TestH12_Head_ImplicitLen(t *testing.T) {
 }
 
 func TestH12_HandlerWritesTooLittle(t *testing.T) {
-	if runtime.GOOS == "redox" {
-		t.Skip("redox can hang reading a response body that is shorter than its declared Content-Length")
-	}
 	h12Compare{
 		Handler: func(w ResponseWriter, r *Request) {
 			w.Header().Set("Content-Length", "3")
@@ -632,9 +620,6 @@ func testHandlerWritesTooMuch(t *testing.T, mode testMode) {
 // Verify that both our HTTP/1 and HTTP/2 request and auto-decompress gzip.
 // Some hosts send gzip even if you don't ask for it; see golang.org/issue/13298
 func TestH12_AutoGzip(t *testing.T) {
-	if runtime.GOOS == "redox" {
-		t.Skip("redox can hang completing the auto-gzip response")
-	}
 	h12Compare{
 		Handler: func(w ResponseWriter, r *Request) {
 			if ae := r.Header.Get("Accept-Encoding"); ae != "gzip" {
