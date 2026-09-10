@@ -3231,9 +3231,6 @@ func TestRequestLimit(t *testing.T) {
 	run(t, testRequestLimit)
 }
 func testRequestLimit(t *testing.T, mode testMode) {
-	if runtime.GOOS == "redox" && mode == http2Mode {
-		t.Skip("redox hangs writing oversized HTTP/2 request headers")
-	}
 	cst := newClientServerTest(t, mode, HandlerFunc(func(w ResponseWriter, r *Request) {
 		t.Fatalf("didn't expect to get request in Handler")
 	}), optQuietLog)
