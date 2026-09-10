@@ -3047,10 +3047,6 @@ func TestRedirectContentTypeAndBody(t *testing.T) {
 func TestZeroLengthPostAndResponse(t *testing.T) { run(t, testZeroLengthPostAndResponse) }
 
 func testZeroLengthPostAndResponse(t *testing.T, mode testMode) {
-	if runtime.GOOS == "redox" && mode == http1Mode {
-		t.Skip("redox can hang reusing an HTTP/1 connection after a zero-length post")
-	}
-
 	cst := newClientServerTest(t, mode, HandlerFunc(func(rw ResponseWriter, r *Request) {
 		all, err := io.ReadAll(r.Body)
 		if err != nil {
@@ -4688,7 +4684,7 @@ func testServerKeepAlivesEnabledResultClose(t *testing.T, mode testMode) {
 // golang.org/issue/7856
 func TestServerEmptyBodyRace(t *testing.T) {
 	if runtime.GOOS == "redox" {
-		t.Skip("redox can fail concurrent empty response requests when socket close races are reused")
+		t.Skip("redox can lose concurrent empty-body requests or return EBADF while dialing")
 	}
 	run(t, testServerEmptyBodyRace)
 }
@@ -5023,12 +5019,6 @@ func TestHandlerFinishSkipBigContentLengthRead(t *testing.T) {
 
 func TestHandlerSetsBodyNil(t *testing.T) { run(t, testHandlerSetsBodyNil) }
 func testHandlerSetsBodyNil(t *testing.T, mode testMode) {
-	if runtime.GOOS == "redox" && mode == http1Mode {
-		t.Skip("redox can hang closing the HTTP/1 test server after a handler clears the request body")
-	}
-	if runtime.GOOS == "redox" && mode == http2Mode {
-		t.Skip("redox can hang reusing an HTTP/2 connection after a handler clears the request body")
-	}
 	cst := newClientServerTest(t, mode, HandlerFunc(func(w ResponseWriter, r *Request) {
 		r.Body = nil
 		fmt.Fprintf(w, "%v", r.RemoteAddr)
