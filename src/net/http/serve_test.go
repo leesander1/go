@@ -4176,9 +4176,6 @@ func testHTTP10ConnectionHeader(t *testing.T, mode testMode) {
 
 // See golang.org/issue/5660
 func TestServerReaderFromOrder(t *testing.T) {
-	if runtime.GOOS == "redox" {
-		t.Skip("redox can corrupt concurrent request-body reads and response writes")
-	}
 	run(t, testServerReaderFromOrder)
 }
 func testServerReaderFromOrder(t *testing.T, mode testMode) {
