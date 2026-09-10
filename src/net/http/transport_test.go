@@ -3665,9 +3665,6 @@ func testIdleConnChannelLeak(t *testing.T, mode testMode) {
 // body into a ReadCloser if it's a Closer, and that the Transport
 // then closes it.
 func TestTransportClosesRequestBody(t *testing.T) {
-	if runtime.GOOS == "redox" {
-		t.Skip("redox can hang while closing request bodies through Transport.Post")
-	}
 	run(t, testTransportClosesRequestBody, []testMode{http1Mode})
 }
 func testTransportClosesRequestBody(t *testing.T, mode testMode) {
@@ -3828,9 +3825,6 @@ func (c byteFromChanReader) Read(p []byte) (n int, err error) {
 // questionable state.
 // golang.org/issue/7569
 func TestTransportNoReuseAfterEarlyResponse(t *testing.T) {
-	if runtime.GOOS == "redox" {
-		t.Skip("redox can abort runtime netpoll while writing a request body after an early response")
-	}
 	run(t, testTransportNoReuseAfterEarlyResponse, []testMode{http1Mode}, testNotParallel)
 }
 func testTransportNoReuseAfterEarlyResponse(t *testing.T, mode testMode) {
@@ -4119,9 +4113,6 @@ Handler
 // Issue 6981
 func TestTransportClosesBodyOnError(t *testing.T) { run(t, testTransportClosesBodyOnError) }
 func testTransportClosesBodyOnError(t *testing.T, mode testMode) {
-	if runtime.GOOS == "redox" {
-		t.Skip("redox does not reliably surface the request body error while closing the transport connection")
-	}
 	readBody := make(chan error, 1)
 	ts := newClientServerTest(t, mode, HandlerFunc(func(w ResponseWriter, r *Request) {
 		_, err := io.ReadAll(r.Body)
