@@ -1502,10 +1502,6 @@ func (r testErrorReader) Read(p []byte) (n int, err error) {
 
 func TestNoSniffExpectRequestBody(t *testing.T) { run(t, testNoSniffExpectRequestBody) }
 func testNoSniffExpectRequestBody(t *testing.T, mode testMode) {
-	if runtime.GOOS == "redox" && mode == http2Mode {
-		t.Skip("redox can hang handling an HTTP/2 Expect request body sniff")
-	}
-
 	cst := newClientServerTest(t, mode, HandlerFunc(func(w ResponseWriter, r *Request) {
 		w.WriteHeader(StatusUnauthorized)
 	}))
@@ -1531,10 +1527,6 @@ func testNoSniffExpectRequestBody(t *testing.T, mode testMode) {
 
 func TestServerUndeclaredTrailers(t *testing.T) { run(t, testServerUndeclaredTrailers) }
 func testServerUndeclaredTrailers(t *testing.T, mode testMode) {
-	if runtime.GOOS == "redox" {
-		t.Skip("redox can hang flushing a response with undeclared trailers")
-	}
-
 	cst := newClientServerTest(t, mode, HandlerFunc(func(w ResponseWriter, r *Request) {
 		w.Header().Set("Foo", "Bar")
 		w.Header().Set("Trailer:Foo", "Baz")
@@ -1783,10 +1775,6 @@ func TestH12_WebSocketUpgrade(t *testing.T) {
 
 func TestIdentityTransferEncoding(t *testing.T) { run(t, testIdentityTransferEncoding) }
 func testIdentityTransferEncoding(t *testing.T, mode testMode) {
-	if runtime.GOOS == "redox" {
-		t.Skip("redox can hang reading a response with identity transfer encoding")
-	}
-
 	const body = "body"
 	cst := newClientServerTest(t, mode, HandlerFunc(func(w ResponseWriter, r *Request) {
 		gotBody, _ := io.ReadAll(r.Body)
@@ -1815,10 +1803,6 @@ func testIdentityTransferEncoding(t *testing.T, mode testMode) {
 
 func TestEarlyHintsRequest(t *testing.T) { run(t, testEarlyHintsRequest) }
 func testEarlyHintsRequest(t *testing.T, mode testMode) {
-	if runtime.GOOS == "redox" {
-		t.Skip("redox can hang waiting for HTTP 103 Early Hints")
-	}
-
 	var wg sync.WaitGroup
 	wg.Add(1)
 	cst := newClientServerTest(t, mode, HandlerFunc(func(w ResponseWriter, r *Request) {
