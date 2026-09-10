@@ -14,17 +14,12 @@ import (
 	"io"
 	"net"
 	"net/http/internal/testcert"
-	"runtime"
 	"strings"
 	"testing"
 )
 
 // Issue 15446: incorrect wrapping of errors when server closes an idle connection.
 func TestTransportPersistConnReadLoopEOF(t *testing.T) {
-	if runtime.GOOS == "redox" {
-		t.Skip("redox does not reliably report EOF after peer close in this test")
-	}
-
 	ln := newLocalListener(t)
 	defer ln.Close()
 
@@ -203,10 +198,6 @@ func (f roundTripFunc) RoundTrip(r *Request) (*Response, error) {
 
 // Issue 25009
 func TestTransportBodyAltRewind(t *testing.T) {
-	if runtime.GOOS == "redox" {
-		t.Skip("redox can abort runtime netpoll after alternate request body rewind over TLS")
-	}
-
 	cert, err := tls.X509KeyPair(testcert.LocalhostCert, testcert.LocalhostKey)
 	if err != nil {
 		t.Fatal(err)
