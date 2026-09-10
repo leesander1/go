@@ -730,9 +730,6 @@ func benchmarkServeMux(b *testing.B, runHandler bool) {
 
 func TestServerTimeouts(t *testing.T) { run(t, testServerTimeouts, []testMode{http1Mode}) }
 func testServerTimeouts(t *testing.T, mode testMode) {
-	if runtime.GOOS == "redox" {
-		t.Skip("redox can hang waiting for EOF after an HTTP/1 server timeout")
-	}
 	runTimeSensitiveTest(t, []time.Duration{
 		10 * time.Millisecond,
 		50 * time.Millisecond,
@@ -820,9 +817,6 @@ func testServerTimeoutsWithTimeout(t *testing.T, timeout time.Duration, mode tes
 
 func TestServerReadTimeout(t *testing.T) { run(t, testServerReadTimeout) }
 func testServerReadTimeout(t *testing.T, mode testMode) {
-	if runtime.GOOS == "redox" && mode == http2Mode {
-		t.Skip("redox can hang waiting for HTTP/2 read timeout errors")
-	}
 	respBody := "response body"
 	for timeout := 5 * time.Millisecond; ; timeout *= 2 {
 		cst := newClientServerTest(t, mode, HandlerFunc(func(res ResponseWriter, req *Request) {
@@ -864,9 +858,6 @@ func testServerReadTimeout(t *testing.T, mode testMode) {
 
 func TestServerNoReadTimeout(t *testing.T) { run(t, testServerNoReadTimeout) }
 func testServerNoReadTimeout(t *testing.T, mode testMode) {
-	if runtime.GOOS == "redox" {
-		t.Skip("redox can hang reading full-duplex request bodies without read timeout")
-	}
 	reqBody := "Hello, Gophers!"
 	resBody := "Hi, Gophers!"
 	for _, timeout := range []time.Duration{0, -1} {
