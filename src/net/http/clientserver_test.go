@@ -1238,10 +1238,6 @@ func TestTransportGCRequest(t *testing.T) {
 	})
 }
 func testTransportGCRequest(t *testing.T, mode testMode, body bool) {
-	if runtime.GOOS == "redox" {
-		t.Skip("redox can hang waiting for a request to become collectible")
-	}
-
 	cst := newClientServerTest(t, mode, HandlerFunc(func(w ResponseWriter, r *Request) {
 		io.ReadAll(r.Body)
 		if body {
@@ -1656,10 +1652,6 @@ func TestBidiStreamReverseProxy(t *testing.T) {
 	run(t, testBidiStreamReverseProxy, []testMode{http2Mode})
 }
 func testBidiStreamReverseProxy(t *testing.T, mode testMode) {
-	if runtime.GOOS == "redox" {
-		t.Skip("redox can corrupt or close HTTP/2 bidirectional reverse proxy streams")
-	}
-
 	backend := newClientServerTest(t, mode, HandlerFunc(func(w ResponseWriter, r *Request) {
 		if _, err := io.Copy(w, r.Body); err != nil {
 			log.Printf("bidi backend copy: %v", err)
