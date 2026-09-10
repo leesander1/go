@@ -1463,10 +1463,6 @@ func testKeepAliveFinalChunkWithEOF(t *testing.T, mode testMode) {
 
 func TestSetsRemoteAddr(t *testing.T) { run(t, testSetsRemoteAddr) }
 func testSetsRemoteAddr(t *testing.T, mode testMode) {
-	if runtime.GOOS == "redox" {
-		t.Skip("redox can hang reading RemoteAddr over loopback HTTP connections")
-	}
-
 	cst := newClientServerTest(t, mode, HandlerFunc(func(w ResponseWriter, r *Request) {
 		fmt.Fprintf(w, "%s", r.RemoteAddr)
 	}))
@@ -1517,10 +1513,6 @@ func TestServerAllowsBlockingRemoteAddr(t *testing.T) {
 	run(t, testServerAllowsBlockingRemoteAddr, []testMode{http1Mode})
 }
 func testServerAllowsBlockingRemoteAddr(t *testing.T, mode testMode) {
-	if runtime.GOOS == "redox" && mode == http1Mode {
-		t.Skip("redox can hang serving a request with a blocking RemoteAddr")
-	}
-
 	conns := make(chan net.Conn)
 	ts := newClientServerTest(t, mode, HandlerFunc(func(w ResponseWriter, r *Request) {
 		fmt.Fprintf(w, "RA:%s", r.RemoteAddr)
@@ -5327,12 +5319,6 @@ func TestServerContext_ServerContextKey(t *testing.T) {
 	run(t, testServerContext_ServerContextKey)
 }
 func testServerContext_ServerContextKey(t *testing.T, mode testMode) {
-	if runtime.GOOS == "redox" && mode == http1Mode {
-		t.Skip("redox can hang opening the HTTP/1 request for the server context key check")
-	}
-	if runtime.GOOS == "redox" && mode == http2Mode {
-		t.Skip("redox can hang opening the HTTP/2 request for the server context key check")
-	}
 	cst := newClientServerTest(t, mode, HandlerFunc(func(w ResponseWriter, r *Request) {
 		ctx := r.Context()
 		got := ctx.Value(ServerContextKey)
@@ -5351,12 +5337,6 @@ func TestServerContext_LocalAddrContextKey(t *testing.T) {
 	run(t, testServerContext_LocalAddrContextKey)
 }
 func testServerContext_LocalAddrContextKey(t *testing.T, mode testMode) {
-	if runtime.GOOS == "redox" && mode == http1Mode {
-		t.Skip("redox can hang closing the HTTP/1 server after the local address context key check")
-	}
-	if runtime.GOOS == "redox" && mode == http2Mode {
-		t.Skip("redox can hang closing the HTTP/2 server after the local address context key check")
-	}
 	ch := make(chan any, 1)
 	cst := newClientServerTest(t, mode, HandlerFunc(func(w ResponseWriter, r *Request) {
 		ch <- r.Context().Value(LocalAddrContextKey)
