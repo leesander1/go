@@ -4566,9 +4566,6 @@ func TestResponseWriterWriteString(t *testing.T) {
 }
 
 func TestServerConnState(t *testing.T) {
-	if runtime.GOOS == "redox" {
-		t.Skip("redox can hang waiting for connection close state transitions")
-	}
 	run(t, testServerConnState, []testMode{http1Mode})
 }
 func testServerConnState(t *testing.T, mode testMode) {
@@ -5302,9 +5299,6 @@ func TestServerRequestContextCancel_ServeHTTPDone(t *testing.T) {
 	run(t, testServerRequestContextCancel_ServeHTTPDone)
 }
 func testServerRequestContextCancel_ServeHTTPDone(t *testing.T, mode testMode) {
-	if runtime.GOOS == "redox" && mode == http1Mode {
-		t.Skip("redox can hang closing the HTTP/1 server after ServeHTTP request context cancellation")
-	}
 	ctxc := make(chan context.Context, 1)
 	cst := newClientServerTest(t, mode, HandlerFunc(func(w ResponseWriter, r *Request) {
 		ctx := r.Context()
@@ -5336,9 +5330,6 @@ func TestServerRequestContextCancel_ConnClose(t *testing.T) {
 	run(t, testServerRequestContextCancel_ConnClose, []testMode{http1Mode})
 }
 func testServerRequestContextCancel_ConnClose(t *testing.T, mode testMode) {
-	if runtime.GOOS == "redox" {
-		t.Skip("redox can hang waiting for HTTP/1 request context cancellation after peer close")
-	}
 	inHandler := make(chan struct{})
 	handlerDone := make(chan struct{})
 	ts := newClientServerTest(t, mode, HandlerFunc(func(w ResponseWriter, r *Request) {
