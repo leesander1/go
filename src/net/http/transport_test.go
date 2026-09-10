@@ -170,10 +170,6 @@ func testReuseRequest(t *testing.T, mode testMode) {
 // The response from the server is our own IP:port
 func TestTransportKeepAlives(t *testing.T) { run(t, testTransportKeepAlives, []testMode{http1Mode}) }
 func testTransportKeepAlives(t *testing.T, mode testMode) {
-	if runtime.GOOS == "redox" && mode == http1Mode {
-		t.Skip("redox can hang while verifying HTTP/1 keep-alive connection reuse")
-	}
-
 	ts := newClientServerTest(t, mode, hostPortHandler).ts
 
 	c := ts.Client()
@@ -206,10 +202,6 @@ func TestTransportConnectionCloseOnResponse(t *testing.T) {
 	run(t, testTransportConnectionCloseOnResponse)
 }
 func testTransportConnectionCloseOnResponse(t *testing.T, mode testMode) {
-	if runtime.GOOS == "redox" {
-		t.Skip("redox can hang while verifying response Connection: close reuse")
-	}
-
 	ts := newClientServerTest(t, mode, hostPortHandler).ts
 
 	connSet, testDial := makeTestDial(t)
@@ -264,9 +256,6 @@ func testTransportConnectionCloseOnResponse(t *testing.T, mode testMode) {
 // describes the source connection it got (remote port number +
 // address of its net.Conn).
 func TestTransportConnectionCloseOnRequest(t *testing.T) {
-	if runtime.GOOS == "redox" {
-		t.Skip("redox can hang while verifying HTTP/1 Request.Close connection reuse")
-	}
 	run(t, testTransportConnectionCloseOnRequest, []testMode{http1Mode})
 }
 func testTransportConnectionCloseOnRequest(t *testing.T, mode testMode) {
@@ -335,10 +324,6 @@ func TestTransportConnectionCloseOnRequestDisableKeepAlive(t *testing.T) {
 	run(t, testTransportConnectionCloseOnRequestDisableKeepAlive, []testMode{http1Mode})
 }
 func testTransportConnectionCloseOnRequestDisableKeepAlive(t *testing.T, mode testMode) {
-	if runtime.GOOS == "redox" {
-		t.Skip("redox can hang closing an HTTP/1 request with disabled keep-alives")
-	}
-
 	ts := newClientServerTest(t, mode, hostPortHandler).ts
 
 	c := ts.Client()
@@ -360,10 +345,6 @@ func TestTransportRespectRequestWantsClose(t *testing.T) {
 	run(t, testTransportRespectRequestWantsClose, []testMode{http1Mode})
 }
 func testTransportRespectRequestWantsClose(t *testing.T, mode testMode) {
-	if runtime.GOOS == "redox" {
-		t.Skip("redox can hang while verifying HTTP/1 Connection: close handling")
-	}
-
 	tests := []struct {
 		disableKeepAlives bool
 		close             bool
@@ -415,10 +396,6 @@ func TestTransportIdleCacheKeys(t *testing.T) {
 	run(t, testTransportIdleCacheKeys, []testMode{http1Mode})
 }
 func testTransportIdleCacheKeys(t *testing.T, mode testMode) {
-	if runtime.GOOS == "redox" {
-		t.Skip("redox can hang while checking HTTP/1 idle connection cache keys")
-	}
-
 	ts := newClientServerTest(t, mode, hostPortHandler).ts
 	c := ts.Client()
 	tr := c.Transport.(*Transport)
@@ -452,10 +429,6 @@ func testTransportIdleCacheKeys(t *testing.T, mode testMode) {
 // reads to the end of a response Body without closing it.
 func TestTransportReadToEndReusesConn(t *testing.T) { run(t, testTransportReadToEndReusesConn) }
 func testTransportReadToEndReusesConn(t *testing.T, mode testMode) {
-	if runtime.GOOS == "redox" {
-		t.Skip("redox can hang reusing a connection after reading the response body to EOF")
-	}
-
 	const msg = "foobar"
 
 	var addrSeen map[string]int
