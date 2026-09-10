@@ -2092,9 +2092,6 @@ func TestServerHandshakeContextCancellation(t *testing.T) {
 // that those contexts are canceled after HandshakeContext has
 // returned.
 func TestHandshakeContextHierarchy(t *testing.T) {
-	if runtime.GOOS == "redox" {
-		t.Skip("redox: localPipe handshake aborts runtime netpoll")
-	}
 	c, s := localPipe(t)
 	clientErr := make(chan error, 1)
 	clientConfig := testConfig.Clone()
@@ -2159,9 +2156,6 @@ func TestHandshakeContextHierarchy(t *testing.T) {
 }
 
 func TestHandshakeChainExpiryResumption(t *testing.T) {
-	if runtime.GOOS == "redox" {
-		t.Skip("redox: localPipe handshake aborts runtime netpoll")
-	}
 	t.Run("TLS1.2", func(t *testing.T) {
 		testHandshakeChainExpiryResumption(t, VersionTLS12)
 	})
@@ -2283,9 +2277,6 @@ func testHandshakeChainExpiryResumption(t *testing.T, version uint16) {
 }
 
 func TestHandshakeGetConfigForClientDifferentClientCAs(t *testing.T) {
-	if runtime.GOOS == "redox" {
-		t.Skip("redox: localPipe resumption aborts runtime netpoll")
-	}
 	t.Run("TLS1.2", func(t *testing.T) {
 		testHandshakeGetConfigForClientDifferentClientCAs(t, VersionTLS12)
 	})
@@ -2404,9 +2395,6 @@ func testHandshakeGetConfigForClientDifferentClientCAs(t *testing.T, version uin
 }
 
 func TestHandshakeChangeRootCAsResumption(t *testing.T) {
-	if runtime.GOOS == "redox" {
-		t.Skip("redox: localPipe resumption aborts runtime netpoll")
-	}
 	t.Run("TLS1.2", func(t *testing.T) {
 		testHandshakeChangeRootCAsResumption(t, VersionTLS12)
 	})
