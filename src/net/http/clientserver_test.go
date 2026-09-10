@@ -1453,10 +1453,6 @@ func TestH12_AutoGzipWithDumpResponse(t *testing.T) {
 // Issue 14607
 func TestCloseIdleConnections(t *testing.T) { run(t, testCloseIdleConnections) }
 func testCloseIdleConnections(t *testing.T, mode testMode) {
-	if runtime.GOOS == "redox" {
-		t.Skip("redox can hang closing idle client connections")
-	}
-
 	cst := newClientServerTest(t, mode, HandlerFunc(func(w ResponseWriter, r *Request) {
 		w.Header().Set("X-Addr", r.RemoteAddr)
 	}))
