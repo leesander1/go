@@ -540,12 +540,6 @@ func testServeFileContentType(t *testing.T, mode testMode) {
 
 func TestServeFileMimeType(t *testing.T) { run(t, testServeFileMimeType) }
 func testServeFileMimeType(t *testing.T, mode testMode) {
-	if runtime.GOOS == "redox" && mode == http1Mode {
-		t.Skip("redox can hang completing an HTTP/1 ServeFile MIME type response")
-	}
-	if runtime.GOOS == "redox" && mode == http2Mode {
-		t.Skip("redox can hang completing an HTTP/2 ServeFile MIME type response")
-	}
 	ts := newClientServerTest(t, mode, HandlerFunc(func(w ResponseWriter, r *Request) {
 		ServeFile(w, r, "testdata/style.css")
 	})).ts
@@ -562,12 +556,6 @@ func testServeFileMimeType(t *testing.T, mode testMode) {
 
 func TestServeFileFromCWD(t *testing.T) { run(t, testServeFileFromCWD) }
 func testServeFileFromCWD(t *testing.T, mode testMode) {
-	if runtime.GOOS == "redox" && mode == http1Mode {
-		t.Skip("redox can hang completing an HTTP/1 ServeFile response from the current directory")
-	}
-	if runtime.GOOS == "redox" && mode == http2Mode {
-		t.Skip("redox can hang completing an HTTP/2 ServeFile response from the current directory")
-	}
 	ts := newClientServerTest(t, mode, HandlerFunc(func(w ResponseWriter, r *Request) {
 		ServeFile(w, r, "fs_test.go")
 	})).ts
@@ -584,12 +572,6 @@ func testServeFileFromCWD(t *testing.T, mode testMode) {
 // Issue 13996
 func TestServeDirWithoutTrailingSlash(t *testing.T) { run(t, testServeDirWithoutTrailingSlash) }
 func testServeDirWithoutTrailingSlash(t *testing.T, mode testMode) {
-	if runtime.GOOS == "redox" && mode == http1Mode {
-		t.Skip("redox can hang completing an HTTP/1 ServeFile directory redirect without a trailing slash")
-	}
-	if runtime.GOOS == "redox" && mode == http2Mode {
-		t.Skip("redox can hang completing an HTTP/2 ServeFile directory redirect without a trailing slash")
-	}
 	e := "/testdata/"
 	ts := newClientServerTest(t, mode, HandlerFunc(func(w ResponseWriter, r *Request) {
 		ServeFile(w, r, ".")
@@ -608,9 +590,6 @@ func testServeDirWithoutTrailingSlash(t *testing.T, mode testMode) {
 // specified.
 func TestServeFileWithContentEncoding(t *testing.T) { run(t, testServeFileWithContentEncoding) }
 func testServeFileWithContentEncoding(t *testing.T, mode testMode) {
-	if runtime.GOOS == "redox" && (mode == http1Mode || mode == http2Mode) {
-		t.Skip("redox can hang completing a ServeFile content-encoding response")
-	}
 	cst := newClientServerTest(t, mode, HandlerFunc(func(w ResponseWriter, r *Request) {
 		w.Header().Set("Content-Encoding", "foo")
 		ServeFile(w, r, "testdata/file")
@@ -638,13 +617,6 @@ func testServeFileWithContentEncoding(t *testing.T, mode testMode) {
 // file has not been modified, as per RFC 7232 section 4.1.
 func TestServeFileNotModified(t *testing.T) { run(t, testServeFileNotModified) }
 func testServeFileNotModified(t *testing.T, mode testMode) {
-	if runtime.GOOS == "redox" && mode == http1Mode {
-		t.Skip("redox can hang completing an HTTP/1 ServeFile not-modified response")
-	}
-	if runtime.GOOS == "redox" && mode == http2Mode {
-		t.Skip("redox can hang completing an HTTP/2 ServeFile not-modified response")
-	}
-
 	cst := newClientServerTest(t, mode, HandlerFunc(func(w ResponseWriter, r *Request) {
 		w.Header().Set("Content-Type", "application/json")
 		w.Header().Set("Content-Encoding", "foo")
