@@ -3863,9 +3863,6 @@ func testTransportNoReuseAfterEarlyResponse(t *testing.T, mode testMode) {
 // Tests that we don't leak Transport persistConn.readLoop goroutines
 // when a server hangs up immediately after saying it would keep-alive.
 func TestTransportIssue10457(t *testing.T) {
-	if runtime.GOOS == "redox" {
-		t.Skip("redox can cause a package-level transport failure after immediate keep-alive close")
-	}
 	run(t, testTransportIssue10457, []testMode{http1Mode})
 }
 func testTransportIssue10457(t *testing.T, mode testMode) {
@@ -3919,9 +3916,6 @@ func (c writerFuncConn) Write(p []byte) (n int, err error) { return c.write(p) }
 // This automatically prevents an infinite resend loop because we'll run out of
 // the cached keep-alive connections eventually.
 func TestRetryRequestsOnError(t *testing.T) {
-	if runtime.GOOS == "redox" {
-		t.Skip("redox does not reliably retry requests on reused connections after write errors")
-	}
 	run(t, testRetryRequestsOnError, testNotParallel, []testMode{http1Mode})
 }
 func testRetryRequestsOnError(t *testing.T, mode testMode) {
@@ -4539,9 +4533,6 @@ func testTransportRangeAndGzip(t *testing.T, mode testMode) {
 
 // Test for issue 10474
 func TestTransportResponseCancelRace(t *testing.T) {
-	if runtime.GOOS == "redox" {
-		t.Skip("redox can cause a package-level transport failure after response cancel racing")
-	}
 	run(t, testTransportResponseCancelRace)
 }
 func testTransportResponseCancelRace(t *testing.T, mode testMode) {
@@ -4748,9 +4739,6 @@ func TestTransportFlushesBodyChunks(t *testing.T) {
 
 // Issue 22088: flush Transport request headers if we're not sure the body won't block on read.
 func TestTransportFlushesRequestHeader(t *testing.T) {
-	if runtime.GOOS == "redox" {
-		t.Skip("redox can cause a package-level transport failure after flushing request headers")
-	}
 	run(t, testTransportFlushesRequestHeader)
 }
 func testTransportFlushesRequestHeader(t *testing.T, mode testMode) {
@@ -4949,9 +4937,6 @@ func testTransportAutoHTTP(t *testing.T, tr *Transport, wantH2 bool) {
 // Plus it's nice to be consistent and not have timing-dependent
 // behavior.
 func TestTransportReuseConnEmptyResponseBody(t *testing.T) {
-	if runtime.GOOS == "redox" {
-		t.Skip("redox can abort runtime netpoll while reusing connections with empty response bodies")
-	}
 	run(t, testTransportReuseConnEmptyResponseBody)
 }
 func testTransportReuseConnEmptyResponseBody(t *testing.T, mode testMode) {
@@ -7100,9 +7085,6 @@ func testIssue32441(t *testing.T, mode testMode) {
 // Issue 39017. Ensure that HTTP/1 transports reject Content-Length headers
 // that contain a sign (eg. "+3"), per RFC 2616, Section 14.13.
 func TestTransportRejectsSignInContentLength(t *testing.T) {
-	if runtime.GOOS == "redox" {
-		t.Skip("redox can abort runtime netpoll after rejecting a signed Content-Length response")
-	}
 	run(t, testTransportRejectsSignInContentLength, []testMode{http1Mode})
 }
 func testTransportRejectsSignInContentLength(t *testing.T, mode testMode) {
