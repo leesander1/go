@@ -6203,10 +6203,6 @@ func testServerDuplicateBackgroundRead(t *testing.T, mode testMode) {
 	if runtime.GOOS == "netbsd" && runtime.GOARCH == "arm" {
 		testenv.SkipFlaky(t, 24826)
 	}
-	if runtime.GOOS == "redox" && mode == http1Mode {
-		t.Skip("redox can report a concurrently refused connection as successfully dialed")
-	}
-
 	goroutines := 5
 	requests := 2000
 	if testing.Short() {
