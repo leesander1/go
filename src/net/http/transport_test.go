@@ -1329,10 +1329,6 @@ func TestSOCKS5Proxy(t *testing.T) {
 	run(t, testSOCKS5Proxy, []testMode{http1Mode, https1Mode, http2Mode})
 }
 func testSOCKS5Proxy(t *testing.T, mode testMode) {
-	if runtime.GOOS == "redox" && mode == https1Mode {
-		t.Skip("redox can hang waiting for an HTTPS SOCKS5 proxy tunnel to close")
-	}
-
 	ch := make(chan string, 1)
 	l := newLocalListener(t)
 	defer l.Close()
@@ -1882,13 +1878,6 @@ func TestTransportProxyDialDoesNotMutateProxyConnectHeader(t *testing.T) {
 	run(t, testTransportProxyDialDoesNotMutateProxyConnectHeader)
 }
 func testTransportProxyDialDoesNotMutateProxyConnectHeader(t *testing.T, mode testMode) {
-	if runtime.GOOS == "redox" && mode == http1Mode {
-		t.Skip("redox can hang proxy dialing an HTTP/1 CONNECT request")
-	}
-	if runtime.GOOS == "redox" && mode == http2Mode {
-		t.Skip("redox can hang proxy dialing an HTTP/2 CONNECT request")
-	}
-
 	proxy := newClientServerTest(t, mode, NotFoundHandler()).ts
 	defer proxy.Close()
 	c := proxy.Client()
