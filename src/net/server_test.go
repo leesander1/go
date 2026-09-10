@@ -7,7 +7,6 @@ package net
 import (
 	"fmt"
 	"os"
-	"runtime"
 	"testing"
 )
 
@@ -53,11 +52,6 @@ var tcpServerTests = []struct {
 
 // TestTCPServer tests concurrent accept-read-write servers.
 func TestTCPServer(t *testing.T) {
-	switch runtime.GOOS {
-	case "redox":
-		t.Skipf("not supported on %s", runtime.GOOS)
-	}
-
 	const N = 3
 
 	for i, tt := range tcpServerTests {
