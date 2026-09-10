@@ -1031,9 +1031,6 @@ var roundTripTests = []struct {
 // Test that the modification made to the Request by the RoundTripper is cleaned up
 func TestRoundTripGzip(t *testing.T) { run(t, testRoundTripGzip) }
 func testRoundTripGzip(t *testing.T, mode testMode) {
-	if runtime.GOOS == "redox" {
-		t.Skip("redox can hang completing a RoundTrip gzip response")
-	}
 	const responseBody = "test response body"
 	ts := newClientServerTest(t, mode, HandlerFunc(func(rw ResponseWriter, req *Request) {
 		accept := req.Header.Get("Accept-Encoding")
@@ -1096,9 +1093,6 @@ func testRoundTripGzip(t *testing.T, mode testMode) {
 
 func TestTransportGzip(t *testing.T) { run(t, testTransportGzip) }
 func testTransportGzip(t *testing.T, mode testMode) {
-	if runtime.GOOS == "redox" && mode == http1Mode {
-		t.Skip("redox can hang closing a partially-read gzip HTTP/1 response")
-	}
 	if mode == http2Mode {
 		t.Skip("https://go.dev/issue/56020")
 	}
@@ -1945,9 +1939,6 @@ func testTransportProxyDialDoesNotMutateProxyConnectHeader(t *testing.T, mode te
 // but checks that we don't recurse forever, and checks that
 // Content-Encoding is removed.
 func TestTransportGzipRecursive(t *testing.T) {
-	if runtime.GOOS == "redox" {
-		t.Skip("redox can cause a package-level transport failure after recursive gzip handling")
-	}
 	run(t, testTransportGzipRecursive)
 }
 func testTransportGzipRecursive(t *testing.T, mode testMode) {
@@ -1978,13 +1969,6 @@ func testTransportGzipRecursive(t *testing.T, mode testMode) {
 // a short gzip body
 func TestTransportGzipShort(t *testing.T) { run(t, testTransportGzipShort) }
 func testTransportGzipShort(t *testing.T, mode testMode) {
-	if runtime.GOOS == "redox" && mode == http1Mode {
-		t.Skip("redox can hang reading a short gzip HTTP/1 response body")
-	}
-	if runtime.GOOS == "redox" && mode == http2Mode {
-		t.Skip("redox can hang reading a short gzip HTTP/2 response body")
-	}
-
 	ts := newClientServerTest(t, mode, HandlerFunc(func(w ResponseWriter, r *Request) {
 		w.Header().Set("Content-Encoding", "gzip")
 		w.Write([]byte{0x1f, 0x8b})
@@ -4608,9 +4592,6 @@ func testTransportRemovesConnsAfterBroken(t *testing.T, mode testMode) {
 // on their own.
 // golang.org/issue/8923
 func TestTransportRangeAndGzip(t *testing.T) {
-	if runtime.GOOS == "redox" {
-		t.Skip("redox can cause a package-level transport failure after range requests with gzip handling")
-	}
 	run(t, testTransportRangeAndGzip)
 }
 func testTransportRangeAndGzip(t *testing.T, mode testMode) {
@@ -5159,18 +5140,12 @@ func TestNoCrashReturningTransportAltConn(t *testing.T) {
 }
 
 func TestTransportReuseConnection_Gzip_Chunked(t *testing.T) {
-	if runtime.GOOS == "redox" {
-		t.Skip("redox can abort runtime netpoll while reusing gzip chunked response connections")
-	}
 	run(t, func(t *testing.T, mode testMode) {
 		testTransportReuseConnection_Gzip(t, mode, true)
 	})
 }
 
 func TestTransportReuseConnection_Gzip_ContentLength(t *testing.T) {
-	if runtime.GOOS == "redox" {
-		t.Skip("redox can abort runtime netpoll while reusing gzip content-length response connections")
-	}
 	run(t, func(t *testing.T, mode testMode) {
 		testTransportReuseConnection_Gzip(t, mode, false)
 	})
