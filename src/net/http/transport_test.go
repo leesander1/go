@@ -3681,9 +3681,6 @@ func TestTLSServerClosesConnection(t *testing.T) {
 	run(t, testTLSServerClosesConnection, []testMode{https1Mode})
 }
 func testTLSServerClosesConnection(t *testing.T, mode testMode) {
-	if runtime.GOOS == "redox" {
-		t.Skip("redox can hang reusing a TLS connection after server-side close")
-	}
 	closedc := make(chan bool, 1)
 	ts := newClientServerTest(t, mode, HandlerFunc(func(w ResponseWriter, r *Request) {
 		if strings.Contains(r.URL.Path, "/keep-alive-then-die") {
