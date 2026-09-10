@@ -6842,10 +6842,6 @@ func TestDontCacheBrokenHTTP2Conn(t *testing.T) {
 	run(t, testDontCacheBrokenHTTP2Conn, []testMode{http2Mode})
 }
 func testDontCacheBrokenHTTP2Conn(t *testing.T, mode testMode) {
-	if runtime.GOOS == "redox" {
-		t.Skip("redox can hang after breaking an HTTP/2 connection during TLS setup")
-	}
-
 	cst := newClientServerTest(t, mode, HandlerFunc(func(w ResponseWriter, r *Request) {}), optQuietLog)
 
 	var brokenState brokenState
