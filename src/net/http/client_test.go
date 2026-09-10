@@ -951,9 +951,6 @@ func testClientWithIncorrectTLSServerName(t *testing.T, mode testMode) {
 //
 // The httptest.Server has a cert with "example.com" as its name.
 func TestTransportUsesTLSConfigServerName(t *testing.T) {
-	if runtime.GOOS == "redox" {
-		t.Skip("redox aborts runtime netpoll during HTTP/2 TLS ServerName transport reuse")
-	}
 	run(t, testTransportUsesTLSConfigServerName, []testMode{https1Mode, http2Mode})
 }
 func testTransportUsesTLSConfigServerName(t *testing.T, mode testMode) {
@@ -1203,10 +1200,6 @@ func TestStripPasswordFromError(t *testing.T) {
 
 func TestClientTimeout(t *testing.T) { run(t, testClientTimeout) }
 func testClientTimeout(t *testing.T, mode testMode) {
-	if runtime.GOOS == "redox" {
-		t.Skip("redox can fail sockets before the tiny client timeout is observed")
-	}
-
 	var (
 		mu           sync.Mutex
 		nonce        string // a unique per-request string
@@ -2228,9 +2221,6 @@ func TestClientPopulatesNilResponseBody(t *testing.T) {
 // Issue 40382: Client calls Close multiple times on Request.Body.
 func TestClientCallsCloseOnlyOnce(t *testing.T) { run(t, testClientCallsCloseOnlyOnce) }
 func testClientCallsCloseOnlyOnce(t *testing.T, mode testMode) {
-	if runtime.GOOS == "redox" && mode == http2Mode {
-		t.Skip("redox can fail this HTTP/2 abort race with a TLS record error")
-	}
 	cst := newClientServerTest(t, mode, HandlerFunc(func(w ResponseWriter, r *Request) {
 		w.WriteHeader(StatusNoContent)
 	}))
