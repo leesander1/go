@@ -1529,10 +1529,6 @@ func TestClientAuth(t *testing.T) {
 }
 
 func TestSNIGivenOnFailure(t *testing.T) {
-	if runtime.GOOS == "redox" {
-		t.Skip("redox: SNI failure localPipe handshake aborts runtime netpoll")
-	}
-
 	const expectedServerName = "test.testing"
 
 	clientHello := &clientHelloMsg{
@@ -1666,10 +1662,6 @@ var getConfigForClientTests = []struct {
 }
 
 func TestGetConfigForClient(t *testing.T) {
-	if runtime.GOOS == "redox" {
-		t.Skip("redox: GetConfigForClient localPipe handshakes abort runtime netpoll")
-	}
-
 	serverConfig := testConfig.Clone()
 	clientConfig := testConfig.Clone()
 	clientConfig.MinVersion = VersionTLS12
@@ -1755,9 +1747,6 @@ func expectError(t *testing.T, err error, sub string) {
 }
 
 func TestKeyTooSmallForRSAPSS(t *testing.T) {
-	if runtime.GOOS == "redox" {
-		t.Skip("redox: localPipe handshake aborts runtime netpoll")
-	}
 	cert, err := X509KeyPair([]byte(`-----BEGIN CERTIFICATE-----
 MIIBcTCCARugAwIBAgIQGjQnkCFlUqaFlt6ixyz/tDANBgkqhkiG9w0BAQsFADAS
 MRAwDgYDVQQKEwdBY21lIENvMB4XDTE5MDExODIzMjMyOFoXDTIwMDExODIzMjMy
@@ -1798,9 +1787,6 @@ T+E0J8wlH24pgwQHzy7Ko2qLwn1b5PW8ecrlvP1g
 }
 
 func TestMultipleCertificates(t *testing.T) {
-	if runtime.GOOS == "redox" {
-		t.Skip("redox: localPipe handshake aborts runtime netpoll")
-	}
 	clientConfig := testConfig.Clone()
 	clientConfig.CipherSuites = []uint16{TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256}
 	clientConfig.MaxVersion = VersionTLS12
