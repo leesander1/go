@@ -678,10 +678,6 @@ func testServeIndexHtml(t *testing.T, mode testMode) {
 			name = "DirFS"
 		}
 		t.Run(name, func(t *testing.T) {
-			if runtime.GOOS == "redox" && (name == "Dir" || name == "DirFS" && (mode == http1Mode || mode == http2Mode)) {
-				t.Skip("redox can hang completing FileServer index.html responses for this handler/protocol")
-			}
-
 			const want = "index.html says hello\n"
 			ts := newClientServerTest(t, mode, h).ts
 
@@ -705,13 +701,6 @@ func testServeIndexHtml(t *testing.T, mode testMode) {
 
 func TestServeIndexHtmlFS(t *testing.T) { run(t, testServeIndexHtmlFS) }
 func testServeIndexHtmlFS(t *testing.T, mode testMode) {
-	if runtime.GOOS == "redox" && mode == http1Mode {
-		t.Skip("redox can hang completing an HTTP/1 FileServer index.html response")
-	}
-	if runtime.GOOS == "redox" && mode == http2Mode {
-		t.Skip("redox can hang completing an HTTP/2 FileServer index.html response")
-	}
-
 	const want = "index.html says hello\n"
 	ts := newClientServerTest(t, mode, FileServer(Dir("."))).ts
 	defer ts.Close()
@@ -734,10 +723,6 @@ func testServeIndexHtmlFS(t *testing.T, mode testMode) {
 
 func TestFileServerZeroByte(t *testing.T) { run(t, testFileServerZeroByte) }
 func testFileServerZeroByte(t *testing.T, mode testMode) {
-	if runtime.GOOS == "redox" && mode == http1Mode {
-		t.Skip("redox can hang completing an HTTP/1 FileServer zero byte response")
-	}
-
 	ts := newClientServerTest(t, mode, FileServer(Dir("."))).ts
 
 	c, err := net.Dial("tcp", ts.Listener.Addr().String())
@@ -762,10 +747,6 @@ func testFileServerZeroByte(t *testing.T, mode testMode) {
 
 func TestFileServerNullByte(t *testing.T) { run(t, testFileServerNullByte) }
 func testFileServerNullByte(t *testing.T, mode testMode) {
-	if runtime.GOOS == "redox" {
-		t.Skip("redox can hang completing a FileServer null byte response")
-	}
-
 	ts := newClientServerTest(t, mode, FileServer(Dir("testdata"))).ts
 
 	for _, path := range []string{
@@ -787,10 +768,6 @@ func testFileServerNullByte(t *testing.T, mode testMode) {
 
 func TestFileServerNamesEscape(t *testing.T) { run(t, testFileServerNamesEscape) }
 func testFileServerNamesEscape(t *testing.T, mode testMode) {
-	if runtime.GOOS == "redox" {
-		t.Skip("redox can hang completing FileServer name escape responses")
-	}
-
 	ts := newClientServerTest(t, mode, FileServer(Dir("testdata"))).ts
 	for _, path := range []string{
 		"/../testdata/file",
