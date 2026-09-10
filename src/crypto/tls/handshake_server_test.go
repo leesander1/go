@@ -98,10 +98,6 @@ func testClientHelloFailure(t *testing.T, serverConfig *Config, m handshakeMessa
 }
 
 func TestSimpleError(t *testing.T) {
-	if runtime.GOOS == "redox" {
-		t.Skip("redox: server policy localPipe handshakes abort runtime netpoll")
-	}
-
 	testClientHelloFailure(t, testConfig, &serverHelloDoneMsg{}, "unexpected handshake message")
 }
 
@@ -128,10 +124,6 @@ func TestRejectBadProtocolVersion(t *testing.T) {
 }
 
 func TestNoSuiteOverlap(t *testing.T) {
-	if runtime.GOOS == "redox" {
-		t.Skip("redox: server policy localPipe handshakes abort runtime netpoll")
-	}
-
 	clientHello := &clientHelloMsg{
 		vers:               VersionTLS12,
 		random:             make([]byte, 32),
@@ -142,10 +134,6 @@ func TestNoSuiteOverlap(t *testing.T) {
 }
 
 func TestNoCompressionOverlap(t *testing.T) {
-	if runtime.GOOS == "redox" {
-		t.Skip("redox: server policy localPipe handshakes abort runtime netpoll")
-	}
-
 	clientHello := &clientHelloMsg{
 		vers:               VersionTLS12,
 		random:             make([]byte, 32),
@@ -156,10 +144,6 @@ func TestNoCompressionOverlap(t *testing.T) {
 }
 
 func TestNoRC4ByDefault(t *testing.T) {
-	if runtime.GOOS == "redox" {
-		t.Skip("redox: server policy localPipe handshakes abort runtime netpoll")
-	}
-
 	clientHello := &clientHelloMsg{
 		vers:               VersionTLS12,
 		random:             make([]byte, 32),
