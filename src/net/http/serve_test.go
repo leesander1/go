@@ -3652,9 +3652,6 @@ func testContentLengthZero(t *testing.T, mode testMode) {
 }
 
 func TestCloseNotifier(t *testing.T) {
-	if runtime.GOOS == "redox" {
-		t.Skip("redox can hang waiting for the CloseNotifier read to unblock")
-	}
 	run(t, testCloseNotifier, []testMode{http1Mode})
 }
 func testCloseNotifier(t *testing.T, mode testMode) {
@@ -3697,9 +3694,6 @@ For:
 //
 // Issue 13165 (where it used to deadlock), but behavior changed in Issue 23921.
 func TestCloseNotifierPipelined(t *testing.T) {
-	if runtime.GOOS == "redox" {
-		t.Skip("redox can hang finishing a request with a pending CloseNotifier read")
-	}
 	run(t, testCloseNotifierPipelined, []testMode{http1Mode})
 }
 func testCloseNotifierPipelined(t *testing.T, mode testMode) {
@@ -3781,9 +3775,6 @@ func TestCloseNotifierChanLeak(t *testing.T) {
 // Issue 9763.
 // HTTP/1-only test. (http2 doesn't have Hijack)
 func TestHijackAfterCloseNotifier(t *testing.T) {
-	if runtime.GOOS == "redox" {
-		t.Skip("redox can hang aborting the pending CloseNotifier read before hijack")
-	}
 	run(t, testHijackAfterCloseNotifier, []testMode{http1Mode})
 }
 func testHijackAfterCloseNotifier(t *testing.T, mode testMode) {
@@ -3831,9 +3822,6 @@ func testHijackAfterCloseNotifier(t *testing.T, mode testMode) {
 }
 
 func TestHijackBeforeRequestBodyRead(t *testing.T) {
-	if runtime.GOOS == "redox" {
-		t.Skip("redox can hang waiting for close notification after a raw request body read")
-	}
 	run(t, testHijackBeforeRequestBodyRead, []testMode{http1Mode})
 }
 func testHijackBeforeRequestBodyRead(t *testing.T, mode testMode) {
