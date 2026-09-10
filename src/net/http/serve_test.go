@@ -1667,9 +1667,6 @@ func testTLSHandshakeTimeout(t *testing.T, mode testMode) {
 
 func TestTLSServer(t *testing.T) { run(t, testTLSServer, []testMode{https1Mode, http2Mode}) }
 func testTLSServer(t *testing.T, mode testMode) {
-	if runtime.GOOS == "redox" && mode == http2Mode {
-		t.Skip("redox can hang completing HTTP/2 TLS server requests")
-	}
 	ts := newClientServerTest(t, mode, HandlerFunc(func(w ResponseWriter, r *Request) {
 		if r.TLS != nil {
 			w.Header().Set("X-TLS-Set", "true")
@@ -1817,9 +1814,6 @@ func TestServeTLS(t *testing.T) {
 
 // Test that the HTTPS server nicely rejects plaintext HTTP/1.x requests.
 func TestTLSServerRejectHTTPRequests(t *testing.T) {
-	if runtime.GOOS == "redox" {
-		t.Skip("redox can hang rejecting plaintext HTTP on a TLS server")
-	}
 	run(t, testTLSServerRejectHTTPRequests, []testMode{https1Mode, http2Mode})
 }
 func testTLSServerRejectHTTPRequests(t *testing.T, mode testMode) {
