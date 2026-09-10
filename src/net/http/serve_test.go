@@ -4610,9 +4610,6 @@ func testServerKeepAlivesEnabledResultClose(t *testing.T, mode testMode) {
 
 // golang.org/issue/7856
 func TestServerEmptyBodyRace(t *testing.T) {
-	if runtime.GOOS == "redox" {
-		t.Skip("redox can lose concurrent empty-body requests or return EBADF while dialing")
-	}
 	run(t, testServerEmptyBodyRace)
 }
 func testServerEmptyBodyRace(t *testing.T, mode testMode) {
