@@ -6267,12 +6267,6 @@ func testServerKeepAlivesEnabled(t *testing.T, mode testMode) {
 // waiting for the connection to maybe close.
 func TestServerCancelsReadTimeoutWhenIdle(t *testing.T) { run(t, testServerCancelsReadTimeoutWhenIdle) }
 func testServerCancelsReadTimeoutWhenIdle(t *testing.T, mode testMode) {
-	if runtime.GOOS == "redox" && mode == http1Mode {
-		t.Skip("redox can hang waiting for an idle HTTP/1 server read timeout")
-	}
-	if runtime.GOOS == "redox" && mode == http2Mode {
-		t.Skip("redox can hang waiting for an idle HTTP/2 server read timeout")
-	}
 	runTimeSensitiveTest(t, []time.Duration{
 		10 * time.Millisecond,
 		50 * time.Millisecond,
@@ -6327,9 +6321,6 @@ func TestServerCancelsReadHeaderTimeoutWhenIdle(t *testing.T) {
 	run(t, testServerCancelsReadHeaderTimeoutWhenIdle, []testMode{http1Mode})
 }
 func testServerCancelsReadHeaderTimeoutWhenIdle(t *testing.T, mode testMode) {
-	if runtime.GOOS == "redox" && mode == http1Mode {
-		t.Skip("redox can hang reusing an idle HTTP/1 connection after ReadHeaderTimeout")
-	}
 	runTimeSensitiveTest(t, []time.Duration{
 		10 * time.Millisecond,
 		50 * time.Millisecond,
