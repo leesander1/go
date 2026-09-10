@@ -170,10 +170,6 @@ func TestRejectSNIWithTrailingDot(t *testing.T) {
 }
 
 func TestDontSelectECDSAWithRSAKey(t *testing.T) {
-	if runtime.GOOS == "redox" {
-		t.Skip("redox: server policy localPipe handshakes abort runtime netpoll")
-	}
-
 	// Test that, even when both sides support an ECDSA cipher suite, it
 	// won't be selected if the server's private key doesn't support it.
 	clientHello := &clientHelloMsg{
@@ -200,10 +196,6 @@ func TestDontSelectECDSAWithRSAKey(t *testing.T) {
 }
 
 func TestDontSelectRSAWithECDSAKey(t *testing.T) {
-	if runtime.GOOS == "redox" {
-		t.Skip("redox: server policy localPipe handshakes abort runtime netpoll")
-	}
-
 	// Test that, even when both sides support an RSA cipher suite, it
 	// won't be selected if the server's private key doesn't support it.
 	clientHello := &clientHelloMsg{
@@ -229,10 +221,6 @@ func TestDontSelectRSAWithECDSAKey(t *testing.T) {
 }
 
 func TestRenegotiationExtension(t *testing.T) {
-	if runtime.GOOS == "redox" {
-		t.Skip("redox: server policy localPipe handshakes abort runtime netpoll")
-	}
-
 	skipFIPS(t) // #70505
 
 	clientHello := &clientHelloMsg{
@@ -286,10 +274,6 @@ func TestRenegotiationExtension(t *testing.T) {
 }
 
 func TestTLS12OnlyCipherSuites(t *testing.T) {
-	if runtime.GOOS == "redox" {
-		t.Skip("redox: server policy localPipe handshakes abort runtime netpoll")
-	}
-
 	skipFIPS(t) // No TLS 1.1 in FIPS mode.
 
 	// Test that a Server doesn't select a TLS 1.2-only cipher suite when
@@ -344,10 +328,6 @@ func TestTLS12OnlyCipherSuites(t *testing.T) {
 }
 
 func TestTLSPointFormats(t *testing.T) {
-	if runtime.GOOS == "redox" {
-		t.Skip("redox: server policy localPipe handshakes abort runtime netpoll")
-	}
-
 	// Test that a Server returns the ec_point_format extension when ECC is
 	// negotiated, and not on a RSA handshake or if ec_point_format is missing.
 	tests := []struct {
