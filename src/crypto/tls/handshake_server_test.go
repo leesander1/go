@@ -396,10 +396,6 @@ func TestTLSPointFormats(t *testing.T) {
 }
 
 func TestAlertForwarding(t *testing.T) {
-	if runtime.GOOS == "redox" {
-		t.Skip("redox: server lifecycle localPipe handshakes abort runtime netpoll")
-	}
-
 	c, s := localPipe(t)
 	go func() {
 		Client(c, testConfig).sendAlert(alertUnknownCA)
@@ -414,10 +410,6 @@ func TestAlertForwarding(t *testing.T) {
 }
 
 func TestClose(t *testing.T) {
-	if runtime.GOOS == "redox" {
-		t.Skip("redox: server lifecycle localPipe handshakes abort runtime netpoll")
-	}
-
 	c, s := localPipe(t)
 	go c.Close()
 
@@ -429,10 +421,6 @@ func TestClose(t *testing.T) {
 }
 
 func TestVersion(t *testing.T) {
-	if runtime.GOOS == "redox" {
-		t.Skip("redox: server lifecycle localPipe handshakes abort runtime netpoll")
-	}
-
 	serverConfig := &Config{
 		Certificates: testConfig.Certificates,
 		MaxVersion:   VersionTLS13,
@@ -458,10 +446,6 @@ func TestVersion(t *testing.T) {
 }
 
 func TestCipherSuitePreference(t *testing.T) {
-	if runtime.GOOS == "redox" {
-		t.Skip("redox: server lifecycle localPipe handshakes abort runtime netpoll")
-	}
-
 	skipFIPS(t) // No RC4 or CHACHA20_POLY1305 in FIPS mode.
 
 	serverConfig := &Config{
@@ -493,10 +477,6 @@ func TestCipherSuitePreference(t *testing.T) {
 }
 
 func TestSCTHandshake(t *testing.T) {
-	if runtime.GOOS == "redox" {
-		t.Skip("redox: server lifecycle localPipe handshakes abort runtime netpoll")
-	}
-
 	t.Run("TLSv12", func(t *testing.T) { testSCTHandshake(t, VersionTLS12) })
 	t.Run("TLSv13", func(t *testing.T) { testSCTHandshake(t, VersionTLS13) })
 }
