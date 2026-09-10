@@ -3504,7 +3504,12 @@ func testProxyForRequest(t *testing.T, tt proxyFromEnvTest, proxyForRequest func
 		t.Errorf("%v: got error = %q, want %q", tt, g, e)
 		return
 	}
-	got := fmt.Sprintf("%s", url)
+	got := ""
+	if runtime.GOOS == "redox" && url == nil {
+		got = "<nil>"
+	} else {
+		got = fmt.Sprintf("%s", url)
+	}
 	if got != tt.want {
 		t.Errorf("%v: got URL = %q, want %q", tt, url, tt.want)
 	}
