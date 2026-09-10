@@ -379,7 +379,7 @@ func TestUDPZeroBytePayload(t *testing.T) {
 
 func TestUDPZeroByteBuffer(t *testing.T) {
 	switch runtime.GOOS {
-	case "plan9", "redox":
+	case "plan9":
 		t.Skipf("not supported on %s", runtime.GOOS)
 	}
 	if !testableNetwork("udp") {
@@ -416,7 +416,7 @@ func TestUDPZeroByteBuffer(t *testing.T) {
 
 func TestUDPReadSizeError(t *testing.T) {
 	switch runtime.GOOS {
-	case "plan9", "redox":
+	case "plan9":
 		t.Skipf("not supported on %s", runtime.GOOS)
 	}
 	if !testableNetwork("udp") {
@@ -719,7 +719,7 @@ func TestIPv6WriteMsgUDPAddrPortTargetAddrIPVersion(t *testing.T) {
 // and rejects IPv6 destination addresses on a "udp4" connection.
 func TestIPv4WriteMsgUDPAddrPortTargetAddrIPVersion(t *testing.T) {
 	switch runtime.GOOS {
-	case "plan9", "redox":
+	case "plan9":
 		t.Skipf("not supported on %s", runtime.GOOS)
 	}
 
