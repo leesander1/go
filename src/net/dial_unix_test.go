@@ -9,7 +9,6 @@ package net
 import (
 	"context"
 	"errors"
-	"runtime"
 	"syscall"
 	"testing"
 	"time"
@@ -23,10 +22,6 @@ func init() {
 
 // Issue 16523
 func TestDialContextCancelRace(t *testing.T) {
-	if runtime.GOOS == "redox" {
-		t.Skip("redox aborts runtime netpoll during dial context cancellation race")
-	}
-
 	oldConnectFunc := connectFunc
 	oldGetsockoptIntFunc := getsockoptIntFunc
 	oldTestHookCanceledDial := testHookCanceledDial
