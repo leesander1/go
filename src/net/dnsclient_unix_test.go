@@ -1063,10 +1063,6 @@ func TestIgnoreDNSForgeries(t *testing.T) {
 
 // Issue 16865. If a name server times out, continue to the next.
 func TestRetryTimeout(t *testing.T) {
-	if runtime.GOOS == "redox" {
-		t.Skip("redox kernel can OOM panic while exercising DNS retry timeout handling")
-	}
-
 	defer dnsWaitGroup.Wait()
 
 	conf, err := newResolvConfTest()
