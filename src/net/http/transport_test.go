@@ -5138,9 +5138,6 @@ func testTransportResponseHeaderLength(t *testing.T, mode testMode) {
 }
 
 func TestTransportEventTrace(t *testing.T) {
-	if runtime.GOOS == "redox" {
-		t.Skip("redox can hang during transport event trace request handling")
-	}
 	run(t, func(t *testing.T, mode testMode) {
 		testTransportEventTrace(t, mode, false)
 	}, testNotParallel)
@@ -5148,9 +5145,6 @@ func TestTransportEventTrace(t *testing.T) {
 
 // test a non-nil httptrace.ClientTrace but with all hooks set to zero.
 func TestTransportEventTrace_NoHooks(t *testing.T) {
-	if runtime.GOOS == "redox" {
-		t.Skip("redox can hang closing the idle server connection after the zero-hook trace request")
-	}
 	run(t, func(t *testing.T, mode testMode) {
 		testTransportEventTrace(t, mode, true)
 	}, testNotParallel)
@@ -5339,9 +5333,6 @@ func testTransportEventTrace(t *testing.T, mode testMode, noHooks bool) {
 }
 
 func TestTransportEventTraceTLSVerify(t *testing.T) {
-	if runtime.GOOS == "redox" {
-		t.Skip("redox can cause a package-level transport failure after TLS verify event tracing")
-	}
 	run(t, testTransportEventTraceTLSVerify, []testMode{https1Mode, http2Mode})
 }
 func testTransportEventTraceTLSVerify(t *testing.T, mode testMode) {
