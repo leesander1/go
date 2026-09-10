@@ -2039,9 +2039,6 @@ var serverExpectTests = []serverExpectTest{
 // Tests that the server responds to the "Expect" request header
 // correctly.
 func TestServerExpect(t *testing.T) {
-	if runtime.GOOS == "redox" {
-		t.Skip("redox can hang closing an HTTP/1 expect request")
-	}
 	run(t, testServerExpect, []testMode{http1Mode})
 }
 func testServerExpect(t *testing.T, mode testMode) {
@@ -3169,9 +3166,6 @@ func (w terrorWriter) Write(p []byte) (int, error) {
 // Issue 16456: allow writing 0 bytes on hijacked conn to test hijack
 // without any log spam.
 func TestServerWriteHijackZeroBytes(t *testing.T) {
-	if runtime.GOOS == "redox" {
-		t.Skip("redox can hang after writing zero bytes on a hijacked connection")
-	}
 	run(t, testServerWriteHijackZeroBytes, []testMode{http1Mode})
 }
 func testServerWriteHijackZeroBytes(t *testing.T, mode testMode) {
