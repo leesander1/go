@@ -2596,9 +2596,6 @@ func (c cancelableTimeoutContext) Err() error {
 
 func TestTimeoutHandler(t *testing.T) { run(t, testTimeoutHandler) }
 func testTimeoutHandler(t *testing.T, mode testMode) {
-	if runtime.GOOS == "redox" {
-		t.Skip("redox can hang completing a timeout handler response")
-	}
 	sendHi := make(chan bool, 1)
 	writeErrors := make(chan error, 1)
 	sayHi := HandlerFunc(func(w ResponseWriter, r *Request) {
@@ -2656,9 +2653,6 @@ func testTimeoutHandler(t *testing.T, mode testMode) {
 // See issues 8209 and 8414.
 func TestTimeoutHandlerRace(t *testing.T) { run(t, testTimeoutHandlerRace) }
 func testTimeoutHandlerRace(t *testing.T, mode testMode) {
-	if runtime.GOOS == "redox" {
-		t.Skip("redox can hang completing concurrent timeout handler requests")
-	}
 	delayHi := HandlerFunc(func(w ResponseWriter, r *Request) {
 		ms, _ := strconv.Atoi(r.URL.Path[1:])
 		if ms == 0 {
@@ -2701,9 +2695,6 @@ func testTimeoutHandlerRace(t *testing.T, mode testMode) {
 // Both issues involved panics in the implementation of TimeoutHandler.
 func TestTimeoutHandlerRaceHeader(t *testing.T) { run(t, testTimeoutHandlerRaceHeader) }
 func testTimeoutHandlerRaceHeader(t *testing.T, mode testMode) {
-	if runtime.GOOS == "redox" {
-		t.Skip("redox can hang completing concurrent timeout handler header requests")
-	}
 	delay204 := HandlerFunc(func(w ResponseWriter, r *Request) {
 		w.WriteHeader(204)
 	})
@@ -2741,9 +2732,6 @@ func testTimeoutHandlerRaceHeader(t *testing.T, mode testMode) {
 // Issue 9162
 func TestTimeoutHandlerRaceHeaderTimeout(t *testing.T) { run(t, testTimeoutHandlerRaceHeaderTimeout) }
 func testTimeoutHandlerRaceHeaderTimeout(t *testing.T, mode testMode) {
-	if runtime.GOOS == "redox" {
-		t.Skip("redox can hang completing a timeout handler race after header write")
-	}
 	sendHi := make(chan bool, 1)
 	writeErrors := make(chan error, 1)
 	sayHi := HandlerFunc(func(w ResponseWriter, r *Request) {
@@ -2829,9 +2817,6 @@ func testTimeoutHandlerStartTimerWhenServing(t *testing.T, mode testMode) {
 
 func TestTimeoutHandlerContextCanceled(t *testing.T) { run(t, testTimeoutHandlerContextCanceled) }
 func testTimeoutHandlerContextCanceled(t *testing.T, mode testMode) {
-	if runtime.GOOS == "redox" {
-		t.Skip("redox can hang completing a timeout handler after context cancellation")
-	}
 	writeErrors := make(chan error, 1)
 	sayHi := HandlerFunc(func(w ResponseWriter, r *Request) {
 		w.Header().Set("Content-Type", "text/plain")
@@ -2873,9 +2858,6 @@ func testTimeoutHandlerContextCanceled(t *testing.T, mode testMode) {
 // https://golang.org/issue/15948
 func TestTimeoutHandlerEmptyResponse(t *testing.T) { run(t, testTimeoutHandlerEmptyResponse) }
 func testTimeoutHandlerEmptyResponse(t *testing.T, mode testMode) {
-	if runtime.GOOS == "redox" {
-		t.Skip("redox can hang completing a timeout handler empty response")
-	}
 	var handler HandlerFunc = func(w ResponseWriter, _ *Request) {
 		// No response.
 	}
