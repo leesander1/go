@@ -1011,9 +1011,6 @@ func testConnectRequest(t *testing.T, mode testMode) {
 }
 
 func TestTransportUserAgent(t *testing.T) {
-	if runtime.GOOS == "redox" {
-		t.Skip("redox can hang checking user-agent handling after an HTTP/1 protocol switch response")
-	}
 	run(t, testTransportUserAgent)
 }
 func testTransportUserAgent(t *testing.T, mode testMode) {
@@ -1279,16 +1276,9 @@ func testTransportGCRequest(t *testing.T, mode testMode, body bool) {
 }
 
 func TestTransportRejectsInvalidHeaders(t *testing.T) {
-	if runtime.GOOS == "redox" {
-		t.Skip("redox can cause a package-level transport failure after rejecting invalid headers")
-	}
 	run(t, testTransportRejectsInvalidHeaders)
 }
 func testTransportRejectsInvalidHeaders(t *testing.T, mode testMode) {
-	if runtime.GOOS == "redox" && mode == http1Mode {
-		t.Skip("redox can hang while rejecting invalid HTTP/1 transport headers")
-	}
-
 	cst := newClientServerTest(t, mode, HandlerFunc(func(w ResponseWriter, r *Request) {
 		fmt.Fprintf(w, "Handler saw headers: %q", r.Header)
 	}), optQuietLog)

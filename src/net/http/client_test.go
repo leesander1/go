@@ -516,9 +516,6 @@ func testClientRedirectUseResponse(t *testing.T, mode testMode) {
 // Issues 17773 and 49281: don't follow a 3xx if the response doesn't
 // have a Location header.
 func TestClientRedirectNoLocation(t *testing.T) {
-	if runtime.GOOS == "redox" {
-		t.Skip("redox can hang completing responses without Location headers in this redirect test")
-	}
 	run(t, testClientRedirectNoLocation)
 }
 func testClientRedirectNoLocation(t *testing.T, mode testMode) {
@@ -1991,9 +1988,6 @@ func (b issue18239Body) Close() error {
 // Issue 18239: make sure the Transport doesn't retry requests with bodies
 // if Request.GetBody is not defined.
 func TestTransportBodyReadError(t *testing.T) {
-	if runtime.GOOS == "redox" {
-		t.Skip("redox can cause a package-level transport failure after body read error reuse checks")
-	}
 	run(t, testTransportBodyReadError)
 }
 func testTransportBodyReadError(t *testing.T, mode testMode) {
