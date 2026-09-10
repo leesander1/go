@@ -5385,9 +5385,6 @@ func skipIfDNSHijacked(t *testing.T) {
 }
 
 func TestTransportEventTraceRealDNS(t *testing.T) {
-	if runtime.GOOS == "redox" {
-		t.Skip("redox can abort runtime netpoll during real DNS event trace lookup")
-	}
 	skipIfDNSHijacked(t)
 	defer afterTest(t)
 	tr := &Transport{}
