@@ -104,10 +104,6 @@ func TestSimpleError(t *testing.T) {
 var badProtocolVersions = []uint16{0x0000, 0x0005, 0x0100, 0x0105, 0x0200, 0x0205, VersionSSL30}
 
 func TestRejectBadProtocolVersion(t *testing.T) {
-	if runtime.GOOS == "redox" {
-		t.Skip("Redox TLS bad protocol version handshakes can abort runtime netpoll")
-	}
-
 	config := testConfig.Clone()
 	config.MinVersion = VersionSSL30
 	for _, v := range badProtocolVersions {
@@ -158,10 +154,6 @@ func TestNoRC4ByDefault(t *testing.T) {
 }
 
 func TestRejectSNIWithTrailingDot(t *testing.T) {
-	if runtime.GOOS == "redox" {
-		t.Skip("Redox TLS SNI rejection handshakes can abort runtime netpoll")
-	}
-
 	testClientHelloFailure(t, testConfig, &clientHelloMsg{
 		vers:       VersionTLS12,
 		random:     make([]byte, 32),
