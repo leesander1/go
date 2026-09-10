@@ -10,7 +10,6 @@ import (
 	"io"
 	"log"
 	. "net/http"
-	"runtime"
 	"slices"
 	"strconv"
 	"strings"
@@ -91,10 +90,6 @@ func TestDetectContentType(t *testing.T) {
 
 func TestServerContentTypeSniff(t *testing.T) { run(t, testServerContentTypeSniff) }
 func testServerContentTypeSniff(t *testing.T, mode testMode) {
-	if runtime.GOOS == "redox" {
-		t.Skip("redox can hang completing content-sniffed responses")
-	}
-
 	cst := newClientServerTest(t, mode, HandlerFunc(func(w ResponseWriter, r *Request) {
 		i, _ := strconv.Atoi(r.FormValue("i"))
 		tt := sniffTests[i]
@@ -137,10 +132,6 @@ func testServerContentTypeSniff(t *testing.T, mode testMode) {
 // even if it's the empty string.
 func TestServerIssue5953(t *testing.T) { run(t, testServerIssue5953) }
 func testServerIssue5953(t *testing.T, mode testMode) {
-	if runtime.GOOS == "redox" {
-		t.Skip("redox can hang completing a response with an empty Content-Type header")
-	}
-
 	cst := newClientServerTest(t, mode, HandlerFunc(func(w ResponseWriter, r *Request) {
 		w.Header()["Content-Type"] = []string{""}
 		fmt.Fprintf(w, "<html><head></head><body>hi</body></html>")
@@ -177,10 +168,6 @@ func (b *byteAtATimeReader) Read(p []byte) (n int, err error) {
 
 func TestContentTypeWithVariousSources(t *testing.T) { run(t, testContentTypeWithVariousSources) }
 func testContentTypeWithVariousSources(t *testing.T, mode testMode) {
-	if runtime.GOOS == "redox" {
-		t.Skip("redox can hang while sniffing small responses from varied write paths")
-	}
-
 	const (
 		input    = "\n<html>\n\t<head>\n"
 		expected = "text/html; charset=utf-8"
@@ -269,10 +256,6 @@ func testContentTypeWithVariousSources(t *testing.T, mode testMode) {
 
 func TestSniffWriteSize(t *testing.T) { run(t, testSniffWriteSize) }
 func testSniffWriteSize(t *testing.T, mode testMode) {
-	if runtime.GOOS == "redox" {
-		t.Skip("redox can corrupt or hang while draining large sniffed responses")
-	}
-
 	cst := newClientServerTest(t, mode, HandlerFunc(func(w ResponseWriter, r *Request) {
 		size, _ := strconv.Atoi(r.FormValue("size"))
 		written, err := io.WriteString(w, strings.Repeat("a", size))
