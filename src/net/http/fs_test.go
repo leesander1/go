@@ -74,10 +74,6 @@ var ServeFileRangeTests = []struct {
 
 func TestServeFile(t *testing.T) { run(t, testServeFile) }
 func testServeFile(t *testing.T, mode testMode) {
-	if runtime.GOOS == "redox" && mode == http2Mode {
-		t.Skip("redox can hang completing HTTP/2 ServeFile responses")
-	}
-
 	ts := newClientServerTest(t, mode, HandlerFunc(func(w ResponseWriter, r *Request) {
 		ServeFile(w, r, "testdata/file")
 	})).ts
@@ -281,13 +277,6 @@ var fsRedirectTestData = []struct {
 
 func TestFSRedirect(t *testing.T) { run(t, testFSRedirect) }
 func testFSRedirect(t *testing.T, mode testMode) {
-	if runtime.GOOS == "redox" && mode == http1Mode {
-		t.Skip("redox can hang completing an HTTP/1 FileServer redirect")
-	}
-	if runtime.GOOS == "redox" && mode == http2Mode {
-		t.Skip("redox can hang completing an HTTP/2 FileServer redirect")
-	}
-
 	ts := newClientServerTest(t, mode, StripPrefix("/test", FileServer(Dir(".")))).ts
 
 	for _, data := range fsRedirectTestData {
@@ -391,10 +380,6 @@ func testFileServerEscapesNames(t *testing.T, mode testMode) {
 
 func TestFileServerSortsNames(t *testing.T) { run(t, testFileServerSortsNames) }
 func testFileServerSortsNames(t *testing.T, mode testMode) {
-	if runtime.GOOS == "redox" {
-		t.Skip("redox can hang completing FileServer directory listings")
-	}
-
 	const contents = "I am a fake file"
 	dirMod := time.Unix(123, 0).UTC()
 	fileMod := time.Unix(1000000000, 0).UTC()
@@ -527,13 +512,6 @@ func TestEmptyDirOpenCWD(t *testing.T) {
 
 func TestServeFileContentType(t *testing.T) { run(t, testServeFileContentType) }
 func testServeFileContentType(t *testing.T, mode testMode) {
-	if runtime.GOOS == "redox" && mode == http1Mode {
-		t.Skip("redox can hang completing an HTTP/1 ServeFile content-type response")
-	}
-	if runtime.GOOS == "redox" && mode == http2Mode {
-		t.Skip("redox can hang completing an HTTP/2 ServeFile content-type response")
-	}
-
 	const ctype = "icecream/chocolate"
 	ts := newClientServerTest(t, mode, HandlerFunc(func(w ResponseWriter, r *Request) {
 		switch r.FormValue("override") {
