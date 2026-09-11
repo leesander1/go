@@ -89,11 +89,6 @@ func TestBuffers_consume(t *testing.T) {
 }
 
 func TestBuffers_WriteTo(t *testing.T) {
-	switch runtime.GOOS {
-	case "redox":
-		t.Skipf("not supported on %s", runtime.GOOS)
-	}
-
 	for _, name := range []string{"WriteTo", "Copy"} {
 		for _, size := range []int{0, 10, 1023, 1024, 1025} {
 			t.Run(fmt.Sprintf("%s/%d", name, size), func(t *testing.T) {
@@ -156,7 +151,7 @@ func testBuffer_writeTo(t *testing.T, chunks int, useCopy bool) {
 
 		var wantSum int
 		switch runtime.GOOS {
-		case "aix", "android", "darwin", "ios", "dragonfly", "freebsd", "illumos", "linux", "netbsd", "openbsd", "solaris":
+		case "aix", "android", "darwin", "ios", "dragonfly", "freebsd", "illumos", "linux", "netbsd", "openbsd", "redox", "solaris":
 			var wantMinCalls int
 			wantSum = want.Len()
 			v := chunks
