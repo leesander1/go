@@ -292,7 +292,7 @@ func TestFilePacketConn(t *testing.T) {
 // Issue 24483.
 func TestFileCloseRace(t *testing.T) {
 	switch runtime.GOOS {
-	case "plan9", "js", "redox", "wasip1":
+	case "plan9", "js", "wasip1":
 		t.Skipf("not supported on %s", runtime.GOOS)
 	}
 	if !testableNetwork("tcp") {
