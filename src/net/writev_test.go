@@ -183,8 +183,6 @@ func TestWritevError(t *testing.T) {
 	switch runtime.GOOS {
 	case "windows":
 		t.Skipf("skipping the test: windows does not have problem sending large chunks of data")
-	case "redox":
-		t.Skipf("not supported on %s", runtime.GOOS)
 	}
 
 	ln := newLocalListener(t, "tcp")

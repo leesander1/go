@@ -39,17 +39,23 @@ func (fd *FD) Writev(v *[][]byte) (int64, error) {
 	var err error
 	for len(*v) > 0 {
 		iovecs = iovecs[:0]
+		iovBytes := 0
 		for _, chunk := range *v {
 			if len(chunk) == 0 {
 				continue
 			}
-			iovecs = append(iovecs, newIovecWithBase(&chunk[0]))
-			if fd.IsStream && len(chunk) > 1<<30 {
-				iovecs[len(iovecs)-1].SetLen(1 << 30)
-				break // continue chunk on next writev
+			length := len(chunk)
+			if fd.IsStream && length > 1<<30 {
+				length = 1 << 30
 			}
-			iovecs[len(iovecs)-1].SetLen(len(chunk))
-			if len(iovecs) == maxVec {
+			if fd.IsStream && maxWritevBytes > 0 {
+				length = min(length, maxWritevBytes-iovBytes)
+			}
+			iovecs = append(iovecs, newIovecWithBase(&chunk[0]))
+			iovecs[len(iovecs)-1].SetLen(length)
+			iovBytes += length
+			if length < len(chunk) || len(iovecs) == maxVec ||
+				(fd.IsStream && maxWritevBytes > 0 && iovBytes == maxWritevBytes) {
 				break
 			}
 		}
