@@ -5,7 +5,6 @@
 package time_test
 
 import (
-	"runtime"
 	"strings"
 	"testing"
 	. "time"
@@ -60,10 +59,6 @@ func TestHasMonotonicClock(t *testing.T) {
 }
 
 func TestMonotonicAdd(t *testing.T) {
-	if runtime.GOOS == "redox" {
-		t.Skip("redox: Sleep in monotonic add test aborts runtime netpoll")
-	}
-
 	tm := Unix(1486057371, 123456)
 	SetMono(&tm, 123456789012345)
 
@@ -206,10 +201,6 @@ func TestMonotonicSub(t *testing.T) {
 }
 
 func TestMonotonicOverflow(t *testing.T) {
-	if runtime.GOOS == "redox" {
-		t.Skip("redox: Sleep in monotonic overflow test aborts runtime netpoll")
-	}
-
 	t1 := Now().Add(-30 * Second)
 	d := Until(t1)
 	if d < -35*Second || -30*Second < d {
