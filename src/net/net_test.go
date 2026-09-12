@@ -457,9 +457,6 @@ func TestReadTimeoutUnblocksRead(t *testing.T) {
 
 				// Interrupt the upcoming Read, unblocking it:
 				deadline := time.Unix(123, 0) // time in the past
-				if runtime.GOOS == "redox" {
-					deadline = time.Now().Add(-time.Second)
-				}
 				cs.SetReadDeadline(deadline)
 			}()
 			var buf [1]byte
