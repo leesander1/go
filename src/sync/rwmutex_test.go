@@ -108,10 +108,6 @@ func HammerRWMutex(gomaxprocs, numReaders, num_iterations int) {
 }
 
 func TestRWMutex(t *testing.T) {
-	if runtime.GOOS == "redox" {
-		t.Skip("Redox RWMutex hammering can abort runtime netpoll")
-	}
-
 	var m RWMutex
 
 	m.Lock()

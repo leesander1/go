@@ -2129,10 +2129,6 @@ func hammerCompareAndSwapUintptr32Method(uaddr *uint32, count int) {
 }
 
 func TestHammer32(t *testing.T) {
-	if runtime.GOOS == "redox" {
-		t.Skip("Redox atomic hammering can abort runtime netpoll")
-	}
-
 	const p = 4
 	n := 100000
 	if testing.Short() {
@@ -2400,10 +2396,6 @@ func hammerCompareAndSwapUintptr64Method(uaddr *uint64, count int) {
 }
 
 func TestHammer64(t *testing.T) {
-	if runtime.GOOS == "redox" {
-		t.Skip("Redox atomic hammering can abort runtime netpoll")
-	}
-
 	const p = 4
 	n := 100000
 	if testing.Short() {
