@@ -2874,9 +2874,6 @@ func mkdirTree(t *testing.T, root string, level, max int) {
 // Test that simultaneous RemoveAll do not report an error.
 // As long as it gets removed, we should be happy.
 func TestRemoveAllRace(t *testing.T) {
-	if runtime.GOOS == "redox" {
-		t.Skip("Redox concurrent RemoveAll can abort runtime netpoll")
-	}
 	if runtime.GOOS == "windows" {
 		// Windows has very strict rules about things like
 		// removing directories while someone else has

@@ -283,10 +283,6 @@ func TestExplicitPWD(t *testing.T) {
 
 // Issue 71828.
 func TestSIGCHLD(t *testing.T) {
-	if runtime.GOOS == "redox" {
-		t.Skip("redox: SIGCHLD helper child sleep aborts runtime netpoll")
-	}
-
 	cmd := helperCommand(t, "signaltest")
 	out, err := cmd.CombinedOutput()
 	t.Logf("%s", out)

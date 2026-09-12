@@ -979,10 +979,6 @@ func TestContext(t *testing.T) {
 }
 
 func TestContextCancel(t *testing.T) {
-	if runtime.GOOS == "redox" {
-		t.Skip("Redox subprocess cancellation can close descriptors still observed by runtime netpoll")
-	}
-
 	if runtime.GOOS == "netbsd" && runtime.GOARCH == "arm64" {
 		maySkipHelperCommand("cat")
 		testenv.SkipFlaky(t, 42061)
