@@ -7,7 +7,6 @@ package net_test
 import (
 	"io"
 	"net"
-	"runtime"
 	"testing"
 	"time"
 
@@ -15,11 +14,6 @@ import (
 )
 
 func TestPipe(t *testing.T) {
-	switch runtime.GOOS {
-	case "redox":
-		t.Skipf("not supported on %s", runtime.GOOS)
-	}
-
 	nettest.TestConn(t, func() (c1, c2 net.Conn, stop func(), err error) {
 		c1, c2 = net.Pipe()
 		stop = func() {
