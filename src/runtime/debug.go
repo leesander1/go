@@ -71,6 +71,9 @@ func GOMAXPROCS(n int) int {
 	if GOARCH == "wasm" && n > 1 {
 		n = 1 // WebAssembly has no threads yet, so only one CPU is possible.
 	}
+	if GOOS == "redox" && n > 1 {
+		n = 1 // Redox multi-P scheduling is not reliable yet.
+	}
 
 	lock(&sched.lock)
 	ret := int(gomaxprocs)

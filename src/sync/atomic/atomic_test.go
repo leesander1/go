@@ -2648,10 +2648,6 @@ func hammerStoreLoadPointerMethod(t *testing.T, paddr unsafe.Pointer) {
 }
 
 func TestHammerStoreLoad(t *testing.T) {
-	if runtime.GOOS == "redox" {
-		t.Skip("Redox atomic store/load hammering can abort runtime netpoll")
-	}
-
 	tests := []func(*testing.T, unsafe.Pointer){
 		hammerStoreLoadInt32, hammerStoreLoadUint32,
 		hammerStoreLoadUintptr, hammerStoreLoadPointer,
