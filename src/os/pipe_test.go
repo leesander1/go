@@ -348,10 +348,6 @@ func testCloseWithBlockingRead(t *testing.T, r, w *os.File) {
 }
 
 func TestPipeEOF(t *testing.T) {
-	if runtime.GOOS == "redox" {
-		t.Skip("Redox pipe writer close does not unblock readers with EOF yet")
-	}
-
 	t.Parallel()
 
 	r, w, err := os.Pipe()
