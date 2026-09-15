@@ -503,10 +503,6 @@ func TestTimerStopStress(t *testing.T) {
 }
 
 func TestSleepZeroDeadlock(t *testing.T) {
-	if runtime.GOOS == "redox" {
-		t.Skip("Redox zero sleep with GC can hang timer wakeups")
-	}
-
 	// Sleep(0) used to hang, the sequence of events was as follows.
 	// Sleep(0) sets G's status to Gwaiting, but then immediately returns leaving the status.
 	// Then the goroutine calls e.g. new and falls down into the scheduler due to pending GC.
