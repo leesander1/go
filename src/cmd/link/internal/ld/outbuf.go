@@ -127,7 +127,7 @@ func (out *OutBuf) Close() error {
 		return nil
 	}
 	if len(out.heap) != 0 {
-		out.tracef("heap write begin")
+		out.tracef("heap write begin bytes=%d", len(out.heap))
 		if _, err := out.f.Write(out.heap); err != nil {
 			return err
 		}
@@ -146,9 +146,9 @@ func (out *OutBuf) SetTrace(w io.Writer) {
 	out.trace = w
 }
 
-func (out *OutBuf) tracef(stage string) {
+func (out *OutBuf) tracef(format string, args ...any) {
 	if out.trace != nil {
-		fmt.Fprintf(out.trace, "OutBufClose %s\n", stage)
+		fmt.Fprintf(out.trace, "OutBufClose "+format+"\n", args...)
 	}
 }
 

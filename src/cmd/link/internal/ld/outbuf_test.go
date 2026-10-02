@@ -19,10 +19,11 @@ func TestOutBufCloseTrace(t *testing.T) {
 	}
 	var trace bytes.Buffer
 	ob.SetTrace(&trace)
+	ob.WriteString("hello")
 	if err := ob.Close(); err != nil {
 		t.Fatal(err)
 	}
-	if got, want := trace.String(), "OutBufClose file close begin\nOutBufClose file close end\n"; got != want {
+	if got, want := trace.String(), "OutBufClose heap write begin bytes=5\nOutBufClose heap write end\nOutBufClose file close begin\nOutBufClose file close end\n"; got != want {
 		t.Fatalf("trace output = %q, want %q", got, want)
 	}
 }
