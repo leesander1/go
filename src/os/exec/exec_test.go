@@ -1724,10 +1724,6 @@ func TestCancelErrors(t *testing.T) {
 // Forking multiple child processes concurrently would sometimes hang on darwin.
 // (This test hung on a gomote with -count=100 after only a few iterations.)
 func TestConcurrentExec(t *testing.T) {
-	if runtime.GOOS == "redox" {
-		t.Skip("Redox concurrent exec with hanging subprocesses does not complete yet")
-	}
-
 	ctx, cancel := context.WithCancel(context.Background())
 
 	// This test will spawn nHangs subprocesses that hang reading from stdin,
