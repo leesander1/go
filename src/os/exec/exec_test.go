@@ -864,10 +864,6 @@ func (delayedInfiniteReader) Read(b []byte) (int, error) {
 
 // Issue 9173: ignore stdin pipe writes if the program completes successfully.
 func TestIgnorePipeErrorOnSuccess(t *testing.T) {
-	if runtime.GOOS == "redox" {
-		t.Skip("Redox temp-file stdin staging cannot handle infinite stdin readers yet")
-	}
-
 	t.Parallel()
 
 	testWith := func(r io.Reader) func(*testing.T) {
@@ -1303,11 +1299,6 @@ func startHang(t *testing.T, ctx context.Context, hangTime time.Duration, interr
 }
 
 func TestWaitInterrupt(t *testing.T) {
-	if runtime.GOOS == "redox" {
-		maySkipHelperCommand("hang")
-		t.Skip("Redox command signal and WaitDelay behavior is not supported yet")
-	}
-
 	t.Parallel()
 
 	// tooLong is an arbitrary duration that is expected to be much longer than

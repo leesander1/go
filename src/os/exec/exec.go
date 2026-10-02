@@ -319,9 +319,6 @@ type Cmd struct {
 	// and stderr for non-file writers.
 	redoxCaptures []redoxCapture
 
-	// redoxTempFiles holds temporary files used on Redox for child stdin.
-	redoxTempFiles []string
-
 	// goroutine holds a set of closures to execute to copy data
 	// to and/or from the command's I/O pipes.
 	goroutine []func() error
@@ -554,23 +551,6 @@ func (c *Cmd) childStdin() (*os.File, error) {
 		return f, nil
 	}
 
-	if runtime.GOOS == "redox" {
-		f, err := os.CreateTemp("", "go-exec-stdin-*")
-		if err != nil {
-			return nil, err
-		}
-		c.childIOFiles = append(c.childIOFiles, f)
-		c.redoxTempFiles = append(c.redoxTempFiles, f.Name())
-
-		if _, err := io.Copy(f, c.Stdin); err != nil {
-			return nil, err
-		}
-		if _, err := f.Seek(0, io.SeekStart); err != nil {
-			return nil, err
-		}
-		return f, nil
-	}
-
 	pr, pw, err := os.Pipe()
 	if err != nil {
 		return nil, err
@@ -661,13 +641,6 @@ func (c *Cmd) cleanupRedoxCaptures() {
 	c.redoxCaptures = nil
 }
 
-func (c *Cmd) cleanupRedoxTempFiles() {
-	for _, name := range c.redoxTempFiles {
-		os.Remove(name)
-	}
-	c.redoxTempFiles = nil
-}
-
 func (c *Cmd) readRedoxCaptures() error {
 	var firstErr error
 	for _, capture := range c.redoxCaptures {
@@ -733,7 +706,6 @@ func (c *Cmd) Start() error {
 			closeDescriptors(c.parentIOPipes)
 			c.parentIOPipes = nil
 			c.cleanupRedoxCaptures()
-			c.cleanupRedoxTempFiles()
 			c.goroutine = nil // aid GC, finalization of pipe fds
 		}
 	}()
@@ -1028,7 +1000,6 @@ func (c *Cmd) Wait() error {
 	if captureErr := c.readRedoxCaptures(); captureErr != nil && err == nil {
 		err = captureErr
 	}
-	c.cleanupRedoxTempFiles()
 
 	var goroutineErr error
 	if c.goroutineErr != nil {
