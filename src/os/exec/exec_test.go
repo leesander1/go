@@ -929,10 +929,6 @@ func TestOutputStderrCapture(t *testing.T) {
 }
 
 func TestContext(t *testing.T) {
-	if runtime.GOOS == "redox" {
-		t.Skip("Redox context cancellation with pipetest does not complete yet")
-	}
-
 	t.Parallel()
 
 	ctx, cancel := context.WithCancel(context.Background())
