@@ -32,6 +32,7 @@ type Metrics struct {
 	curMark   *mark
 	filebase  string
 	pprofFile *os.File
+	trace     io.Writer
 }
 
 type mark struct {
@@ -75,6 +76,14 @@ func New(gc Flags, filebase string) *Metrics {
 	return &Metrics{gc: gc, filebase: filebase}
 }
 
+// SetTrace reports each phase as it starts. This makes progress observable
+// when a link does not reach Report.
+func (m *Metrics) SetTrace(w io.Writer) {
+	if m != nil {
+		m.trace = w
+	}
+}
+
 // Report reports the metrics.
 // Closes the currently Start(ed) range, and writes the report to the given io.Writer.
 func (m *Metrics) Report(w io.Writer) {
@@ -113,6 +122,9 @@ func (m *Metrics) Start(name string) {
 		return
 	}
 	m.closeMark()
+	if m.trace != nil {
+		fmt.Fprintf(m.trace, "BenchmarkPhase %s\n", name)
+	}
 	m.curMark = &mark{name: name}
 	// Unlikely we need to a GC here, as one was likely just done in closeMark.
 	if m.shouldPProf() {

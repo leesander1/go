@@ -5,10 +5,27 @@
 package ld
 
 import (
+	"bytes"
 	"path/filepath"
 	"runtime"
 	"testing"
 )
+
+func TestOutBufCloseTrace(t *testing.T) {
+	filename := filepath.Join(t.TempDir(), "trace.out")
+	ob := NewOutBuf(nil)
+	if err := ob.Open(filename); err != nil {
+		t.Fatal(err)
+	}
+	var trace bytes.Buffer
+	ob.SetTrace(&trace)
+	if err := ob.Close(); err != nil {
+		t.Fatal(err)
+	}
+	if got, want := trace.String(), "OutBufClose file close begin\nOutBufClose file close end\n"; got != want {
+		t.Fatalf("trace output = %q, want %q", got, want)
+	}
+}
 
 // TestMMap ensures that we can actually mmap on every supported platform.
 func TestMMap(t *testing.T) {

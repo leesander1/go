@@ -116,6 +116,7 @@ var (
 	memprofilerate    = flag.Int64("memprofilerate", 0, "set runtime.MemProfileRate to `rate`")
 	benchmarkFlag     = flag.String("benchmark", "", "set to 'mem' or 'cpu' to enable phase benchmarking")
 	benchmarkFileFlag = flag.String("benchmarkprofile", "", "emit phase profiles to `base`_phase.{cpu,mem}prof")
+	benchmarkTrace    = flag.Bool("benchmarktrace", false, "print each benchmark phase as it starts")
 
 	flagW ternaryFlag
 	FlagW = new(bool) // the -w flag, computed in main from flagW
@@ -316,6 +317,14 @@ func Main(arch *sys.Arch, theArch Arch) {
 			Errorf("unknown benchmark flag: %q", *benchmarkFlag)
 			usage()
 		}
+	}
+	if *benchmarkTrace {
+		if bench == nil {
+			Errorf("-benchmarktrace requires -benchmark")
+			usage()
+		}
+		bench.SetTrace(os.Stdout)
+		ctxt.Out.SetTrace(os.Stdout)
 	}
 
 	bench.Start("libinit")

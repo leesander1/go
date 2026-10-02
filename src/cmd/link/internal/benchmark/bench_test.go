@@ -5,6 +5,7 @@
 package benchmark
 
 import (
+	"bytes"
 	"testing"
 )
 
@@ -46,9 +47,21 @@ func TestPProfNames(t *testing.T) {
 	}
 }
 
+func TestTrace(t *testing.T) {
+	var trace bytes.Buffer
+	b := New(NoGC, "")
+	b.SetTrace(&trace)
+	b.Start("loadlib")
+	b.Start("deadcode")
+	if got, want := trace.String(), "BenchmarkPhase loadlib\nBenchmarkPhase deadcode\n"; got != want {
+		t.Fatalf("trace output = %q, want %q", got, want)
+	}
+}
+
 // Ensure that public APIs work with a nil Metrics object.
 func TestNilBenchmarkObject(t *testing.T) {
 	var b *Metrics
+	b.SetTrace(nil)
 	b.Start("TEST")
 	b.Report(nil)
 }

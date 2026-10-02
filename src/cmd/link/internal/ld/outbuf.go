@@ -9,6 +9,8 @@ import (
 	"cmd/link/internal/loader"
 	"encoding/binary"
 	"errors"
+	"fmt"
+	"io"
 	"log"
 	"os"
 )
@@ -70,6 +72,7 @@ type OutBuf struct {
 	f      *os.File
 	encbuf [8]byte // temp buffer used by WriteN methods
 	isView bool    // true if created from View()
+	trace  io.Writer
 }
 
 func (out *OutBuf) Open(name string) error {
@@ -110,23 +113,43 @@ func (out *OutBuf) Close() error {
 		return viewCloseError
 	}
 	if out.isMmapped() {
+		out.tracef("copyHeap begin")
 		out.copyHeap()
+		out.tracef("copyHeap end")
+		out.tracef("purgeSignatureCache begin")
 		out.purgeSignatureCache()
+		out.tracef("purgeSignatureCache end")
+		out.tracef("munmap begin")
 		out.munmap()
+		out.tracef("munmap end")
 	}
 	if out.f == nil {
 		return nil
 	}
 	if len(out.heap) != 0 {
+		out.tracef("heap write begin")
 		if _, err := out.f.Write(out.heap); err != nil {
 			return err
 		}
+		out.tracef("heap write end")
 	}
+	out.tracef("file close begin")
 	if err := out.f.Close(); err != nil {
 		return err
 	}
+	out.tracef("file close end")
 	out.f = nil
 	return nil
+}
+
+func (out *OutBuf) SetTrace(w io.Writer) {
+	out.trace = w
+}
+
+func (out *OutBuf) tracef(stage string) {
+	if out.trace != nil {
+		fmt.Fprintf(out.trace, "OutBufClose %s\n", stage)
+	}
 }
 
 // ErrorClose closes the output file (if any).
