@@ -567,11 +567,6 @@ func TestStdinClose(t *testing.T) {
 // This test is run by cmd/dist under the race detector to verify that
 // the race detector no longer reports any problems.
 func TestStdinCloseRace(t *testing.T) {
-	if runtime.GOOS == "redox" {
-		maySkipHelperCommand("stdinClose")
-		t.Skip("Redox kill and stdin close race does not complete yet")
-	}
-
 	t.Parallel()
 
 	cmd := helperCommand(t, "stdinClose")
