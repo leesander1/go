@@ -116,6 +116,16 @@ func syscall_close(fd int32) int32 {
 	return errno
 }
 
+// Like close, but with the signature used by the fork/exec child path.
+// Going through libc keeps relibc's descriptor table in sync with the kernel.
+//
+//go:nosplit
+//go:linkname syscall_closeFD syscall.closeFD
+func syscall_closeFD(fd uintptr) uintptr {
+	_, errno := cgocaller1(unsafe.Pointer(&libc_close), fd)
+	return uintptr(errno)
+}
+
 //go:nosplit
 //go:linkname syscall_dup2
 func syscall_dup2(oldfd, newfd uintptr) (val, err uintptr) {
@@ -276,7 +286,9 @@ func syscall_syscall(trap, a1, a2, a3 uintptr) (r1, r2, err uintptr) {
 func syscall_wait4(pid uintptr, wstatus *uint32, options uintptr, rusage unsafe.Pointer) (wpid int, err uintptr) {
 	args := [3]uintptr{pid, uintptr(unsafe.Pointer(wstatus)), options}
 	as := argset{args: unsafe.Pointer(&args[0])}
-	cgocallLibc(unsafe.Pointer(&libc_waitpid), unsafe.Pointer(&as))
+	entersyscallblock()
+	asmcgocallLibc(unsafe.Pointer(&libc_waitpid), unsafe.Pointer(&as))
+	exitsyscall()
 	KeepAlive(wstatus)
 	KeepAlive(rusage)
 	if as.errno != 0 {

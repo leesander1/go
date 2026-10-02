@@ -8,7 +8,6 @@
 // System calls for redox/amd64 are implemented in ../runtime/syscall_redox.go
 //
 
-#define SYS_CLOSE 0x20000006
 #define SYS_DUP2 0x2010003f
 #define SYS_FCNTL 0x20000037
 #define SYS_WRITE 0x21000004
@@ -30,19 +29,6 @@ TEXT ·chdir(SB),NOSPLIT,$0
 
 TEXT ·chroot1(SB),NOSPLIT,$0
 	JMP	runtime·syscall_chroot(SB)
-
-TEXT ·closeFD(SB),NOSPLIT,$0-16
-	MOVQ	$SYS_CLOSE, AX
-	MOVQ	fd+0(FP), DI
-	SYSCALL
-	CMPQ	AX, $-4096
-	JLS	closeok
-	NEGQ	AX
-	MOVQ	AX, err+8(FP)
-	RET
-closeok:
-	MOVQ	$0, err+8(FP)
-	RET
 
 TEXT ·dup2child(SB),NOSPLIT,$0-32
 	MOVQ	$SYS_DUP2, AX
