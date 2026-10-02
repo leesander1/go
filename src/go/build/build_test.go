@@ -102,6 +102,23 @@ func TestEmptyFolderImport(t *testing.T) {
 	}
 }
 
+func TestRedoxInstallsGOROOTArchives(t *testing.T) {
+	ctxt := Default
+	ctxt.GOROOT = testenv.GOROOT(t)
+	ctxt.GOOS = "redox"
+	ctxt.GOARCH = "amd64"
+	ctxt.Compiler = "gc"
+
+	p, err := ctxt.Import("internal/goarch", "", FindOnly)
+	if err != nil {
+		t.Fatal(err)
+	}
+	want := filepath.Join(ctxt.GOROOT, "pkg", "redox_amd64", "internal", "goarch.a")
+	if p.PkgObj != want {
+		t.Fatalf("PkgObj = %q, want %q", p.PkgObj, want)
+	}
+}
+
 func TestMultiplePackageImport(t *testing.T) {
 	pkg, err := Import(".", "testdata/multi", 0)
 

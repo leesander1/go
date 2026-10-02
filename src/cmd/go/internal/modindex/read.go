@@ -446,7 +446,8 @@ func (rp *IndexPackage) Import(bctxt build.Context, mode build.ImportMode) (p *b
 				p.PkgTargetRoot = ctxt.joinPath(p.Root, pkgtargetroot)
 
 				// Set the install target if applicable.
-				if !p.Goroot || (installgorootAll && p.ImportPath != "unsafe" && p.ImportPath != "builtin") {
+				installGOROOT := ctxt.GOOS == "redox" || installgorootAll
+				if !p.Goroot || (installGOROOT && p.ImportPath != "unsafe" && p.ImportPath != "builtin") {
 					p.PkgObj = ctxt.joinPath(p.Root, pkga)
 				}
 			}

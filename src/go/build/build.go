@@ -820,8 +820,9 @@ Found:
 			p.PkgTargetRoot = ctxt.joinPath(p.Root, pkgtargetroot)
 
 			// Set the install target if applicable.
-			if !p.Goroot || (installgoroot.Value() == "all" && p.ImportPath != "unsafe" && p.ImportPath != "builtin") {
-				if p.Goroot {
+			installGOROOT := ctxt.GOOS == "redox" || installgoroot.Value() == "all"
+			if !p.Goroot || (installGOROOT && p.ImportPath != "unsafe" && p.ImportPath != "builtin") {
+				if p.Goroot && installgoroot.Value() == "all" {
 					installgoroot.IncNonDefault()
 				}
 				p.PkgObj = ctxt.joinPath(p.Root, pkga)
