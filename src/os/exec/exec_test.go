@@ -468,10 +468,6 @@ func TestExitCode(t *testing.T) {
 }
 
 func TestPipes(t *testing.T) {
-	if runtime.GOOS == "redox" {
-		t.Skip("Redox explicit stdin pipe EOF does not end pipetest yet")
-	}
-
 	t.Parallel()
 
 	check := func(what string, err error) {
@@ -528,11 +524,6 @@ const stdinCloseTestString = "Some test string."
 
 // Issue 6270.
 func TestStdinClose(t *testing.T) {
-	if runtime.GOOS == "redox" {
-		maySkipHelperCommand("stdinClose")
-		t.Skip("Redox explicit stdin pipe close does not complete stdinClose yet")
-	}
-
 	t.Parallel()
 
 	check := func(what string, err error) {
