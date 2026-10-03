@@ -25,7 +25,7 @@ import (
 func skipRootOnRedox(t *testing.T) {
 	t.Helper()
 	if runtime.GOOS == "redox" {
-		t.Skip("Redox openat and symlink semantics do not support os.Root tests yet")
+		t.Skip("Redox does not yet match all os.Root edge-case semantics")
 	}
 }
 
@@ -137,8 +137,6 @@ type rootTest struct {
 // run sets up the test filesystem layout, os.OpenDirs the root, and calls f.
 func (test *rootTest) run(t *testing.T, f func(t *testing.T, target string, d *os.Root)) {
 	t.Run(test.name, func(t *testing.T) {
-		skipRootOnRedox(t)
-
 		root := makefs(t, test.fs)
 		d, err := os.OpenRoot(root)
 		if err != nil {
@@ -716,8 +714,6 @@ func TestRootRemoveAll(t *testing.T) {
 }
 
 func TestRootOpenFileAsRoot(t *testing.T) {
-	skipRootOnRedox(t)
-
 	dir := t.TempDir()
 	target := filepath.Join(dir, "target")
 	if err := os.WriteFile(target, nil, 0o666); err != nil {
@@ -1249,7 +1245,10 @@ func tempDirWithUnixSocket(t *testing.T, name string) string {
 
 func (test rootConsistencyTest) run(t *testing.T, f func(t *testing.T, path string, r *os.Root) (string, error)) {
 	skipRootOnRedox(t)
+	test.runOnRedox(t, f)
+}
 
+func (test rootConsistencyTest) runOnRedox(t *testing.T, f func(t *testing.T, path string, r *os.Root) (string, error)) {
 	if runtime.GOOS == "wasip1" {
 		// On wasip, non-Root functions clean paths before opening them,
 		// resulting in inconsistent behavior.
@@ -1446,7 +1445,7 @@ func TestRootConsistencyRemoveAll(t *testing.T) {
 		if test.open == "." || test.open == "./" {
 			continue // can't remove the root itself
 		}
-		test.run(t, func(t *testing.T, path string, r *os.Root) (string, error) {
+		test.runOnRedox(t, func(t *testing.T, path string, r *os.Root) (string, error) {
 			var err error
 			if r == nil {
 				err = os.RemoveAll(path)
@@ -1670,8 +1669,6 @@ func TestRootRenameAfterOpen(t *testing.T) {
 }
 
 func TestRootNonPermissionMode(t *testing.T) {
-	skipRootOnRedox(t)
-
 	r, err := os.OpenRoot(t.TempDir())
 	if err != nil {
 		t.Fatal(err)
@@ -1686,8 +1683,6 @@ func TestRootNonPermissionMode(t *testing.T) {
 }
 
 func TestRootUseAfterClose(t *testing.T) {
-	skipRootOnRedox(t)
-
 	r, err := os.OpenRoot(t.TempDir())
 	if err != nil {
 		t.Fatal(err)
@@ -1735,8 +1730,6 @@ func TestRootUseAfterClose(t *testing.T) {
 }
 
 func TestRootConcurrentClose(t *testing.T) {
-	skipRootOnRedox(t)
-
 	r, err := os.OpenRoot(t.TempDir())
 	if err != nil {
 		t.Fatal(err)
@@ -1784,8 +1777,6 @@ func TestRootConcurrentClose(t *testing.T) {
 // While opening this file, we rename base/a/a to base/b.
 // A naive lookup operation will resolve the path to base/f.
 func TestRootRaceRenameDir(t *testing.T) {
-	skipRootOnRedox(t)
-
 	dir := t.TempDir()
 	r, err := os.OpenRoot(dir)
 	if err != nil {
@@ -1858,8 +1849,6 @@ func TestRootRaceRenameDir(t *testing.T) {
 }
 
 func TestRootSymlinkToRoot(t *testing.T) {
-	skipRootOnRedox(t)
-
 	dir := makefs(t, []string{
 		"d/d => ..",
 	})
@@ -1887,8 +1876,6 @@ func TestRootSymlinkToRoot(t *testing.T) {
 }
 
 func TestOpenInRoot(t *testing.T) {
-	skipRootOnRedox(t)
-
 	dir := makefs(t, []string{
 		"file",
 		"link => ../ROOT/file",
@@ -1932,8 +1919,6 @@ func TestRootRemoveDot(t *testing.T) {
 }
 
 func TestRootWriteReadFile(t *testing.T) {
-	skipRootOnRedox(t)
-
 	dir := t.TempDir()
 	root, err := os.OpenRoot(dir)
 	if err != nil {
@@ -1954,8 +1939,6 @@ func TestRootWriteReadFile(t *testing.T) {
 }
 
 func TestRootName(t *testing.T) {
-	skipRootOnRedox(t)
-
 	dir := t.TempDir()
 	root, err := os.OpenRoot(dir)
 	if err != nil {
@@ -1991,8 +1974,6 @@ func TestRootName(t *testing.T) {
 // TestRootNoLstat verifies that we do not use lstat (possibly escaping the root)
 // when reading directories in a Root.
 func TestRootNoLstat(t *testing.T) {
-	skipRootOnRedox(t)
-
 	if runtime.GOARCH == "wasm" {
 		t.Skip("wasm lacks fstatat")
 	}
