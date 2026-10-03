@@ -22,13 +22,6 @@ import (
 	"time"
 )
 
-func skipRootOnRedox(t *testing.T) {
-	t.Helper()
-	if runtime.GOOS == "redox" {
-		t.Skip("Redox does not yet match all os.Root edge-case semantics")
-	}
-}
-
 // testMaybeRooted calls f in two subtests,
 // one with a Root and one with a nil r.
 func testMaybeRooted(t *testing.T, f func(t *testing.T, r *os.Root)) {
@@ -37,8 +30,6 @@ func testMaybeRooted(t *testing.T, f func(t *testing.T, r *os.Root)) {
 		f(t, nil)
 	})
 	t.Run("InRoot", func(t *testing.T) {
-		skipRootOnRedox(t)
-
 		t.Chdir(t.TempDir())
 		r, err := os.OpenRoot(".")
 		if err != nil {
@@ -1244,7 +1235,6 @@ func tempDirWithUnixSocket(t *testing.T, name string) string {
 }
 
 func (test rootConsistencyTest) run(t *testing.T, f func(t *testing.T, path string, r *os.Root) (string, error)) {
-	skipRootOnRedox(t)
 	test.runOnRedox(t, f)
 }
 
