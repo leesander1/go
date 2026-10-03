@@ -1494,10 +1494,6 @@ func TestWaitInterrupt(t *testing.T) {
 }
 
 func TestCancelErrors(t *testing.T) {
-	if runtime.GOOS == "redox" {
-		t.Skip("Redox command cancellation error precedence depends on pipe EOF and WaitDelay support not complete yet")
-	}
-
 	t.Parallel()
 
 	// If Cancel returns a non-ErrProcessDone error and the process
