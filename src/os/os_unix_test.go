@@ -333,9 +333,6 @@ func TestNewFileBlock(t *testing.T) {
 }
 
 func TestNewFileNonBlock(t *testing.T) {
-	if runtime.GOOS == "redox" {
-		t.Skip("Redox pipe deadlines do not report timeout for nonblocking NewFile reads yet")
-	}
 	t.Parallel()
 	newFileTest(t, false)
 }
