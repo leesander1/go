@@ -1615,8 +1615,6 @@ func TestRootConsistencySymlink(t *testing.T) {
 }
 
 func TestRootRenameAfterOpen(t *testing.T) {
-	skipRootOnRedox(t)
-
 	switch runtime.GOOS {
 	case "windows":
 		t.Skip("renaming open files not supported on " + runtime.GOOS)
