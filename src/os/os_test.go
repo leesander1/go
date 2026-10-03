@@ -1395,9 +1395,6 @@ func TestChtimes(t *testing.T) {
 }
 
 func TestChtimesOmit(t *testing.T) {
-	if runtime.GOOS == "redox" {
-		t.Skip("Redox Chtimes does not preserve omitted atime/mtime yet")
-	}
 	t.Parallel()
 
 	testChtimesOmit(t, true, false)

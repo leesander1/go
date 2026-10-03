@@ -55,7 +55,7 @@ var (
 
 const (
 	AT_FDCWD   = -0x64
-	UTIME_OMIT = -0x2
+	UTIME_OMIT = (1 << 30) - 2
 
 	AT_SYMLINK_NOFOLLOW = 0x200
 	AT_REMOVEDIR        = 0x200
