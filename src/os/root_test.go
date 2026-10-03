@@ -1428,7 +1428,7 @@ func TestRootConsistencyRemove(t *testing.T) {
 		if test.open == "." || test.open == "./" {
 			continue // can't remove the root itself
 		}
-		test.run(t, func(t *testing.T, path string, r *os.Root) (string, error) {
+		test.runOnRedox(t, func(t *testing.T, path string, r *os.Root) (string, error) {
 			var err error
 			if r == nil {
 				err = os.Remove(path)
