@@ -1318,7 +1318,7 @@ func (test rootConsistencyTest) runOnRedox(t *testing.T, f func(t *testing.T, pa
 
 func TestRootConsistencyOpen(t *testing.T) {
 	for _, test := range rootConsistencyTestCases {
-		test.run(t, func(t *testing.T, path string, r *os.Root) (string, error) {
+		test.runOnRedox(t, func(t *testing.T, path string, r *os.Root) (string, error) {
 			var f *os.File
 			var err error
 			if r == nil {
