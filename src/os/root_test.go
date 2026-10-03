@@ -1397,7 +1397,7 @@ func TestRootConsistencyChmod(t *testing.T) {
 
 func TestRootConsistencyMkdir(t *testing.T) {
 	for _, test := range rootConsistencyTestCases {
-		test.run(t, func(t *testing.T, path string, r *os.Root) (string, error) {
+		test.runOnRedox(t, func(t *testing.T, path string, r *os.Root) (string, error) {
 			var err error
 			if r == nil {
 				err = os.Mkdir(path, 0o777)
@@ -1411,7 +1411,7 @@ func TestRootConsistencyMkdir(t *testing.T) {
 
 func TestRootConsistencyMkdirAll(t *testing.T) {
 	for _, test := range rootConsistencyTestCases {
-		test.run(t, func(t *testing.T, path string, r *os.Root) (string, error) {
+		test.runOnRedox(t, func(t *testing.T, path string, r *os.Root) (string, error) {
 			var err error
 			if r == nil {
 				err = os.MkdirAll(path, 0o777)
