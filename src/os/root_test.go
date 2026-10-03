@@ -1459,7 +1459,7 @@ func TestRootConsistencyRemoveAll(t *testing.T) {
 
 func TestRootConsistencyStat(t *testing.T) {
 	for _, test := range rootConsistencyTestCases {
-		test.run(t, func(t *testing.T, path string, r *os.Root) (string, error) {
+		test.runOnRedox(t, func(t *testing.T, path string, r *os.Root) (string, error) {
 			var fi os.FileInfo
 			var err error
 			if r == nil {
@@ -1477,7 +1477,7 @@ func TestRootConsistencyStat(t *testing.T) {
 
 func TestRootConsistencyLstat(t *testing.T) {
 	for _, test := range rootConsistencyTestCases {
-		test.run(t, func(t *testing.T, path string, r *os.Root) (string, error) {
+		test.runOnRedox(t, func(t *testing.T, path string, r *os.Root) (string, error) {
 			var fi os.FileInfo
 			var err error
 			if r == nil {
@@ -1495,7 +1495,7 @@ func TestRootConsistencyLstat(t *testing.T) {
 
 func TestRootConsistencyReadlink(t *testing.T) {
 	for _, test := range rootConsistencyTestCases {
-		test.run(t, func(t *testing.T, path string, r *os.Root) (string, error) {
+		test.runOnRedox(t, func(t *testing.T, path string, r *os.Root) (string, error) {
 			if r == nil {
 				return os.Readlink(path)
 			} else {
