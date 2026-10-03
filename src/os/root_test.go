@@ -1367,7 +1367,7 @@ func TestRootConsistencyChmod(t *testing.T) {
 		t.Skip("Chmod not supported on " + runtime.GOOS)
 	}
 	for _, test := range rootConsistencyTestCases {
-		test.run(t, func(t *testing.T, path string, r *os.Root) (string, error) {
+		test.runOnRedox(t, func(t *testing.T, path string, r *os.Root) (string, error) {
 			chmod := os.Chmod
 			lstat := os.Lstat
 			if r != nil {
