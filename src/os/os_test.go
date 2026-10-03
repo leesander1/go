@@ -2554,8 +2554,6 @@ func TestStatStdin(t *testing.T) {
 	switch runtime.GOOS {
 	case "android", "plan9":
 		t.Skipf("%s doesn't have /bin/sh", runtime.GOOS)
-	case "redox":
-		t.Skip("Redox child process stdin is not reported as a named pipe yet")
 	}
 
 	if Getenv("GO_WANT_HELPER_PROCESS") == "1" {
