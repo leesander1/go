@@ -893,11 +893,6 @@ func (w *badWriter) Write(data []byte) (int, error) {
 }
 
 func TestClosePipeOnCopyError(t *testing.T) {
-	if runtime.GOOS == "redox" {
-		maySkipHelperCommand("yes")
-		t.Skip("Redox temp-file stdout capture does not propagate copy errors to the child yet")
-	}
-
 	t.Parallel()
 
 	cmd := helperCommand(t, "yes")
