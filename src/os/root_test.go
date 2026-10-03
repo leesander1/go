@@ -1535,7 +1535,7 @@ func testRootConsistencyMove(t *testing.T, rename bool) {
 					}
 				}
 
-				test.run(t, func(t *testing.T, path string, r *os.Root) (string, error) {
+				test.runOnRedox(t, func(t *testing.T, path string, r *os.Root) (string, error) {
 					var move func(oldname, newname string) error
 					switch {
 					case rename && r == nil:
@@ -1598,7 +1598,7 @@ func testRootConsistencyMove(t *testing.T, rename bool) {
 func TestRootConsistencySymlink(t *testing.T) {
 	testenv.MustHaveSymlink(t)
 	for _, test := range rootConsistencyTestCases {
-		test.run(t, func(t *testing.T, path string, r *os.Root) (string, error) {
+		test.runOnRedox(t, func(t *testing.T, path string, r *os.Root) (string, error) {
 			const target = "linktarget"
 			var err error
 			var got string

@@ -106,7 +106,7 @@ func TestRootConsistencyChown(t *testing.T) {
 		gid = groups[0]
 	}
 	for _, test := range rootConsistencyTestCases {
-		test.run(t, func(t *testing.T, path string, r *os.Root) (string, error) {
+		test.runOnRedox(t, func(t *testing.T, path string, r *os.Root) (string, error) {
 			chown := os.Chown
 			lstat := os.Lstat
 			if r != nil {
@@ -142,7 +142,7 @@ func TestRootConsistencyLchown(t *testing.T) {
 		gid = groups[0]
 	}
 	for _, test := range rootConsistencyTestCases {
-		test.run(t, func(t *testing.T, path string, r *os.Root) (string, error) {
+		test.runOnRedox(t, func(t *testing.T, path string, r *os.Root) (string, error) {
 			lchown := os.Lchown
 			lstat := os.Lstat
 			if r != nil {
