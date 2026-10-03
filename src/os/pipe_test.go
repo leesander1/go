@@ -165,10 +165,6 @@ func TestStdPipe(t *testing.T) {
 }
 
 func testClosedPipeRace(t *testing.T, read bool) {
-	if runtime.GOOS == "redox" {
-		t.Skip("Redox pipe close does not unblock in-flight I/O yet")
-	}
-
 	// This test cannot be run in parallel due to the same race as for TestEPIPE.
 	// (We expect a write to a closed pipe can fail, but a concurrent fork of a
 	// child process can cause the pipe to unexpectedly remain open.)
@@ -278,10 +274,6 @@ func TestReadNonblockingFd(t *testing.T) {
 }
 
 func TestCloseWithBlockingReadByNewFile(t *testing.T) {
-	if runtime.GOOS == "redox" {
-		t.Skip("Redox pipe close does not unblock blocking readers yet")
-	}
-
 	t.Parallel()
 
 	var p [2]syscallDescriptor
@@ -294,10 +286,6 @@ func TestCloseWithBlockingReadByNewFile(t *testing.T) {
 }
 
 func TestCloseWithBlockingReadByFd(t *testing.T) {
-	if runtime.GOOS == "redox" {
-		t.Skip("Redox pipe close does not unblock blocking readers yet")
-	}
-
 	t.Parallel()
 
 	r, w, err := os.Pipe()

@@ -2917,8 +2917,6 @@ func TestPipeThreads(t *testing.T) {
 		t.Skip("skipping on Windows; issue 19098")
 	case "plan9":
 		t.Skip("skipping on Plan 9; does not support runtime poller")
-	case "redox":
-		t.Skip("skipping on Redox; pipe-thread stress test hangs")
 	case "js":
 		t.Skip("skipping on js; no support for os.Pipe")
 	case "wasip1":
@@ -3522,9 +3520,6 @@ func TestPipeIOCloseRace(t *testing.T) {
 	// Skip on wasm, which doesn't have pipes.
 	if runtime.GOOS == "js" || runtime.GOOS == "wasip1" {
 		t.Skipf("skipping on %s: no pipes", runtime.GOOS)
-	}
-	if runtime.GOOS == "redox" {
-		t.Skip("Redox pipe close does not unblock concurrent I/O yet")
 	}
 	t.Parallel()
 

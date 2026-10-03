@@ -155,11 +155,6 @@ func newFile(fd int, name string, kind newFileKind, nonBlocking bool) *File {
 
 	pollable := kind == kindOpenFile || kind == kindPipe || kind == kindSock || nonBlocking
 
-	if runtime.GOOS == "redox" && kind == kindPipe {
-		// Redox event queues do not currently support pipe descriptors.
-		pollable = false
-	}
-
 	// Things like regular files and FIFOs in kqueue on *BSD/Darwin
 	// may not work properly (or accurately according to its manual).
 	// As a result, we should avoid adding those to the kqueue-based
