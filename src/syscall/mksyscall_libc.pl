@@ -346,6 +346,11 @@ while(<>) {
 		$text .= "\t\tredoxForgetDirentOffset(fd)\n";
 		$text .= "\t}\n";
 	}
+	if($redox && $func eq "Seek" && $package eq "syscall") {
+		$text .= "\tif err == nil {\n";
+		$text .= "\t\tredoxMaybeSetDirentOffset(fd, uint64(newoffset))\n";
+		$text .= "\t}\n";
+	}
 	$text .= "\treturn\n";
 	$text .= "}\n";
 }

@@ -3126,9 +3126,6 @@ func TestUserHomeDir(t *testing.T) {
 }
 
 func TestDirSeek(t *testing.T) {
-	if runtime.GOOS == "redox" {
-		t.Skip("Redox directory seek does not reset directory iteration yet")
-	}
 	t.Parallel()
 
 	wd, err := Getwd()
@@ -3172,9 +3169,6 @@ func TestReaddirSmallSeek(t *testing.T) {
 	// See issue 37161. Read only one entry from a directory,
 	// seek to the beginning, and read again. We should not see
 	// duplicate entries.
-	if runtime.GOOS == "redox" {
-		t.Skip("Redox directory seek does not reset directory iteration yet")
-	}
 	t.Parallel()
 
 	wd, err := Getwd()

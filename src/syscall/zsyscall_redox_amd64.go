@@ -897,6 +897,9 @@ func Seek(fd int, offset int64, whence int) (newoffset int64, err error) {
 	if e1 != 0 {
 		err = errnoErr(e1)
 	}
+	if err == nil {
+		redoxMaybeSetDirentOffset(fd, uint64(newoffset))
+	}
 	return
 }
 
