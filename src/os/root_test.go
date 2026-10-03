@@ -1899,8 +1899,6 @@ func TestOpenInRoot(t *testing.T) {
 }
 
 func TestRootRemoveDot(t *testing.T) {
-	skipRootOnRedox(t)
-
 	dir := t.TempDir()
 	root, err := os.OpenRoot(dir)
 	if err != nil {
