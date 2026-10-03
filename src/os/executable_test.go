@@ -35,9 +35,6 @@ func TestExecutable(t *testing.T) {
 		os.Exit(0)
 	}
 
-	if runtime.GOOS == "redox" {
-		t.Skip("Redox os.Executable does not resolve the current executable path yet")
-	}
 	t.Parallel()
 	ep := testenv.Executable(t)
 	// we want fn to be of the form "dir/prog"
@@ -51,7 +48,7 @@ func TestExecutable(t *testing.T) {
 	// make child start with a relative program path
 	cmd.Dir = dir
 	cmd.Path = fn
-	if runtime.GOOS == "openbsd" || runtime.GOOS == "aix" {
+	if runtime.GOOS == "openbsd" || runtime.GOOS == "aix" || runtime.GOOS == "redox" {
 		// OpenBSD and AIX rely on argv[0]
 	} else {
 		// forge argv[0] for child, so that we can verify we could correctly
