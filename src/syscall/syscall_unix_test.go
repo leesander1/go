@@ -345,9 +345,6 @@ func TestSeekFailure(t *testing.T) {
 }
 
 func TestSetsockoptString(t *testing.T) {
-	if runtime.GOOS == "redox" {
-		t.Skip("skipping; Redox setsockopt does not report EBADF for this case")
-	}
 	// should not panic on empty string, see issue #31277
 	err := syscall.SetsockoptString(-1, 0, 0, "")
 	if err == nil {
