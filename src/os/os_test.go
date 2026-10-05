@@ -3387,9 +3387,6 @@ func TestDirFSPathsValid(t *testing.T) {
 	if runtime.GOOS == "windows" {
 		t.Skipf("skipping on Windows")
 	}
-	if runtime.GOOS == "redox" {
-		t.Skip("Redox rejects the colon/backslash filenames used by this test")
-	}
 	t.Parallel()
 
 	d := t.TempDir()
