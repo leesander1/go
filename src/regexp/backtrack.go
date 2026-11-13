@@ -16,7 +16,6 @@ package regexp
 
 import (
 	"regexp/syntax"
-	"runtime"
 	"sync"
 )
 
@@ -72,11 +71,6 @@ func maxBitStateLen(prog *syntax.Prog) int {
 // shouldBacktrack reports whether the program is too
 // long for the backtracker to run.
 func shouldBacktrack(prog *syntax.Prog) bool {
-	// TODO(redox): the backtracker currently trips a runtime fault during cmd/go
-	// flag validation. Use the NFA engine until the underlying issue is fixed.
-	if runtime.GOOS == "redox" {
-		return false
-	}
 	return len(prog.Inst) <= maxBacktrackProg
 }
 
