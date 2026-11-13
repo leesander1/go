@@ -72,9 +72,6 @@ func TestFcntlFlock(t *testing.T) {
 	if runtime.GOOS == "ios" {
 		t.Skip("skipping; no child processes allowed on iOS")
 	}
-	if runtime.GOOS == "redox" {
-		t.Skip("skipping; FcntlFlock is not implemented on Redox")
-	}
 	flock := syscall.Flock_t{
 		Type:  syscall.F_WRLCK,
 		Start: 31415, Len: 271828, Whence: 1,
