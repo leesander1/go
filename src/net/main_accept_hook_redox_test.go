@@ -6,6 +6,8 @@
 
 package net
 
-// Tracking accepted descriptors changes their lifetime on Redox when several
-// goroutines accept concurrently. The production accept path remains covered.
-func installAcceptTestHook() {}
+import "internal/poll"
+
+func installAcceptTestHook() {
+	poll.AcceptFunc = sw.Accept
+}
