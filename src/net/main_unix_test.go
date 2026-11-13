@@ -29,7 +29,7 @@ func installTestHooks() {
 	poll.CloseFunc = sw.Close
 	connectFunc = sw.Connect
 	listenFunc = sw.Listen
-	poll.AcceptFunc = sw.Accept
+	installAcceptTestHook()
 	getsockoptIntFunc = sw.GetsockoptInt
 
 	for _, fn := range extraTestHookInstallers {
