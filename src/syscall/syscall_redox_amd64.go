@@ -4,6 +4,8 @@
 
 package syscall
 
+const MSG_CMSG_CLOEXEC = 0x40000000
+
 func setTimespec(sec, nsec int64) Timespec {
 	return Timespec{Sec: sec, Nsec: nsec}
 }

@@ -9,13 +9,14 @@ package net
 import (
 	"internal/syscall/unix"
 	"os"
+	"runtime"
 	"syscall"
 	"testing"
 	"time"
 )
 
 func TestUnixConnReadMsgUnixSCMRightsCloseOnExec(t *testing.T) {
-	if !testableNetwork("unix") {
+	if runtime.GOOS != "redox" && !testableNetwork("unix") {
 		t.Skip("not unix system")
 	}
 
