@@ -512,15 +512,16 @@ func recvmsgRaw(fd int, p, oob []byte, flags int, rsa *RawSockaddrAny) (n, oobn 
 			iov.Base = &dummy
 			iov.SetLen(1)
 		}
-		// msg.Accrights = (*int8)(unsafe.Pointer(&oob[0]))
-		// msg.Accrightslen = int32(len(oob))
+		msg.Control = &oob[0]
+		msg.SetControllen(len(oob))
 	}
 	msg.Iov = &iov
 	msg.Iovlen = 1
 	if n, err = recvmsg(fd, &msg, flags); err != nil {
 		return
 	}
-	// oobn = int(msg.Accrightslen)
+	oobn = int(msg.Controllen)
+	recvflags = int(msg.Flags)
 	return
 }
 
@@ -549,8 +550,8 @@ func sendmsgN(fd int, p, oob []byte, ptr unsafe.Pointer, salen _Socklen, flags i
 			iov.Base = &dummy
 			iov.SetLen(1)
 		}
-		// msg.Accrights = (*int8)(unsafe.Pointer(&oob[0]))
-		// msg.Accrightslen = int32(len(oob))
+		msg.Control = &oob[0]
+		msg.SetControllen(len(oob))
 	}
 	msg.Iov = &iov
 	msg.Iovlen = 1

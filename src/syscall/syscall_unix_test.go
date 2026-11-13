@@ -137,10 +137,6 @@ func TestFcntlFlock(t *testing.T) {
 // that the test should become the child process instead.
 func TestPassFD(t *testing.T) {
 	testenv.MustHaveExec(t)
-	if runtime.GOOS == "redox" {
-		t.Skip("skipping; SCM_RIGHTS fd passing is not implemented on Redox")
-	}
-
 	if os.Getenv("GO_WANT_HELPER_PROCESS") == "1" {
 		passFDChild()
 		return
