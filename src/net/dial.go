@@ -603,7 +603,7 @@ func (d *Dialer) dialCtx(ctx context.Context) (context.Context, context.CancelFu
 func (d *Dialer) DialTCP(ctx context.Context, network string, laddr netip.AddrPort, raddr netip.AddrPort) (*TCPConn, error) {
 	ctx, cancel := d.dialCtx(ctx)
 	defer cancel()
-	return dialTCP(ctx, d, network, TCPAddrFromAddrPort(laddr), TCPAddrFromAddrPort(raddr))
+	return dialTCP(ctx, d, network, dialTCPAddrFromAddrPort(laddr), TCPAddrFromAddrPort(raddr))
 }
 
 // DialUDP acts like Dial for UDP networks using the provided context.
