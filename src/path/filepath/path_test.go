@@ -910,10 +910,9 @@ func TestWalkSymlinkRoot(t *testing.T) {
 			want: []string{link},
 		},
 		{
-			desc:      "slash",
-			root:      link + string(filepath.Separator),
-			want:      []string{link, filepath.Join(link, "foo")},
-			buggyGOOS: []string{"redox"},
+			desc: "slash",
+			root: link + string(filepath.Separator),
+			want: []string{link, filepath.Join(link, "foo")},
 		},
 		{
 			desc: "abs no slash",
@@ -921,10 +920,9 @@ func TestWalkSymlinkRoot(t *testing.T) {
 			want: []string{abslink},
 		},
 		{
-			desc:      "abs with slash",
-			root:      abslink + string(filepath.Separator),
-			want:      []string{abslink, filepath.Join(abslink, "foo")},
-			buggyGOOS: []string{"redox"},
+			desc: "abs with slash",
+			root: abslink + string(filepath.Separator),
+			want: []string{abslink, filepath.Join(abslink, "foo")},
 		},
 		{
 			desc: "double link no slash",
@@ -935,7 +933,7 @@ func TestWalkSymlinkRoot(t *testing.T) {
 			desc:      "double link with slash",
 			root:      linklink + string(filepath.Separator),
 			want:      []string{linklink, filepath.Join(linklink, "foo")},
-			buggyGOOS: []string{"darwin", "ios", "redox"}, // https://go.dev/issue/59586
+			buggyGOOS: []string{"darwin", "ios"}, // https://go.dev/issue/59586
 		},
 	} {
 		t.Run(tt.desc, func(t *testing.T) {
