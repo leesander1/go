@@ -47,3 +47,41 @@ func TestIPv4MulticastLoopbackDelivery(t *testing.T) {
 		t.Fatalf("ReadFromUDP = %q, %d bytes; want %q", got[:n], n, want)
 	}
 }
+
+func TestIPv4MulticastEthernetEgress(t *testing.T) {
+	ifi, err := InterfaceByName("eth0")
+	if err != nil {
+		t.Fatal(err)
+	}
+	addrs, err := ifi.Addrs()
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	var source IP
+	for _, addr := range addrs {
+		if network, ok := addr.(*IPNet); ok {
+			if ip := network.IP.To4(); ip != nil && !ip.IsLoopback() {
+				source = ip
+				break
+			}
+		}
+	}
+	if source == nil {
+		t.Fatal("eth0 has no IPv4 address")
+	}
+
+	sender, err := ListenUDP("udp4", &UDPAddr{IP: source})
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer sender.Close()
+
+	want := []byte("redox ethernet multicast")
+	group := &UDPAddr{IP: IPv4(239, 255, 0, 1), Port: 12347}
+	if n, err := sender.WriteToUDP(want, group); err != nil {
+		t.Fatal(err)
+	} else if n != len(want) {
+		t.Fatalf("WriteToUDP wrote %d bytes; want %d", n, len(want))
+	}
+}
