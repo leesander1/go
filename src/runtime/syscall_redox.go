@@ -22,7 +22,6 @@ import "unsafe"
 //go:cgo_import_static _cgo_libc_setsid
 //go:cgo_import_static _cgo_libc_setuid
 //go:cgo_import_static _cgo_libc_setpgid
-//go:cgo_import_static _cgo_libc_issetugid
 
 //go:linkname libc_chdir _cgo_libc_chdir
 //go:linkname libc_chroot _cgo_libc_chroot
@@ -40,7 +39,6 @@ import "unsafe"
 //go:linkname libc_setsid _cgo_libc_setsid
 //go:linkname libc_setuid _cgo_libc_setuid
 //go:linkname libc_setpgid _cgo_libc_setpgid
-//go:linkname libc_issetugid _cgo_libc_issetugid
 
 var (
 	libc_chdir,
@@ -58,8 +56,7 @@ var (
 	libc_setrlimit,
 	libc_setsid,
 	libc_setuid,
-	libc_setpgid,
-	libc_issetugid byte
+	libc_setpgid byte
 )
 
 // Many of these are exported via linkname to assembly in the syscall
@@ -237,11 +234,6 @@ func syscall_setgid(gid uintptr) (err uintptr) {
 func syscall_setgroups(ngid, gid uintptr) (err uintptr) {
 	_, errno := cgocaller2(unsafe.Pointer(&libc_setgroups), ngid, gid)
 	return uintptr(errno)
-}
-
-func issetugid() int32 {
-	_, errno := cgocaller0(unsafe.Pointer(&libc_issetugid))
-	return errno
 }
 
 //go:nosplit

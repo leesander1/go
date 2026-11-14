@@ -19,6 +19,10 @@ import (
 //go:cgo_import_static _cgo_libc_exit
 //go:cgo_import_static _cgo_libc_waitpid
 //go:cgo_import_dynamic libc_getcontext getcontext "libc.so"
+//go:cgo_import_dynamic libc_getegid getegid "libc.so"
+//go:cgo_import_dynamic libc_geteuid geteuid "libc.so"
+//go:cgo_import_dynamic libc_getgid getgid "libc.so"
+//go:cgo_import_dynamic libc_getuid getuid "libc.so"
 //go:cgo_import_dynamic libc_kill kill "libc.so"
 //go:cgo_import_dynamic libc_madvise madvise "libc.so"
 //go:cgo_import_dynamic libc_malloc malloc "libc.so"
@@ -58,6 +62,10 @@ import (
 //go:linkname libc_exit _cgo_libc_exit
 //go:linkname libc_waitpid _cgo_libc_waitpid
 //go:linkname libc_getcontext libc_getcontext
+//go:linkname libc_getegid libc_getegid
+//go:linkname libc_geteuid libc_geteuid
+//go:linkname libc_getgid libc_getgid
+//go:linkname libc_getuid libc_getuid
 //go:linkname libc_kill libc_kill
 //go:linkname libc_madvise libc_madvise
 //go:linkname libc_malloc libc_malloc
@@ -95,6 +103,10 @@ var (
 	libc___errno,
 	libc_clock_gettime,
 	libc_getcontext,
+	libc_getegid,
+	libc_geteuid,
+	libc_getgid,
+	libc_getuid,
 	libc_kill,
 	libc_madvise,
 	libc_malloc,
@@ -156,6 +168,26 @@ func get_environ() uintptr {
 func getcontext(context *ucontext) /* int32 */ {
 	sysvicall1(&libc_getcontext, uintptr(unsafe.Pointer(context)))
 	KeepAlive(context)
+}
+
+//go:nosplit
+func getegid() int32 {
+	return int32(sysvicall0(&libc_getegid))
+}
+
+//go:nosplit
+func geteuid() int32 {
+	return int32(sysvicall0(&libc_geteuid))
+}
+
+//go:nosplit
+func getgid() int32 {
+	return int32(sysvicall0(&libc_getgid))
+}
+
+//go:nosplit
+func getuid() int32 {
+	return int32(sysvicall0(&libc_getuid))
 }
 
 //go:nosplit
