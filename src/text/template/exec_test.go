@@ -12,7 +12,6 @@ import (
 	"io"
 	"iter"
 	"reflect"
-	"runtime"
 	"strings"
 	"sync"
 	"testing"
@@ -1814,10 +1813,6 @@ func TestExecutePanicDuringCall(t *testing.T) {
 		},
 	}
 	for _, tc := range tests {
-		if runtime.GOOS == "redox" && (tc.name == "direct method call panics" || tc.name == "indirect method call panics") {
-			t.Logf("%s: skipping nil-deref panic recovery check on Redox", tc.name)
-			continue
-		}
 		b := new(bytes.Buffer)
 		tmpl, err := New("t").Funcs(funcs).Parse(tc.input)
 		if err != nil {

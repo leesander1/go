@@ -4118,10 +4118,6 @@ func shouldPanic(expect string, f func()) {
 
 func shouldPanicNilPointer(t *testing.T, f func()) {
 	t.Helper()
-	if runtime.GOOS == "redox" {
-		t.Log("skipping nil pointer panic check on redox")
-		return
-	}
 	shouldPanic("", f)
 }
 
@@ -6901,9 +6897,6 @@ func TestTypeFieldOutOfRangePanic(t *testing.T) {
 }
 
 func TestTypeFieldReadOnly(t *testing.T) {
-	if runtime.GOOS == "redox" {
-		t.Skip("test relies on recoverable page faults")
-	}
 	if runtime.GOOS == "js" || runtime.GOOS == "wasip1" {
 		// This is OK because we don't use the optimization
 		// for js or wasip1.
