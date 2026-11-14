@@ -11,25 +11,6 @@ import (
 	"testing"
 )
 
-func socketAcceptConn(t *testing.T, c syscall.Conn) int {
-	t.Helper()
-	raw, err := c.SyscallConn()
-	if err != nil {
-		t.Fatal(err)
-	}
-	var value int
-	var optionErr error
-	if err := raw.Control(func(fd uintptr) {
-		value, optionErr = syscall.GetsockoptInt(int(fd), syscall.SOL_SOCKET, syscall.SO_ACCEPTCONN)
-	}); err != nil {
-		t.Fatal(err)
-	}
-	if optionErr != nil {
-		t.Fatal(optionErr)
-	}
-	return value
-}
-
 func TestSocketAcceptConn(t *testing.T) {
 	ln, err := ListenTCP("tcp4", &TCPAddr{IP: IPv4(127, 0, 0, 1)})
 	if err != nil {
@@ -37,7 +18,7 @@ func TestSocketAcceptConn(t *testing.T) {
 	}
 	defer ln.Close()
 
-	if got := socketAcceptConn(t, ln); got != 1 {
+	if got := socketOptionInt(t, ln, syscall.SO_ACCEPTCONN); got != 1 {
 		t.Fatalf("listener SO_ACCEPTCONN = %d, want 1", got)
 	}
 
@@ -65,7 +46,7 @@ func TestSocketAcceptConn(t *testing.T) {
 		defer conn.Close()
 	}
 
-	if got := socketAcceptConn(t, accepted); got != 0 {
+	if got := socketOptionInt(t, accepted, syscall.SO_ACCEPTCONN); got != 0 {
 		t.Fatalf("accepted connection SO_ACCEPTCONN = %d, want 0", got)
 	}
 }

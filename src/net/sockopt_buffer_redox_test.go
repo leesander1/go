@@ -11,7 +11,7 @@ import (
 	"testing"
 )
 
-func socketBufferSize(t *testing.T, c syscall.Conn, option int) int {
+func socketOptionInt(t *testing.T, c syscall.Conn, option int) int {
 	t.Helper()
 	raw, err := c.SyscallConn()
 	if err != nil {
@@ -41,13 +41,13 @@ func testSocketBufferOptions(t *testing.T, name string, c interface {
 		if err := c.SetReadBuffer(requested); err != nil {
 			t.Fatalf("SetReadBuffer(%d): %v", requested, err)
 		}
-		if got := socketBufferSize(t, c, syscall.SO_RCVBUF); got < requested {
+		if got := socketOptionInt(t, c, syscall.SO_RCVBUF); got < requested {
 			t.Errorf("SO_RCVBUF = %d, want at least %d", got, requested)
 		}
 		if err := c.SetWriteBuffer(requested); err != nil {
 			t.Fatalf("SetWriteBuffer(%d): %v", requested, err)
 		}
-		if got := socketBufferSize(t, c, syscall.SO_SNDBUF); got < requested {
+		if got := socketOptionInt(t, c, syscall.SO_SNDBUF); got < requested {
 			t.Errorf("SO_SNDBUF = %d, want at least %d", got, requested)
 		}
 		if err := c.SetReadBuffer(0); err == nil {
