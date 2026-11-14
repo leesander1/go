@@ -128,3 +128,57 @@ func TestIPv4MulticastLoopbackFanout(t *testing.T) {
 		}
 	}
 }
+
+func TestIPv4MulticastLoopbackOption(t *testing.T) {
+	ifi := loopbackInterface()
+	if ifi == nil {
+		t.Fatal("loopback interface not found")
+	}
+
+	group := &UDPAddr{IP: IPv4(224, 0, 0, 254), Port: 12349}
+	listener, err := ListenMulticastUDP("udp4", ifi, group)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer listener.Close()
+
+	sender, err := ListenUDP("udp4", &UDPAddr{IP: IPv4(127, 0, 0, 1)})
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer sender.Close()
+
+	if err := setIPv4MulticastLoopback(sender.fd, false); err != nil {
+		t.Fatal(err)
+	}
+	suppressed := []byte("redox multicast suppressed")
+	if _, err := sender.WriteToUDP(suppressed, group); err != nil {
+		t.Fatal(err)
+	}
+	if err := listener.SetReadDeadline(time.Now().Add(250 * time.Millisecond)); err != nil {
+		t.Fatal(err)
+	}
+	buf := make([]byte, len(suppressed))
+	if _, _, err := listener.ReadFromUDP(buf); err == nil {
+		t.Fatal("ReadFromUDP received multicast with loopback disabled")
+	} else if timeout, ok := err.(Error); !ok || !timeout.Timeout() {
+		t.Fatalf("ReadFromUDP with loopback disabled: %v", err)
+	}
+
+	if err := setIPv4MulticastLoopback(sender.fd, true); err != nil {
+		t.Fatal(err)
+	}
+	want := []byte("redox multicast restored")
+	if _, err := sender.WriteToUDP(want, group); err != nil {
+		t.Fatal(err)
+	}
+	if err := listener.SetReadDeadline(time.Now().Add(2 * time.Second)); err != nil {
+		t.Fatal(err)
+	}
+	got := make([]byte, len(want))
+	if n, _, err := listener.ReadFromUDP(got); err != nil {
+		t.Fatal(err)
+	} else if n != len(want) || string(got[:n]) != string(want) {
+		t.Fatalf("ReadFromUDP = %q, %d bytes; want %q", got[:n], n, want)
+	}
+}
