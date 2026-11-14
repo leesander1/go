@@ -85,3 +85,46 @@ func TestIPv4MulticastEthernetEgress(t *testing.T) {
 		t.Fatalf("WriteToUDP wrote %d bytes; want %d", n, len(want))
 	}
 }
+
+func TestIPv4MulticastLoopbackFanout(t *testing.T) {
+	ifi := loopbackInterface()
+	if ifi == nil {
+		t.Fatal("loopback interface not found")
+	}
+
+	group := &UDPAddr{IP: IPv4(224, 0, 0, 254), Port: 12348}
+	listeners := make([]*UDPConn, 2)
+	for i := range listeners {
+		listener, err := ListenMulticastUDP("udp4", ifi, group)
+		if err != nil {
+			t.Fatal(err)
+		}
+		defer listener.Close()
+		if err := listener.SetReadDeadline(time.Now().Add(2 * time.Second)); err != nil {
+			t.Fatal(err)
+		}
+		listeners[i] = listener
+	}
+
+	sender, err := ListenUDP("udp4", &UDPAddr{IP: IPv4(127, 0, 0, 1)})
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer sender.Close()
+
+	want := []byte("redox multicast fanout")
+	if n, err := sender.WriteToUDP(want, group); err != nil {
+		t.Fatal(err)
+	} else if n != len(want) {
+		t.Fatalf("WriteToUDP wrote %d bytes; want %d", n, len(want))
+	}
+
+	for i, listener := range listeners {
+		got := make([]byte, len(want))
+		if n, _, err := listener.ReadFromUDP(got); err != nil {
+			t.Fatalf("listener %d: %v", i, err)
+		} else if n != len(want) || string(got[:n]) != string(want) {
+			t.Fatalf("listener %d: ReadFromUDP = %q, %d bytes; want %q", i, got[:n], n, want)
+		}
+	}
+}
