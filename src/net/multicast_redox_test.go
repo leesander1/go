@@ -182,3 +182,40 @@ func TestIPv4MulticastLoopbackOption(t *testing.T) {
 		t.Fatalf("ReadFromUDP = %q, %d bytes; want %q", got[:n], n, want)
 	}
 }
+
+func TestIPv4MulticastInterfaceSelection(t *testing.T) {
+	ifi := loopbackInterface()
+	if ifi == nil {
+		t.Fatal("loopback interface not found")
+	}
+
+	group := &UDPAddr{IP: IPv4(224, 0, 0, 254), Port: 12350}
+	listener, err := ListenMulticastUDP("udp4", ifi, group)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer listener.Close()
+	if err := listener.SetReadDeadline(time.Now().Add(2 * time.Second)); err != nil {
+		t.Fatal(err)
+	}
+
+	sender, err := ListenUDP("udp4", nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer sender.Close()
+	if err := setIPv4MulticastInterface(sender.fd, ifi); err != nil {
+		t.Fatal(err)
+	}
+
+	want := []byte("redox multicast selected interface")
+	if _, err := sender.WriteToUDP(want, group); err != nil {
+		t.Fatal(err)
+	}
+	got := make([]byte, len(want))
+	if n, _, err := listener.ReadFromUDP(got); err != nil {
+		t.Fatal(err)
+	} else if n != len(want) || string(got[:n]) != string(want) {
+		t.Fatalf("ReadFromUDP = %q, %d bytes; want %q", got[:n], n, want)
+	}
+}
