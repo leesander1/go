@@ -12,6 +12,7 @@ import (
 )
 
 const redoxNetcfg = "/scheme/netcfg/ifaces/eth0"
+const redoxMulticastNetcfg = "/scheme/netcfg/multicast/list"
 
 var redoxInterfaces = [...]Interface{
 	{
@@ -93,10 +94,23 @@ func interfaceAddrTable(ifi *Interface) ([]Addr, error) {
 	return addrs, nil
 }
 
-// Redox does not currently expose joined multicast groups through netcfg.
 func interfaceMulticastAddrTable(ifi *Interface) ([]Addr, error) {
-	if ifi == nil || ifi.Index < 1 || ifi.Index > len(redoxInterfaces) {
+	if ifi != nil && (ifi.Index < 1 || ifi.Index > len(redoxInterfaces)) {
 		return nil, errNoSuchInterface
 	}
-	return nil, nil
+
+	data, err := os.ReadFile(redoxMulticastNetcfg)
+	if err != nil {
+		return nil, err
+	}
+	fields := strings.Fields(string(data))
+	addrs := make([]Addr, 0, len(fields))
+	for _, field := range fields {
+		ip := ParseIP(field)
+		if ip == nil || !ip.IsMulticast() {
+			return nil, &ParseError{Type: "IP address", Text: field}
+		}
+		addrs = append(addrs, &IPAddr{IP: ip})
+	}
+	return addrs, nil
 }
