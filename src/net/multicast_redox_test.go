@@ -219,3 +219,25 @@ func TestIPv4MulticastInterfaceSelection(t *testing.T) {
 		t.Fatalf("ReadFromUDP = %q, %d bytes; want %q", got[:n], n, want)
 	}
 }
+
+func TestIPv4MulticastEthernetIngress(t *testing.T) {
+	group := &UDPAddr{IP: IPv4(239, 255, 0, 2), Port: 12351}
+	listener, err := ListenMulticastUDP("udp4", nil, group)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer listener.Close()
+	if err := listener.SetReadDeadline(time.Now().Add(8 * time.Second)); err != nil {
+		t.Fatal(err)
+	}
+
+	want := []byte("redox external multicast ingress")
+	got := make([]byte, len(want))
+	if n, source, err := listener.ReadFromUDP(got); err != nil {
+		t.Fatal(err)
+	} else if n != len(want) || string(got[:n]) != string(want) {
+		t.Fatalf("ReadFromUDP = %q, %d bytes; want %q", got[:n], n, want)
+	} else if source.IP.String() != "10.0.2.2" || source.Port != 40000 {
+		t.Fatalf("ReadFromUDP source = %v; want 10.0.2.2:40000", source)
+	}
+}
