@@ -2,6 +2,8 @@ package runtime
 
 import "internal/runtime/atomic"
 
+const RedoxHasSysmon = haveSysmon
+
 type RedoxNote struct{ n note }
 
 func (n *RedoxNote) Clear()             { noteclear(&n.n) }

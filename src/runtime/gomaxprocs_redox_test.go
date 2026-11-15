@@ -12,6 +12,9 @@ import (
 )
 
 func TestRedoxGOMAXPROCSStaysSingleP(t *testing.T) {
+	if !runtime.RedoxHasSysmon {
+		t.Fatal("sysmon disabled on Redox")
+	}
 	if runtime.GOMAXPROCSUpdateHelperReady() {
 		t.Fatal("automatic GOMAXPROCS updates enabled on Redox")
 	}
