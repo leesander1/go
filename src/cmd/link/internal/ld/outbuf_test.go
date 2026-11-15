@@ -33,7 +33,7 @@ func TestMMap(t *testing.T) {
 	switch runtime.GOOS {
 	default:
 		t.Skip("unsupported OS")
-	case "aix", "darwin", "ios", "dragonfly", "freebsd", "linux", "netbsd", "openbsd", "windows":
+	case "aix", "darwin", "ios", "dragonfly", "freebsd", "linux", "netbsd", "openbsd", "redox", "windows":
 	}
 	dir := t.TempDir()
 	filename := filepath.Join(dir, "foo.out")
