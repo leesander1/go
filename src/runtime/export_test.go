@@ -2105,3 +2105,7 @@ var (
 	Complex128Bytes = complex128Bytes
 	Complex64Bytes  = complex64Bytes
 )
+
+func GOMAXPROCSUpdateHelperReady() bool {
+	return updateMaxProcsG.idle.Load()
+}

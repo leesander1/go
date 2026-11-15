@@ -12,6 +12,9 @@ import (
 )
 
 func TestRedoxGOMAXPROCSStaysSingleP(t *testing.T) {
+	if runtime.GOMAXPROCSUpdateHelperReady() {
+		t.Fatal("automatic GOMAXPROCS updates enabled on Redox")
+	}
 	if old := runtime.GOMAXPROCS(8); old != 1 {
 		t.Fatalf("GOMAXPROCS(8) returned %d, want 1", old)
 	}

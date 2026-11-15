@@ -211,8 +211,10 @@ func main() {
 	}()
 
 	gcenable()
-	// broken in redox
-	// defaultGOMAXPROCSUpdateEnable() // don't STW before runtime initialized.
+	// Redox keeps automatic updates disabled while restricted to one P.
+	if GOOS != "redox" {
+		defaultGOMAXPROCSUpdateEnable() // don't STW before runtime initialized.
+	}
 
 	main_init_done = make(chan bool)
 	if iscgo {
