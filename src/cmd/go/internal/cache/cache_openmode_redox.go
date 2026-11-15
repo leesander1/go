@@ -6,16 +6,10 @@
 
 package cache
 
-import (
-	"os"
-	"time"
-)
-
-func cacheChtimes(name string, atime, mtime time.Time) {
-	// Cache mtimes are approximate metadata for trimming. Avoid Redox
-	// utimensat here until it is reliable under the Go build workload.
-}
+import "os"
 
 func cacheIndexOpenMode() int {
+	// Redox can stall opening an index for reading after it was created
+	// through a write-only descriptor. Keep the descriptor read/write.
 	return os.O_RDWR | os.O_CREATE
 }
