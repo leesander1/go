@@ -579,32 +579,39 @@ func semacreate(mp *m) {}
 //go:nosplit
 func semasleep(ns int64) int32 {
 	mp := getg().m
-
-	for v := atomic.Xadd(&mp.waitsema, -1); ; v = atomic.Load(&mp.waitsema) {
-		if int32(v) >= 0 {
-			return 0
-		}
-		sleepns := ns
-		if sleepns < 0 {
-			// Avoid parking an M forever if a Redox futex wake races with
-			// entering the kernel wait.
-			sleepns = 10e6
-		}
-		futexsleep(&mp.waitsema, v, sleepns)
-		if ns >= 0 {
-			if int32(v) >= 0 {
+	var deadline int64
+	if ns >= 0 {
+		deadline = nanotime() + ns
+	}
+	for {
+		// Only consume a posted token. A timeout must not leave a debt
+		// that would absorb a later wakeup.
+		if v := atomic.Load(&mp.waitsema); v != 0 {
+			if atomic.Cas(&mp.waitsema, v, v-1) {
 				return 0
-			} else {
+			}
+			continue
+		}
+		// Bound kernel waits so the token is rechecked even if a Redox
+		// futex wake races with entering the kernel wait.
+		sleepns := int64(10e6)
+		if ns >= 0 {
+			remaining := deadline - nanotime()
+			if remaining <= 0 {
 				return -1
 			}
+			if remaining < sleepns {
+				sleepns = remaining
+			}
 		}
+		futexsleep(&mp.waitsema, 0, sleepns)
 	}
 }
 
 //go:nosplit
 func semawakeup(mp *m) {
 	v := atomic.Xadd(&mp.waitsema, 1)
-	if v == 0 {
+	if v == 1 {
 		futexwakeup(&mp.waitsema, 1)
 	}
 }
