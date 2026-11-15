@@ -99,6 +99,15 @@ _cgo_libc_openat(argset_t* x) {
 }
 
 void
+_cgo_libc_faccessat(argset_t* x) {
+	int dirfd = (int)x->args[0];
+	const char* pathname = (const char*)x->args[1];
+	int mode = (int)x->args[2];
+	int flags = (int)x->args[3];
+	SET_RETVAL(faccessat(dirfd, pathname, mode, flags));
+}
+
+void
 _cgo_libc_close(argset_t* x) {
 	int fd = (int)x->args[0];
 	SET_RETVAL(close(fd));

@@ -26,6 +26,7 @@ func rawSyscall6(trap, nargs, a1, a2, a3, a4, a5, a6 uintptr) (r1, r2 uintptr, e
 //go:cgo_import_static _cgo_libc_linkat
 //go:cgo_import_static _cgo_libc_symlinkat
 //go:cgo_import_static _cgo_libc_unlinkat
+//go:cgo_import_static _cgo_libc_faccessat
 
 //go:linkname libc_openat _cgo_libc_openat
 //go:linkname libc_fstatat _cgo_libc_fstatat
@@ -37,6 +38,7 @@ func rawSyscall6(trap, nargs, a1, a2, a3, a4, a5, a6 uintptr) (r1, r2 uintptr, e
 //go:linkname libc_linkat _cgo_libc_linkat
 //go:linkname libc_symlinkat _cgo_libc_symlinkat
 //go:linkname libc_unlinkat _cgo_libc_unlinkat
+//go:linkname libc_faccessat _cgo_libc_faccessat
 
 type libcFunc byte
 
@@ -50,7 +52,8 @@ var (
 	libc_renameat,
 	libc_linkat,
 	libc_symlinkat,
-	libc_unlinkat libcFunc
+	libc_unlinkat,
+	libc_faccessat libcFunc
 )
 
 const (
@@ -59,6 +62,7 @@ const (
 
 	AT_SYMLINK_NOFOLLOW = 0x200
 	AT_REMOVEDIR        = 0x200
+	AT_EACCESS          = 0x400
 )
 
 func Unlinkat(dirfd int, path string, flags int) error {
@@ -271,5 +275,20 @@ func Symlinkat(oldpath string, newdirfd int, newpath string) error {
 }
 
 func Eaccess(path string, mode uint32) error {
-	return syscall.ENOSYS
+	p, err := syscall.BytePtrFromString(path)
+	if err != nil {
+		return err
+	}
+	dirfd := AT_FDCWD
+	_, _, errno := syscall6(uintptr(unsafe.Pointer(&libc_faccessat)), 4,
+		uintptr(dirfd),
+		uintptr(unsafe.Pointer(p)),
+		uintptr(mode),
+		uintptr(AT_EACCESS),
+		0, 0)
+	runtime.KeepAlive(p)
+	if errno != 0 {
+		return errno
+	}
+	return nil
 }
